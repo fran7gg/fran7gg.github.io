@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GPZEHQ9KJH"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GPZEHQ9KJH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Configurações | FRAN7</title>
+    <link rel="icon" type="image/png" href="assets/images/logoo.png.png">
+    <link rel="stylesheet" href="assets/css/tema-automatico.css">
+    <script src="assets/js/configuracoes.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: var(--fran7-theme-bg);
+            color: var(--fran7-theme-text);
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cabecalho {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 14px max(5%, calc((100% - 1120px) / 2));
+            border-bottom: 1px solid var(--fran7-theme-border);
+        }
+
+        .marca img {
+            display: block;
+            width: 130px;
+            max-height: 48px;
+            object-fit: contain;
+        }
+
+        .voltar {
+            margin-left: auto;
+            color: var(--fran7-theme-text);
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        main {
+            width: min(760px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 64px 0;
+            flex: 1;
+        }
+
+        .intro-label {
+            margin: 0 0 10px;
+            color: var(--fran7-theme-muted);
+            font-size: 10px;
+            letter-spacing: .2em;
+        }
+
+        h1 {
+            margin: 0 0 42px;
+            font-size: clamp(30px, 7vw, 42px);
+            font-weight: 600;
+        }
+
+        p {
+            margin: 0;
+            color: var(--fran7-theme-muted);
+            line-height: 1.7;
+        }
+
+        .rodape {
+            padding: 24px 20px;
+            border-top: 1px solid var(--fran7-theme-border);
+            color: var(--fran7-theme-muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .rodape img {
+            display: block;
+            width: 110px;
+            max-height: 42px;
+            margin: 0 auto 12px;
+            object-fit: contain;
+        }
+
+        :root[data-fran7-theme="dark"] .rodape img {
+            filter: brightness(0) invert(1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-fran7-theme="light"]) .rodape img {
+                filter: brightness(0) invert(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cabecalho { gap: 10px; padding: 12px 16px; }
+            .marca { flex: 0 0 auto; }
+            .marca img { width: min(100px, 28vw); }
+            .voltar {
+                min-width: 0;
+                max-width: calc(100% - 116px);
+                overflow: hidden;
+                font-size: 10px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            main { width: calc(100% - 32px); padding-top: 44px; }
+            h1 { margin-bottom: 32px; }
+        }
+    </style>
+</head>
+<body class="fran7-subpage">
+    <header class="cabecalho">
+        <a class="marca" href="inicio.html" aria-label="FRAN7, voltar ao início">
+            <img src="assets/images/logo.png.png" alt="FRAN7">
+        </a>
+        <a class="voltar" href="inicio.html">VOLTAR À LOJA</a>
+    </header>
+    <main>
+        <p class="intro-label">FRAN7</p>
+        <h1>Configurações</h1>
+        <p>As opções de tema já ficam automáticas com base no sistema e no logo.</p>
+    </main>
+    <footer class="rodape">
+        <img src="assets/images/logo.png.png" alt="FRAN7">
+        FRAN7 © 2026 — GRIEF &amp; GLORY. Todos os direitos reservados.
+    </footer>
+</body>
+</html>

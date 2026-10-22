@@ -1,0 +1,3202 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GPZEHQ9KJH"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GPZEHQ9KJH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- =====================================================
+         ÍCONE DA ABA DO NAVEGADOR — FRAN7
+    ===================================================== -->
+
+    <link rel="icon" type="image/png" href="./flux-favicon-light.png" sizes="128x128">
+    <link rel="icon" type="image/png" href="./flux-favicon-dark.png" media="(prefers-color-scheme: dark)">
+    <link rel="icon" type="image/png" href="./flux-favicon-light.png" media="(prefers-color-scheme: light)">
+    <link rel="apple-touch-icon" href="./flux-logo.png">
+
+    <title>FRAN7 | Grief &amp; Glory</title>
+    <meta name="description" content="Conheça a nova coleção e estilo único da FRAN7.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://fran7official.github.io/Fran7/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_PT">
+    <meta property="og:site_name" content="FRAN7">
+    <meta property="og:title" content="FRAN7 | Grief &amp; Glory">
+    <meta property="og:description" content="Conheça a nova coleção e estilo único da FRAN7.">
+    <meta property="og:url" content="https://fran7official.github.io/Fran7/">
+    <meta property="og:image" content="https://fran7official.github.io/Fran7/flux-logo.png">
+    <meta property="og:image:alt" content="Logótipo da FRAN7">
+    <meta property="og:image:type" content="image/png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FRAN7 | Grief &amp; Glory">
+    <meta name="twitter:description" content="Conheça a nova coleção e estilo único da FRAN7.">
+    <meta name="twitter:image" content="https://fran7official.github.io/Fran7/flux-logo.png">
+    <meta name="twitter:image:alt" content="Logótipo da FRAN7">
+
+    <script src="assets/js/entrada-site.js"></script>
+    <link rel="stylesheet" href="assets/css/assistente.css">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css">
+    <link rel="stylesheet" href="assets/css/informacoes-modal.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            color-scheme: light dark;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+
+            transition:
+                background-color 0.3s ease,
+                color 0.3s ease;
+        }
+
+        /* =====================================================
+           TELA DE CARREGAMENTO
+        ===================================================== */
+
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 99999;
+
+            transition:
+                opacity 0.8s ease,
+                visibility 0.8s ease;
+        }
+
+        #loading-screen.saindo {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .fran7-entrada-ja-feita #loading-screen {
+            display: none;
+        }
+
+        .loading-logo {
+            width: 180px;
+            max-width: 65vw;
+
+            filter: brightness(0);
+
+            animation:
+                logoZoom
+                5s
+                ease-in-out
+                infinite;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            #loading-screen {
+                background: #000;
+            }
+
+            .loading-logo {
+                filter: brightness(0) invert(1);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            #loading-screen {
+                background: #fff;
+            }
+
+            .loading-logo {
+                filter: brightness(0);
+            }
+        }
+
+        @keyframes logoZoom {
+
+            0% {
+                opacity: 0.70;
+                transform: scale(0.88);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.08);
+            }
+
+            100% {
+                opacity: 0.70;
+                transform: scale(0.88);
+            }
+
+        }
+
+        /* =====================================================
+           TEMA ESCURO
+        ===================================================== */
+
+        @media (prefers-color-scheme: dark) {
+
+            body {
+                background: #000;
+                color: #fff;
+            }
+
+            header {
+                background: rgba(0,0,0,0.90);
+                border-bottom: 1px solid #151515;
+            }
+
+            .logo {
+                filter: brightness(0) invert(1);
+            }
+
+            .menu {
+                background: rgba(10,10,10,0.98);
+                border-color: #333;
+            }
+
+            .menu a {
+                color: #fff;
+            }
+
+            .menu a:hover {
+                background: #fff;
+                color: #000;
+            }
+
+            .link-utilizador {
+                color: #fff;
+            }
+
+            .link-utilizador:hover {
+                border-color: #444;
+                background: #111;
+            }
+
+            .botao-parceria {
+                color: #fff;
+            }
+
+            .menu-btn {
+                color: #fff;
+            }
+
+            .hero {
+                background:
+                    radial-gradient(
+                        circle at center,
+                        #1b1b1b 0%,
+                        #050505 55%
+                    );
+            }
+
+            .hero-label {
+                color: #999;
+            }
+
+            .hero p {
+                color: #aaa;
+            }
+
+            .imagem-colecao {
+                border-color: #292929;
+
+                box-shadow:
+                    0 25px 80px
+                    rgba(0,0,0,0.55);
+            }
+
+            .botao {
+                border-color: #fff;
+                color: #fff;
+            }
+
+            .botao:hover {
+                background: #fff;
+                color: #000;
+            }
+
+            .categorias,
+            .produtos,
+            .catalogo {
+                border-color: #1c1c1c;
+            }
+
+            .categoria {
+                border-color: #2c2c2c;
+
+                background:
+                    linear-gradient(
+                        145deg,
+                        #111,
+                        #080808
+                    );
+            }
+
+            .categoria:hover {
+                border-color: #fff;
+            }
+
+            .categoria span {
+                color: #777;
+            }
+
+            .produto {
+                background: #0d0d0d;
+                border-color: #252525;
+            }
+
+            .produto:hover {
+                border-color: #555;
+            }
+
+            .produto-imagem {
+                background:
+                    linear-gradient(
+                        135deg,
+                        #191919,
+                        #090909
+                    );
+
+                color: #fff;
+            }
+
+            .produto-tag {
+                color: #777;
+            }
+
+            .produto-info p {
+                color: #888;
+            }
+
+            .botao-produto {
+                color: #fff;
+                border-color: #444;
+            }
+
+            .botao-produto:hover {
+                background: #fff;
+                color: #000;
+            }
+
+            .catalogo {
+                background: #080808;
+            }
+
+            .catalogo p {
+                color: #999;
+            }
+
+            .redes {
+                border-color: #222;
+            }
+
+            .redes p {
+                color: #888;
+            }
+
+            footer {
+                border-color: #222;
+                color: #666;
+            }
+
+            .overlay-registo {
+                background:
+                    rgba(0,0,0,0.70);
+            }
+
+            .aviso-registo {
+                background:
+                    linear-gradient(
+                        145deg,
+                        #151515,
+                        #050505
+                    );
+
+                border-color: #3a3a3a;
+            }
+
+            .fechar-aviso {
+                background: #202020;
+                color: #fff;
+            }
+
+            .fechar-aviso:hover {
+                background: #fff;
+                color: #000;
+            }
+
+            .icone-registo {
+                border-color: #555;
+                background: #101010;
+            }
+
+            .aviso-registo p {
+                color: #999;
+            }
+
+            .btn-registar {
+                background: #fff;
+                color: #000;
+            }
+
+            .btn-continuar {
+                color: #777;
+            }
+
+            .btn-continuar:hover {
+                color: #fff;
+            }
+
+        }
+
+        /* =====================================================
+           TEMA CLARO
+        ===================================================== */
+
+        @media (prefers-color-scheme: light) {
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            header {
+                background: rgba(255,255,255,0.94);
+                border-bottom: 1px solid #ddd;
+            }
+
+            .logo {
+                filter: brightness(0);
+            }
+
+            .menu {
+                background: #fff;
+                border-color: #ddd;
+
+                box-shadow:
+                    0 20px 60px
+                    rgba(0,0,0,0.12);
+            }
+
+            .menu a {
+                color: #000;
+            }
+
+            .menu a:hover {
+                background: #000;
+                color: #fff;
+            }
+
+            .link-utilizador {
+                color: #000;
+            }
+
+            .link-utilizador:hover {
+                border-color: #ddd;
+                background: #f5f5f5;
+            }
+
+            .botao-parceria {
+                color: #000;
+            }
+
+            .menu-btn {
+                color: #000;
+            }
+
+            .hero {
+                background:
+                    radial-gradient(
+                        circle at center,
+                        #f5f5f5 0%,
+                        #fff 60%
+                    );
+            }
+
+            .hero-label {
+                color: #777;
+            }
+
+            .hero p {
+                color: #666;
+            }
+
+            .imagem-colecao {
+                border-color: #ddd;
+
+                box-shadow:
+                    0 25px 80px
+                    rgba(0,0,0,0.12);
+            }
+
+            .botao {
+                border-color: #000;
+                color: #000;
+            }
+
+            .botao:hover {
+                background: #000;
+                color: #fff;
+            }
+
+            .categorias,
+            .produtos,
+            .catalogo {
+                border-color: #ddd;
+            }
+
+            .categoria {
+                border-color: #ddd;
+                background: #fff;
+            }
+
+            .categoria:hover {
+                border-color: #000;
+                background: #f2f2f2;
+            }
+
+            .categoria span {
+                color: #777;
+            }
+
+            .produto {
+                background: #fff;
+                border-color: #ddd;
+            }
+
+            .produto:hover {
+                border-color: #999;
+            }
+
+            .produto-imagem {
+                background: #f5f5f5;
+                color: #000;
+            }
+
+            .produto-tag {
+                color: #777;
+            }
+
+            .produto-info p {
+                color: #666;
+            }
+
+            .botao-produto {
+                color: #000;
+                border-color: #bbb;
+            }
+
+            .botao-produto:hover {
+                background: #000;
+                color: #fff;
+            }
+
+            .catalogo {
+                background: #fff;
+            }
+
+            .catalogo p {
+                color: #666;
+            }
+
+            .redes {
+                border-color: #ddd;
+            }
+
+            .redes p {
+                color: #666;
+            }
+
+            footer {
+                border-color: #ddd;
+                color: #777;
+            }
+
+            .overlay-registo {
+                background:
+                    rgba(255,255,255,0.70);
+            }
+
+            .aviso-registo {
+                background:
+                    linear-gradient(
+                        145deg,
+                        #fff,
+                        #f5f5f5
+                    );
+
+                border-color: #ddd;
+
+                box-shadow:
+                    0 30px 100px
+                    rgba(0,0,0,0.18);
+            }
+
+            .fechar-aviso {
+                background: #eee;
+                color: #000;
+            }
+
+            .fechar-aviso:hover {
+                background: #000;
+                color: #fff;
+            }
+
+            .icone-registo {
+                border-color: #ccc;
+                background: #f5f5f5;
+            }
+
+            .aviso-registo p {
+                color: #666;
+            }
+
+            .btn-registar {
+                background: #000;
+                color: #fff;
+            }
+
+            .btn-continuar {
+                color: #777;
+            }
+
+            .btn-continuar:hover {
+                color: #000;
+            }
+
+        }
+
+        /* =====================================================
+           CABEÇALHO
+        ===================================================== */
+
+        header {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 20px 40px;
+
+            z-index: 1000;
+
+            backdrop-filter: blur(15px);
+        }
+
+        /* =====================================================
+           LOGOTIPO
+        ===================================================== */
+
+        .logo {
+
+            content: url("assets/images/logo.png.png");
+
+            position: absolute;
+
+            top: 20px;
+            left: 40px;
+
+            width: 150px;
+            height: auto;
+
+            display: block;
+
+            z-index: 1001;
+
+            animation:
+                entradaLogo
+                1.5s
+                ease-out;
+        }
+
+        @keyframes entradaLogo {
+
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+        /* =====================================================
+           ÁREA DO UTILIZADOR
+        ===================================================== */
+
+        .area-utilizador {
+            position: absolute;
+
+            right: 125px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .link-utilizador {
+            display: flex;
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 10px 13px;
+
+            text-decoration: none;
+
+            font-size: 12px;
+            font-weight: bold;
+
+            letter-spacing: 0.5px;
+
+            border: 1px solid transparent;
+            border-radius: 30px;
+
+            transition: 0.3s ease;
+
+            white-space: nowrap;
+        }
+
+        .icone-utilizador {
+            font-size: 19px;
+        }
+
+        /* =====================================================
+           CORAÇÃO
+        ===================================================== */
+
+        .botao-parceria {
+            position: absolute;
+
+            right: 72px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            z-index: 1002;
+        }
+
+        .icone-amigos {
+            font-size: 27px;
+
+            animation:
+                movimentoAmigos
+                1.5s
+                ease-in-out
+                infinite;
+        }
+
+        .notificacao-parceria {
+            position: absolute;
+
+            top: -2px;
+            right: -1px;
+
+            width: 19px;
+            height: 19px;
+
+            background: #00d26a;
+            color: #fff;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            box-shadow:
+                0 0 0 2px #000,
+                0 0 12px
+                rgba(0,210,106,0.7);
+        }
+
+        @keyframes movimentoAmigos {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+
+        }
+
+        /* =====================================================
+           BOTÃO MENU
+        ===================================================== */
+
+        .menu-btn {
+            position: absolute;
+
+            right: 25px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            background: transparent;
+
+            border: 0;
+
+            font-size: 32px;
+
+            cursor: pointer;
+
+            z-index: 1002;
+
+            transition: 0.3s;
+        }
+
+        .menu-btn:hover {
+            transform:
+                translateY(-50%)
+                scale(1.1);
+        }
+
+        /* =====================================================
+           MENU
+        ===================================================== */
+
+        .menu {
+            display: none;
+
+            position: absolute;
+
+            right: 25px;
+            top: 75px;
+
+            width: 235px;
+
+            border: 1px solid;
+
+            border-radius: 18px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.6);
+        }
+
+        .menu.aberto {
+            display: block;
+
+            animation:
+                menuEntrada
+                0.25s
+                ease-out;
+        }
+
+        @keyframes menuEntrada {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    translateY(-10px)
+                    scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateY(0)
+                    scale(1);
+            }
+
+        }
+
+        .menu a {
+            display: block;
+
+            text-decoration: none;
+
+            padding: 17px 20px;
+
+            transition: 0.25s;
+        }
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+            min-height: 100vh;
+
+            padding:
+                140px 25px 90px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .hero-label {
+            font-size: 13px;
+
+            letter-spacing: 5px;
+
+            margin-bottom: 20px;
+
+            text-transform: uppercase;
+        }
+
+        .hero p {
+            font-size: 19px;
+
+            line-height: 1.7;
+
+            max-width: 650px;
+
+            margin:
+                0 auto 38px;
+        }
+
+        .imagem-colecao {
+            width: 100%;
+            max-width: 700px;
+
+            height: 800px;
+
+            object-fit: cover;
+
+            display: block;
+
+            margin:
+                0 auto 40px;
+
+            border-radius: 25px;
+
+            transition: 0.5s;
+        }
+
+        .imagem-colecao:hover {
+            transform: scale(1.015);
+        }
+
+        .botao {
+            display: inline-block;
+
+            padding:
+                16px 36px;
+
+            border:
+                1px solid;
+
+            border-radius: 50px;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+
+            transition: 0.3s;
+
+            cursor: pointer;
+        }
+
+        /* =====================================================
+           SEÇÕES
+        ===================================================== */
+
+        .categorias,
+        .produtos,
+        .catalogo {
+            padding:
+                110px 25px;
+
+            border-top:
+                1px solid;
+        }
+
+        .titulo {
+            text-align: center;
+
+            font-size: 42px;
+
+            margin-bottom: 55px;
+
+            letter-spacing: 2px;
+        }
+
+        .subtitulo {
+            text-align: center;
+
+            margin-top: -35px;
+
+            margin-bottom: 50px;
+        }
+
+        /* =====================================================
+           CATEGORIAS
+        ===================================================== */
+
+        .categorias-grid {
+            max-width: 1150px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 20px;
+        }
+
+        .categoria {
+            min-height: 210px;
+
+            border:
+                1px solid;
+
+            border-radius: 22px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            transition:
+                0.35s;
+
+            cursor: pointer;
+        }
+
+        .categoria:hover {
+            transform:
+                translateY(-8px);
+        }
+
+        .categoria span {
+            display: block;
+
+            font-size: 12px;
+
+            letter-spacing: 3px;
+
+            margin-bottom: 12px;
+        }
+
+        .categoria h3 {
+            font-size: 26px;
+        }
+
+        /* =====================================================
+           PRODUTOS
+        ===================================================== */
+
+        .produtos-grid {
+            max-width: 1150px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 25px;
+        }
+
+        .produto {
+            border:
+                1px solid;
+
+            border-radius: 22px;
+
+            overflow: hidden;
+
+            transition:
+                0.35s;
+        }
+
+        .produto:hover {
+            transform:
+                translateY(-8px);
+
+            box-shadow:
+                0 20px 50px
+                rgba(0,0,0,0.35);
+        }
+
+        .produto-imagem {
+            height: 300px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 13px;
+
+            overflow: hidden;
+        }
+
+        .produto-imagem img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: contain;
+        }
+
+        .produto-info {
+            padding: 25px;
+        }
+
+        .produto-tag {
+            font-size: 11px;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 10px;
+        }
+
+        .produto-info h3 {
+            margin-bottom: 10px;
+
+            font-size: 21px;
+        }
+
+        .produto-info p {
+            margin-bottom: 18px;
+        }
+
+        .preco {
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin-bottom: 20px;
+        }
+
+        .botao-produto {
+            display: inline-block;
+
+            padding:
+                12px 23px;
+
+            border:
+                1px solid;
+
+            border-radius: 30px;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            transition:
+                0.3s;
+
+            cursor: pointer;
+        }
+
+        /* =====================================================
+           CATÁLOGO
+        ===================================================== */
+
+        .catalogo {
+            text-align: center;
+        }
+
+        .catalogo p {
+            margin:
+                15px auto 35px;
+
+            max-width: 650px;
+
+            line-height: 1.7;
+        }
+
+        /* =====================================================
+           REDES / CONTACTOS
+        ===================================================== */
+
+        .redes {
+            padding:
+                80px 25px;
+
+            border-top:
+                1px solid;
+
+            text-align: center;
+        }
+
+        .redes h2 {
+            font-size: 32px;
+
+            margin-bottom: 12px;
+        }
+
+        .redes p {
+            margin-bottom: 35px;
+        }
+
+        .redes-grid {
+            max-width: 850px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 18px;
+        }
+
+        .rede {
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 12px;
+
+            min-height: 65px;
+
+            border-radius: 15px;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+            transition:
+                0.3s;
+        }
+
+        .rede:hover {
+            transform:
+                translateY(-5px);
+        }
+
+        .rede-instagram {
+            background:
+                linear-gradient(
+                    45deg,
+                    #feda75,
+                    #fa7e1e,
+                    #d62976,
+                    #962fbf,
+                    #4f5bd5
+                );
+        }
+
+        .rede-whatsapp {
+            background: #25D366;
+        }
+
+        .rede-email {
+            background: #EA4335;
+        }
+
+        .icone {
+            font-size: 24px;
+        }
+
+        /* =====================================================
+           RODAPÉ
+        ===================================================== */
+
+        .slogan-final {
+            text-align: center;
+
+            padding:
+                70px 20px 35px;
+
+            font-size: 24px;
+
+            font-weight: 700;
+
+            letter-spacing: 6px;
+        }
+
+        footer {
+            border-top:
+                1px solid;
+
+            padding:
+                45px 20px;
+
+            text-align: center;
+
+            font-size: 14px;
+        }
+
+        /* =====================================================
+           NOTIFICAÇÃO DE REGISTO
+        ===================================================== */
+
+        .overlay-registo {
+            position: fixed;
+
+            inset: 0;
+
+            backdrop-filter:
+                blur(8px);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            z-index: 5000;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition:
+                0.4s ease;
+        }
+
+        .overlay-registo.ativo {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .aviso-registo {
+            position: relative;
+
+            width: 100%;
+
+            max-width: 480px;
+
+            border:
+                1px solid;
+
+            border-radius: 28px;
+
+            padding:
+                42px 32px;
+
+            text-align: center;
+
+            transform:
+                translateY(35px)
+                scale(0.94);
+
+            transition:
+                0.45s
+                cubic-bezier(
+                    .2,.8,.2,1
+                );
+        }
+
+        .overlay-registo.ativo
+        .aviso-registo {
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+        .fechar-aviso {
+            position: absolute;
+
+            top: 14px;
+            right: 16px;
+
+            width: 38px;
+            height: 38px;
+
+            border: 0;
+
+            border-radius: 50%;
+
+            font-size: 22px;
+
+            cursor: pointer;
+
+            transition:
+                0.3s;
+        }
+
+        .fechar-aviso:hover {
+            transform:
+                rotate(90deg);
+        }
+
+        .icone-registo {
+            width: 72px;
+            height: 72px;
+
+            margin:
+                0 auto 22px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 30px;
+
+            border:
+                1px solid;
+
+            animation:
+                pulsarRegisto
+                2s
+                infinite;
+        }
+
+        @keyframes pulsarRegisto {
+
+            0% {
+                box-shadow:
+                    0 0 0 0
+                    rgba(255,255,255,0.15);
+            }
+
+            70% {
+                box-shadow:
+                    0 0 0 15px
+                    rgba(255,255,255,0);
+            }
+
+            100% {
+                box-shadow:
+                    0 0 0 0
+                    rgba(255,255,255,0);
+            }
+
+        }
+
+        .aviso-registo h2 {
+            font-size: 27px;
+
+            margin-bottom: 15px;
+        }
+
+        .aviso-registo p {
+            line-height: 1.7;
+
+            font-size: 15px;
+
+            margin-bottom: 28px;
+        }
+
+        .botoes-aviso {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 10px;
+        }
+
+        .btn-registar {
+            display: block;
+
+            width: 100%;
+
+            padding:
+                15px;
+
+            border-radius: 50px;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+            transition:
+                0.3s;
+        }
+
+        .btn-registar:hover {
+            transform:
+                translateY(-3px);
+        }
+
+        .btn-continuar {
+            border: 0;
+
+            background: transparent;
+
+            padding: 12px;
+
+            cursor: pointer;
+
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           RESPONSIVO
+        ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .area-utilizador {
+                right: 105px;
+            }
+
+            .link-utilizador {
+                padding:
+                    8px 7px;
+            }
+
+            .categorias-grid,
+            .produtos-grid {
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+        }
+
+        @media (max-width: 750px) {
+
+            header {
+                height: 90px;
+
+                padding:
+                    14px 18px;
+            }
+
+            .logo {
+                width: 120px;
+
+                top: 15px;
+                left: 18px;
+            }
+
+            .area-utilizador {
+                right: 105px;
+
+                gap: 3px;
+            }
+
+            .link-utilizador {
+                font-size: 0;
+
+                padding: 9px;
+            }
+
+            .link-utilizador
+            .icone-utilizador {
+                font-size: 20px;
+            }
+
+            .botao-parceria {
+                right: 60px;
+            }
+
+            .menu-btn {
+                right: 15px;
+            }
+
+            .hero {
+                padding-top: 120px;
+            }
+
+            .imagem-colecao {
+                height: 380px;
+            }
+
+            .categorias-grid,
+            .produtos-grid,
+            .redes-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .titulo {
+                font-size: 34px;
+            }
+
+            .slogan-final {
+                font-size: 16px;
+
+                letter-spacing: 3px;
+            }
+
+        }
+
+        /* =====================================================
+           REDUÇÃO DE MOVIMENTO
+        ===================================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .loading-logo,
+            .logo,
+            .icone-amigos,
+            .icone-registo {
+                animation: none !important;
+            }
+
+        }
+
+        .announcement-bar {
+            min-height: 32px;
+            padding: 7px 4.5%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: #090909;
+            color: #d0d0d0;
+            font-size: 9px;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+        }
+
+        .announcement-bar a {
+            color: inherit;
+            text-decoration: none;
+            letter-spacing: .5px;
+        }
+
+        header {
+            position: sticky;
+            top: 32px;
+            left: auto;
+            width: 100%;
+            height: 88px;
+            justify-content: space-between;
+            gap: 32px;
+            padding: 12px 4.5%;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, .9);
+            border-bottom: 1px solid #151515;
+            backdrop-filter: blur(15px);
+        }
+
+        .logo {
+            position: relative;
+            inset: auto;
+            flex: 0 0 auto;
+            width: 150px;
+            max-height: 54px;
+            object-fit: contain;
+            animation: none;
+        }
+
+        .header-primary-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(16px, 2.5vw, 34px);
+            margin: 0 auto;
+        }
+
+        .header-primary-nav a {
+            color: inherit;
+            font-size: 11px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .header-primary-nav a:hover {
+            opacity: .65;
+        }
+
+        .area-utilizador {
+            position: relative;
+            top: auto;
+            right: auto;
+            margin-right: 36px;
+            margin-left: auto;
+            gap: 6px;
+            transform: none;
+        }
+
+        .link-utilizador {
+            padding: 10px 12px;
+        }
+
+        .hero {
+            min-height: 0;
+            padding: 60px 24px 88px;
+            background: radial-gradient(ellipse at 50% 24%, #171717 0%, #0a0a0a 54%, #080808 100%);
+            color: #f5f5f5;
+        }
+
+        .hero-title {
+            margin: 0 auto 22px;
+            font-size: clamp(38px, 6vw, 66px);
+            font-weight: 800;
+            letter-spacing: -2.5px;
+            line-height: 1.08;
+            text-transform: uppercase;
+        }
+
+        .hero-title span {
+            display: block;
+            color: #858585;
+        }
+
+        .hero p {
+            max-width: 610px;
+            margin: 0 auto 32px;
+            color: #aaa;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .imagem-colecao {
+            width: 100%;
+            max-width: 900px;
+            height: clamp(330px, 54vw, 620px);
+            margin: 0 auto;
+            border: 0;
+            border-radius: 24px;
+            filter: grayscale(1);
+            object-fit: cover;
+            object-position: center 35%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, .45);
+        }
+
+        .botao {
+            margin-top: 28px;
+            border-color: #777;
+            color: #f5f5f5;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+        }
+
+        .hero .botao:hover {
+            background: #fff;
+            color: #080808;
+        }
+
+        .titulo {
+            margin-bottom: 55px;
+            font-size: 42px;
+            letter-spacing: 2px;
+        }
+
+        .subtitulo {
+            color: #999;
+        }
+
+        .categoria,
+        .produto {
+            border-color: #292929;
+            background: linear-gradient(145deg, #111, #080808);
+        }
+
+        .categoria:hover,
+        .produto:hover {
+            border-color: #555;
+        }
+
+        .produto-imagem {
+            height: auto;
+            aspect-ratio: 4 / 5;
+        }
+
+        .produto-imagem img {
+            object-fit: cover;
+        }
+
+        .produto-info {
+            padding: 25px;
+        }
+
+        .preco {
+            font-size: 17px;
+        }
+
+        .catalogo {
+            background: #080808;
+            text-align: center;
+        }
+
+        .catalogo p,
+        .redes p {
+            color: #999;
+        }
+
+        .rede {
+            border: 1px solid #292929;
+            background: #0d0d0d;
+        }
+
+        .redes {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+            align-items: center;
+            gap: 70px;
+            padding: 110px max(6%, calc((100% - 1150px) / 2));
+            border: 0;
+            background: #080808;
+            color: #f4f4f4;
+            text-align: left;
+        }
+
+        .redes h2 {
+            max-width: 530px;
+            margin-bottom: 22px;
+            font-size: clamp(38px, 5vw, 58px);
+            letter-spacing: -2px;
+            line-height: 1.12;
+            text-transform: none;
+        }
+
+        .redes-grid {
+            width: 100%;
+            max-width: 480px;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .rede-instagram,
+        .rede-whatsapp,
+        .rede-email,
+        .rede-youtube {
+            background: #111;
+        }
+
+        .rede-instagram { border-color: #514653; }
+        .rede-whatsapp { border-color: #46554d; }
+        .rede-email { border-color: #574848; }
+        .rede-youtube { border-color: #55464a; }
+
+        .rede:hover {
+            transform: translateY(-2px);
+            background: #171717;
+        }
+
+        .rede {
+            min-height: 70px;
+            justify-content: flex-start;
+            gap: 20px;
+            padding: 0 24px;
+            border: 1px solid #363636;
+            border-radius: 18px;
+            background: #111;
+            color: #f4f4f4;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .rede::after {
+            margin-left: auto;
+            content: "↗";
+            font-size: 22px;
+        }
+
+        .icone svg {
+            display: block;
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1.8;
+        }
+
+        .rede-instagram .icone { color: #e1306c; }
+        .rede-whatsapp .icone { color: #25d366; }
+        .rede-youtube .icone svg,
+        .rede-email .icone svg { stroke: none; }
+        .rede-youtube .icone rect { fill: #ff0033; }
+        .rede-youtube .icone path { fill: #fff; }
+        .rede-email .icone .gmail-left { fill: none; stroke: #ea4335; }
+        .rede-email .icone .gmail-right { fill: none; stroke: #4285f4; }
+        .rede-email .icone .gmail-green { fill: none; stroke: #34a853; }
+        .rede-email .icone .gmail-yellow { fill: none; stroke: #fbbc04; }
+
+        .slogan-final {
+            display: none;
+        }
+
+        footer {
+            display: grid;
+            grid-template-columns: 1.5fr .8fr 1.1fr 1.35fr;
+            gap: 44px;
+            padding: 68px max(6%, calc((100% - 1150px) / 2)) 54px;
+            border: 0;
+            background: #111;
+            color: #bdbdbd;
+            font-size: 13px;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        .footer-brand img {
+            display: block;
+            width: 150px;
+            max-height: 54px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+
+        .footer-brand p {
+            margin-top: 22px;
+            color: #999;
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+        .footer-column h2 {
+            margin-bottom: 20px;
+            color: #929292;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            display: block;
+            width: fit-content;
+            margin: 0 0 10px;
+            color: #bdbdbd;
+            text-decoration: none;
+        }
+
+        .footer-column a:hover {
+            color: #fff;
+        }
+
+        .footer-social-links {
+            display: flex;
+            gap: 18px;
+            margin-top: 17px;
+        }
+
+        .footer-social-links a {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .footer-social-links svg {
+            display: block;
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1.8;
+        }
+
+        .footer-social-links a[aria-label="Instagram"] { color: #e1306c; }
+        .footer-social-links a[aria-label="WhatsApp"] { color: #25d366; }
+        .footer-social-links a[aria-label="Gmail"] { color: #ea4335; }
+        .footer-social-links a[aria-label="YouTube"] { color: #ff0033; }
+        .footer-social-links a[aria-label="YouTube"] svg { stroke: none; }
+        .footer-social-links a[aria-label="YouTube"] rect { fill: #ff0033; }
+        .footer-social-links a[aria-label="YouTube"] path { fill: #fff; }
+        .footer-social-links a[aria-label="Gmail"] svg { stroke: none; }
+        .footer-social-links .gmail-left { fill: none; stroke: #ea4335; }
+        .footer-social-links .gmail-right { fill: none; stroke: #4285f4; }
+        .footer-social-links .gmail-green { fill: none; stroke: #34a853; }
+        .footer-social-links .gmail-yellow { fill: none; stroke: #fbbc04; }
+
+        .footer-legal {
+            grid-column: 1 / -1;
+            padding-top: 20px;
+            border-top: 1px solid #292929;
+            color: #777;
+            font-size: 11px;
+        }
+
+        .overlay-registo {
+            z-index: 1200;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                gap: 18px;
+            }
+
+            .redes {
+                gap: 38px;
+            }
+
+            footer {
+                grid-template-columns: 1fr 1fr;
+                gap: 30px 24px;
+                padding-right: 6%;
+                padding-left: 6%;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .header-primary-nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 750px) {
+            .announcement-bar {
+                padding-right: 18px;
+                padding-left: 18px;
+                font-size: 8px;
+                letter-spacing: 1px;
+            }
+
+            .area-utilizador {
+                margin-right: 30px;
+            }
+
+            .link-utilizador {
+                padding: 8px;
+            }
+
+            .link-utilizador span:not(.icone-utilizador) {
+                display: none;
+            }
+
+            .hero {
+                padding: 52px 18px 68px;
+            }
+
+            .hero-title {
+                font-size: clamp(34px, 10vw, 46px);
+                letter-spacing: -1.8px;
+            }
+
+            .imagem-colecao {
+                height: 360px;
+                border-radius: 18px;
+            }
+
+            .redes {
+                grid-template-columns: 1fr;
+                gap: 36px;
+                padding: 76px 24px;
+            }
+
+            .redes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 54px 18px 36px;
+            }
+
+            .footer-legal {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 750px) {
+            .produtos {
+                overflow: hidden;
+                padding: 62px 0 72px;
+            }
+
+            .produtos .titulo {
+                margin: 0 18px 10px;
+                text-align: left;
+                font-size: 30px;
+            }
+
+            .produtos .subtitulo {
+                margin: 0 18px 18px;
+                text-align: left;
+            }
+
+            .produtos-grid {
+                display: grid;
+                width: 100%;
+                max-width: none;
+                grid-auto-flow: column;
+                grid-auto-columns: min(84%, 340px);
+                grid-template-columns: none;
+                gap: 14px;
+                margin: 0;
+                overflow-x: auto;
+                padding: 6px 18px 18px;
+                overscroll-behavior-x: contain;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-x pan-y;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none;
+            }
+
+            .produtos-grid::-webkit-scrollbar {
+                display: none;
+            }
+
+            .produto {
+                min-width: 0;
+                scroll-snap-align: start;
+            }
+
+            .produto-info {
+                padding: 16px;
+            }
+
+            .produto-tag {
+                font-size: 9px;
+                letter-spacing: 1.5px;
+            }
+
+            .produto-info h3 {
+                margin-bottom: 7px;
+                font-size: 18px;
+            }
+
+            .produto-info p {
+                margin-bottom: 12px;
+            }
+
+            .preco {
+                margin-bottom: 14px;
+            }
+
+            .redes {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+                padding: 48px 18px;
+            }
+
+            .redes h2,
+            .redes p,
+            .redes-grid {
+                grid-column: 1 / -1;
+            }
+
+            .redes h2 {
+                margin-bottom: 0;
+                font-size: 32px;
+            }
+
+            .redes p {
+                margin-bottom: 8px;
+                line-height: 1.6;
+            }
+
+            .redes-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .rede {
+                min-height: 54px;
+                gap: 9px;
+                padding: 0 12px;
+                border-radius: 13px;
+                font-size: 13px;
+            }
+
+            .rede::after {
+                font-size: 16px;
+            }
+
+            .icone svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            footer {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 24px 16px;
+                padding: 34px 18px 24px;
+            }
+
+            .footer-brand {
+                display: flex;
+                grid-column: 1 / -1;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .footer-brand img {
+                width: 74px;
+                max-height: 42px;
+                object-fit: contain;
+            }
+
+            .footer-brand p {
+                font-size: 10px;
+                letter-spacing: 1.5px;
+            }
+
+            .footer-column h2 {
+                margin-bottom: 12px;
+                font-size: 10px;
+            }
+
+            .footer-column a {
+                max-width: 100%;
+                margin-bottom: 8px;
+                font-size: 12px;
+                overflow-wrap: anywhere;
+            }
+
+            .footer-column:nth-of-type(4) {
+                display: grid;
+                grid-column: 1 / -1;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px 12px;
+                align-items: center;
+            }
+
+            .footer-column:nth-of-type(4) h2,
+            .footer-column:nth-of-type(4) .footer-social-links {
+                grid-column: 1 / -1;
+            }
+
+            .footer-column:nth-of-type(4) h2 {
+                margin-bottom: 0;
+            }
+
+            .footer-column:nth-of-type(4) > a {
+                margin: 0;
+            }
+
+            .footer-social-links {
+                justify-content: space-between;
+                gap: 14px;
+                margin-top: 4px;
+            }
+
+            .footer-legal {
+                grid-column: 1 / -1;
+                line-height: 1.5;
+            }
+
+            .link-utilizador {
+                min-width: 44px;
+                min-height: 44px;
+                justify-content: center;
+                padding: 0;
+            }
+
+            .link-utilizador .icone-utilizador {
+                font-size: clamp(14px, 4.2vw, 18px);
+                line-height: 1;
+            }
+
+            .area-utilizador {
+                right: 50px;
+            }
+
+            header .menu-btn {
+                display: grid;
+                width: 44px;
+                height: 44px;
+                place-items: center;
+                padding: 0;
+                font-size: 26px;
+                line-height: 1;
+            }
+        }
+
+        @media (max-width: 420px) {
+            header .menu-btn {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo {
+                width: 100px;
+                left: 14px;
+            }
+
+            .area-utilizador {
+                right: 36px;
+            }
+
+            header .menu-btn {
+                right: 12px;
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 300px) {
+            .logo {
+                width: 64px;
+                left: 8px;
+            }
+            .highlight-social {
+  background: linear-gradient(45deg, #e63946, #7209b7);
+  color: #ffffff !important;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.highlight-social:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+        }
+
+        footer .footer-brand p {
+            max-width: 260px;
+            margin: 10px 0 0;
+            color: #999;
+            font-size: 10px;
+            letter-spacing: .04em;
+            line-height: 1.6;
+        }
+
+    </style>
+    <link rel="stylesheet" href="assets/css/tema-automatico.css">
+    <script src="assets/js/configuracoes.js"></script>
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CARREGAMENTO
+    ===================================================== -->
+
+    <div id="loading-screen">
+
+        <img
+            src="assets/images/logo.png.png"
+            alt="FRAN7"
+            class="loading-logo"
+        >
+
+    </div>
+
+    <!-- =====================================================
+         CABEÇALHO
+    ===================================================== -->
+
+    <div class="announcement-bar">
+        <span>FRAN7 — GRIEF &amp; GLORY | EST. 17.04.2026</span>
+    </div>
+
+    <header>
+
+        <img
+            src="assets/images/logo.png.png"
+            alt="FRAN7"
+            class="logo"
+        >
+
+        <nav class="header-primary-nav" aria-label="Navegação principal">
+            <a href="#produtos" data-protegido="true">Nova coleção</a>
+            <a href="colecao.html?categoria=mulheres" data-protegido="true">Mulheres</a>
+            <a href="colecao.html?categoria=homens" data-protegido="true">Homens</a>
+            <a href="colecao.html?categoria=criancas" data-protegido="true">Crianças</a>
+            <a href="#informacoes" data-info-page="sobre">A marca ↗</a>
+            <a href="http://localhost:5173/" target="_blank" rel="noopener noreferrer" class="nav-link highlight-social" style="display: inline-flex; align-items: center; gap: 8px;">
+                <img src="assets/images/flux-logo.png" alt="" width="24" height="24" style="object-fit: cover; border-radius: 6px;">
+                FLUX ↗
+            </a>
+        </nav>
+
+        <!-- UTILIZADOR -->
+
+        <div class="area-utilizador">
+
+            <!-- CADASTRO -->
+
+            <a
+                href="registo.html"
+                class="link-utilizador"
+                title="Registar-se"
+            >
+
+                <span class="icone-utilizador">
+                    👤
+                </span>
+
+                <span>
+                    Registar-se
+                </span>
+
+            </a>
+
+            <!-- LOGIN -->
+
+            <a
+                href="registo.html?modo=login"
+                class="link-utilizador"
+                title="Iniciar sessão"
+            >
+
+                <span class="icone-utilizador">
+                    ↪
+                </span>
+
+                <span>
+                    Iniciar sessão
+                </span>
+
+            </a>
+
+        </div>
+
+        <!-- MENU -->
+
+        <button
+            class="menu-btn"
+            onclick="abrirMenu()"
+            aria-label="Abrir menu"
+        >
+            ⋮
+        </button>
+
+        <nav
+            class="menu"
+            id="menu"
+        >
+
+            <a href="#inicio">Início</a>
+
+            <a
+                href="#produtos"
+                data-protegido="true"
+            >
+                Produtos
+            </a>
+
+            <a
+                href="catalogo.html"
+                data-protegido="true"
+            >
+                Catálogo
+            </a>
+
+            <a href="colecao.html?categoria=mulheres" data-protegido="true">Mulheres</a>
+            <a href="colecao.html?categoria=homens" data-protegido="true">Homens</a>
+            <a href="colecao.html?categoria=criancas" data-protegido="true">Crianças</a>
+            <a href="configuracoes.html">Configurações</a>
+
+            <!-- CONTACTOS LIVRES -->
+
+            <a href="#contactos">Contactos</a>
+            <a href="registo.html">Registar-se</a>
+            <a href="registo.html?modo=login">Iniciar sessão</a>
+
+            <a href="registo.html">Registar-se</a>
+            <a href="registo.html?modo=login">Iniciar sessão</a>
+
+        </nav>
+
+    </header>
+
+    <!-- =====================================================
+         INÍCIO
+    ===================================================== -->
+
+    <section
+        class="hero"
+        id="inicio"
+    >
+
+        <div class="hero-content">
+
+            <div class="hero-label">
+                FRAN7
+            </div>
+
+            <h1 class="hero-title">
+                GRIEF &amp; GLORY.
+            </h1>
+
+            <p>
+                Nascida do luto. Feita para o legado.
+ 
+              </p>
+         <video
+class="imagem-colecao"
+autoplay
+muted
+loop
+playsinline
+preload="auto"
+style="width:100%; height:auto; display:block; object-fit:cover;"
+
+>
+
+```
+<source src="./VIDEOS%201.mp4" type="video/mp4">
+```
+
+```
+O teu navegador não suporta este vídeo.
+```
+
+</video>
+
+
+        </div>
+
+    </section>
+
+    <!-- =====================================================
+         PRODUTOS
+    ===================================================== -->
+
+    <section
+        class="produtos"
+        id="produtos"
+    >
+
+        <h2 class="titulo">
+            DESTAQUES
+        </h2>
+
+        <p class="subtitulo">
+            Peças selecionadas da FRAN7.
+        </p>
+
+        <div class="produtos-grid">
+
+            <!-- PRODUTO 1 -->
+
+            <div
+                class="produto"
+                data-protegido="true"
+                data-product-name="Modelo FRAN7 01"
+                data-product-price="11.000 Kz"
+                data-ai-model="Modelo FRAN7 01"
+                data-product-reserve="true"
+                data-gallery-images="assets/images/TRIBE.CASTANHA.jpeg|assets/images/TRIBLE.BEIGE.jpeg|assets/images/TIBLE.CINZA.jpeg"
+                data-gallery-colors="Preto|Castanho|Bege|Cinza"
+            >
+
+                <div class="produto-imagem">
+
+                    <img
+                        src="assets/images/1.jpg.jpeg"
+                        alt="T-shirt FRAN7"
+                    >
+
+                </div>
+
+                <div class="produto-info">
+
+                    <div class="produto-tag">
+                        FRAN7 COLLECTION
+                    </div>
+
+                    <h3>
+                        MODELO FRAN7 01
+                    </h3>
+
+                    <p>
+                        Nova coleção
+                    </p>
+
+                    <div class="preco">
+                        11.000 Kz
+                    </div>
+
+                    <a
+                        href="#"
+                        class="botao-produto"
+                        data-protegido="true"
+                    >
+                        RESERVAR
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUTO 2 -->
+
+            <div
+                class="produto"
+                data-protegido="true"
+                data-product-name="Modelo FRAN7 02"
+                data-product-price="7.000 Kz"
+                data-ai-model="Modelo FRAN7 02"
+                data-gallery-images=""
+                data-gallery-colors=""
+            >
+
+                <div class="produto-imagem">
+
+                    <img
+                        src="assets/images/2.JPG.jpeg"
+                        alt="T-shirt FRAN7"
+                    >
+
+                </div>
+
+                <div class="produto-info">
+
+                    <div class="produto-tag">
+                        FRAN7 COLLECTION
+                    </div>
+
+                    <h3>
+                        PRODUTO FRAN7
+                    </h3>
+
+                    <p>
+                        Nova coleção
+                    </p>
+
+                    <div class="preco">
+                        7.000 Kz
+                    </div>
+
+                    <a
+                        href="#"
+                        class="botao-produto"
+                        data-protegido="true"
+                    >
+                        VER PRODUTO
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUTO 3 -->
+
+            <div
+                class="produto"
+                data-protegido="true"
+                data-product-name="Modelo FRAN7 03"
+                data-product-price="7.000 Kz"
+                data-ai-model="Modelo FRAN7 03"
+                data-gallery-images=""
+                data-gallery-colors=""
+            >
+
+                <div class="produto-imagem">
+
+                <img
+                    src="assets/images/3.jpg.jpeg"
+                    alt="T-shirt FRAN7"
+                >
+
+                </div>
+
+                <div class="produto-info">
+
+                    <div class="produto-tag">
+                        FRAN7 COLLECTION
+                    </div>
+
+                    <h3>
+                        PRODUTO FRAN7
+                    </h3>
+
+                    <p>
+                        Nova coleção
+                    </p>
+
+                    <div class="preco">
+                        7.000 Kz
+                    </div>
+
+                    <a
+                        href="#"
+                        class="botao-produto"
+                        data-protegido="true"
+                    >
+                        VER PRODUTO
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- =====================================================
+         CATÁLOGO
+    ===================================================== -->
+
+    <section
+        class="catalogo"
+        id="catalogo"
+    >
+
+        <h2 class="titulo">
+            DESCUBRA A FRAN7
+        </h2>
+
+        <p>
+            Explora os nossos produtos e descobre
+            os próximos lançamentos da FRAN7.
+        </p>
+
+        <a
+            href="catalogo.html"
+            class="botao"
+            data-protegido="true"
+        >
+            VER CATÁLOGO
+        </a>
+
+    </section>
+
+    <!-- =====================================================
+         CONTACTOS
+    ===================================================== -->
+
+    <section
+        class="redes"
+        id="contactos"
+    >
+
+        <h2>
+            O legado continua.<br>Contigo.
+        </h2>
+
+        <p>
+            Novidades, inspiração e os próximos lançamentos.<br>
+            Encontra-nos nas nossas plataformas.
+        </p>
+
+        <div style="grid-column: 1 / -1; width: min(100%, 633px); display: flex; flex-direction: column; gap: 56px;">
+        <div class="redes-grid" style="width: 100%; max-width: 633px;">
+
+            <a
+                href="https://instagram.com/fran7.official"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rede rede-instagram"
+            >
+                <span class="icone">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="5"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <circle cx="17.5" cy="6.8" r=".8" fill="currentColor" stroke="none"/>
+                    </svg>
+                </span>
+                <span>Instagram</span>
+            </a>
+
+            <a
+                href="https://wa.me/244973560521"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rede rede-whatsapp"
+            >
+                <span class="icone">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.2 11.7a8.2 8.2 0 0 1-12.1 7.2L3 20l1.2-4.8a8.2 8.2 0 1 1 16-3.5Z"/>
+                        <path d="M8.4 7.8c.3-.5.7-.5 1-.5.2 0 .4 0 .5.4l.8 1.8c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.4.8 1.2 1.5 2 1.9.3.2.5.2.7-.1l.8-.9c.2-.3.4-.3.7-.2l1.7.8c.3.2.5.2.5.5 0 .3-.2 1.2-.8 1.6-.5.4-1.2.6-2 .4-1-.2-2.2-.8-3.6-2-1.2-1.1-2-2.4-2.3-3.3-.3-.9.1-1.8.7-2.5Z"/>
+                    </svg>
+                </span>
+                <span>WhatsApp</span>
+            </a>
+
+            <a
+                href="mailto:fran7officiall@gmail.com"
+                class="rede rede-email"
+            >
+                <span class="icone">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="gmail-yellow" d="M4 18V7"/>
+                        <path class="gmail-left" d="m4 7 8 6"/>
+                        <path class="gmail-green" d="m12 13 8-6"/>
+                        <path class="gmail-right" d="M20 7v11"/>
+                    </svg>
+                </span>
+                <span>Gmail</span>
+            </a>
+
+            <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rede rede-youtube"
+            >
+                <span class="icone">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="2.5" y="5" width="19" height="14" rx="4"/>
+                        <path d="m10 9 5 3-5 3z"/>
+                    </svg>
+                </span>
+                <span>YouTube</span>
+            </a>
+        </div>
+<!-- Secção de convite para a comunidade FLUX -->
+<section class="flux-community-card" style="width: calc(100% - 40px); max-width: 592px; margin: 0 auto; padding: 48px 24px; background: #111; color: #fff; text-align: center; border-radius: 12px;">
+  <h2 style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.2; margin-bottom: 14px;">
+    <img src="assets/images/flux-logo.png" alt="" width="42" height="42" style="flex: 0 0 42px; object-fit: contain; border-radius: 10px;">
+    Junta-te à Comunidade FLUX
+  </h2>
+  <p style="max-width: 460px; color: #aaa; line-height: 1.7; margin: 0 auto 26px;">Partilha os teus looks, conversa com outros criadores e descobre os novos lançamentos em primeira mão.</p>
+  <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" class="highlight-social" style="display: inline; background: transparent; color: #c5a0ff !important; font-size: 1.1rem; font-weight: 400; padding: 0; border-radius: 0; text-decoration: underline;">
+    Entrar no FLUX
+  </a>
+</section>
+        </div>
+       
+    <!-- =====================================================
+         RODAPÉ
+    ===================================================== -->
+
+    <footer>
+        <div class="footer-brand">
+            <img src="assets/images/logo.png.png" alt="FRAN7">
+            <p>FRAN7 © 2026 — GRIEF &amp; GLORY. Todos os direitos reservados.</p>
+        </div>
+
+        <div class="footer-column">
+            <h2>Explora</h2>
+            <a href="colecao.html?categoria=mulheres" data-protegido="true">Mulheres</a>
+            <a href="colecao.html?categoria=homens" data-protegido="true">Homens</a>
+            <a href="colecao.html?categoria=criancas" data-protegido="true">Crianças</a>
+        </div>
+
+        <div class="footer-column">
+            <h2>Informações</h2>
+            <a href="#informacoes" data-info-page="informacoes">Entregas e trocas</a>
+            <a href="#informacoes" data-info-page="privacidade">Privacidade</a>
+            <a href="#informacoes" data-info-page="termos">Termos e condições</a>
+            <a href="#informacoes" data-info-page="sobre">Sobre a FRAN7</a>
+            <a href="#informacoes" data-info-page="parcerias">Parcerias</a>
+            <a href="#informacoes" data-info-page="feedback">Feedback</a>
+        </div>
+
+        <div class="footer-column">
+            <h2>Fala connosco</h2>
+            <a href="mailto:fran7officiall@gmail.com">fran7officiall@gmail.com</a>
+            <a href="https://wa.me/244973560521" target="_blank" rel="noopener noreferrer">+244 973 560 521</a>
+            <div class="footer-social-links" aria-label="Redes sociais">
+                <a href="https://instagram.com/fran7.official" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="5"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <circle cx="17.5" cy="6.8" r=".8" fill="currentColor" stroke="none"/>
+                    </svg>
+                </a>
+                <a href="https://wa.me/244973560521" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.2 11.7a8.2 8.2 0 0 1-12.1 7.2L3 20l1.2-4.8a8.2 8.2 0 1 1 16-3.5Z"/>
+                        <path d="M8.4 7.8c.3-.5.7-.5 1-.5.2 0 .4 0 .5.4l.8 1.8c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.4.8 1.2 1.5 2 1.9.3.2.5.2.7-.1l.8-.9c.2-.3.4-.3.7-.2l1.7.8c.3.2.5.2.5.5 0 .3-.2 1.2-.8 1.6-.5.4-1.2.6-2 .4-1-.2-2.2-.8-3.6-2-1.2-1.1-2-2.4-2.3-3.3-.3-.9.1-1.8.7-2.5Z"/>
+                    </svg>
+                </a>
+                <a href="mailto:fran7officiall@gmail.com" aria-label="Gmail">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="gmail-yellow" d="M4 18V7"/>
+                        <path class="gmail-left" d="m4 7 8 6"/>
+                        <path class="gmail-green" d="m12 13 8-6"/>
+                        <path class="gmail-right" d="M20 7v11"/>
+                    </svg>
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="2.5" y="5" width="19" height="14" rx="4"/>
+                        <path d="m10 9 5 3-5 3z"/>
+                    </svg>
+                </a>
+                <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" aria-label="Comunidade FLUX">
+                    <img src="assets/images/flux-logo.png" alt="" width="24" height="24" style="display: block; object-fit: cover; border-radius: 6px;">
+                </a>
+            </div>
+        </div>
+
+    </footer>
+
+    <div id="fran7-ai">
+        <button
+            class="fran7-ai-button"
+            id="fran7AiOpen"
+            type="button"
+            aria-label="Abrir assistente FRAN7"
+            aria-controls="fran7AiWindow"
+            aria-expanded="false"
+        >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.2A7.5 7.5 0 1 1 20 11.5Z"/>
+                <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/>
+            </svg>
+        </button>
+
+        <section
+            class="fran7-ai-window"
+            id="fran7AiWindow"
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="fran7AiTitle"
+            hidden
+        >
+            <header class="fran7-ai-header">
+                <div class="fran7-ai-brand">
+                    <div class="fran7-ai-logo" aria-hidden="true">
+                        <span class="fran7-ai-avatar">
+                            <span class="fran7-ai-avatar-hand fran7-ai-avatar-hand-left"></span>
+                            <span class="fran7-ai-avatar-hand fran7-ai-avatar-hand-right"></span>
+                            <span class="fran7-ai-avatar-face"><span></span><span></span></span>
+                        </span>
+                    </div>
+                    <div class="fran7-ai-title">
+                        <strong id="fran7AiTitle">FRAN7 AI</strong>
+                        <span class="fran7-ai-status">
+                            <span class="fran7-ai-status-dot"></span>
+                            Assistente FRAN7
+                        </span>
+                    </div>
+                </div>
+                <button class="fran7-ai-close" id="fran7AiClose" type="button" aria-label="Fechar assistente">×</button>
+            </header>
+
+            <div class="fran7-ai-messages" id="fran7AiMessages" aria-live="polite">
+                <div class="fran7-ai-message bot">Olá! Sou a FRAN7 AI. Posso ajudar com dúvidas sobre a loja ou responder a outras perguntas.</div>
+            </div>
+
+            <div class="fran7-ai-quick" aria-label="Perguntas rápidas">
+                <button type="button" data-assistant-prompt="Quero ver os produtos">Produtos</button>
+                <button type="button" data-assistant-prompt="Apresenta todos os produtos do catálogo FRAN7">Catálogo completo</button>
+                <button type="button" data-assistant-prompt="Quais são os tamanhos?">Tamanhos</button>
+                <button type="button" data-assistant-prompt="Como funcionam as entregas?">Entregas</button>
+            </div>
+
+            <form class="fran7-ai-input-area" id="fran7AiForm">
+                <input
+                    type="text"
+                    id="fran7AiInput"
+                    class="fran7-ai-input"
+                    placeholder="Escreve uma mensagem..."
+                    autocomplete="off"
+                    aria-label="Mensagem para o assistente"
+                >
+                <button class="fran7-ai-send" id="fran7AiSend" type="submit" aria-label="Enviar mensagem">↑</button>
+            </form>
+        </section>
+    </div>
+
+    <!-- =====================================================
+         AVISO DE REGISTO / LOGIN
+    ===================================================== -->
+
+    <div
+        class="overlay-registo"
+        id="overlayRegisto"
+    >
+
+        <div class="aviso-registo">
+
+            <button
+                class="fechar-aviso"
+                onclick="fecharAviso()"
+                aria-label="Fechar"
+            >
+                ×
+            </button>
+
+            <div class="icone-registo">
+                👤
+            </div>
+
+            <h2>
+                Bem-vindo à FRAN7
+            </h2>
+
+            <p>
+                Cria a tua conta FRAN7 para continuar.
+                O cadastro é necessário para explorar
+                produtos, categorias, catálogo e outras
+                funcionalidades da loja.
+            </p>
+
+            <div class="botoes-aviso">
+
+                <!--
+                    CADASTRO
+                    Vai diretamente para registo.html
+                -->
+
+                <a
+                    href="registo.html"
+                    class="btn-registar"
+                >
+                    REGISTAR-SE AGORA
+                </a>
+
+                <!--
+                    LOGIN
+                    Abre o formulário de entrada na página de cadastro.
+                -->
+
+                <a
+                    href="registo.html?modo=login"
+                    class="btn-continuar"
+                    style="text-decoration:none; display:block;"
+                >
+                    JÁ TENHO UMA CONTA — ENTRAR
+                </a>
+
+                <!--
+                    CONTINUAR NA PÁGINA PRINCIPAL
+                -->
+
+                <button
+                    class="btn-continuar"
+                    onclick="fecharAviso()"
+                >
+                    Continuar a explorar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ===================================================== -->
+
+    <script>
+
+        /* =====================================================
+           MENU
+        ===================================================== */
+
+        function abrirMenu() {
+
+            const menu =
+                document.getElementById("menu");
+
+            menu.classList.toggle("aberto");
+
+        }
+
+        /* =====================================================
+           AVISO DE REGISTO / LOGIN
+        ===================================================== */
+
+        function mostrarAviso() {
+
+            const aviso =
+                document.getElementById(
+                    "overlayRegisto"
+                );
+
+            aviso.classList.add(
+                "ativo"
+            );
+
+            document.body.style.overflow =
+                "hidden";
+
+        }
+
+        function fecharAviso() {
+
+            const aviso =
+                document.getElementById(
+                    "overlayRegisto"
+                );
+
+            aviso.classList.remove(
+                "ativo"
+            );
+
+            document.body.style.overflow =
+                "";
+
+        }
+
+        /* =====================================================
+           ELEMENTOS PROTEGIDOS
+
+           Ao tentar entrar em categorias,
+           produtos, catálogo etc., aparece
+           a opção de REGISTAR-SE ou LOGIN.
+        ===================================================== */
+
+        document.addEventListener(
+            "click",
+            function(event) {
+
+                const elemento =
+                    event.target.closest(
+                        "[data-protegido='true']"
+                    );
+
+                if (!elemento) {
+                    return;
+                }
+
+                if (localStorage.getItem("sessaoFRAN7") === "true") {
+                    window.location.href = elemento.getAttribute("href") === "catalogo.html"
+                        ? "catalogo.html"
+                        : "inicio.html";
+                    return;
+                }
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                const menu =
+                    document.getElementById(
+                        "menu"
+                    );
+
+                if (menu) {
+
+                    menu.classList.remove(
+                        "aberto"
+                    );
+
+                }
+
+                mostrarAviso();
+
+            },
+            true
+        );
+
+        /* =====================================================
+           CARREGAMENTO
+        ===================================================== */
+
+        window.addEventListener(
+            "load",
+            function() {
+
+                if (localStorage.getItem("sessaoFRAN7") === "true") {
+                    window.location.replace("inicio.html");
+                    return;
+                }
+
+                setTimeout(
+                    function() {
+
+                        const loading =
+                            document.getElementById(
+                                "loading-screen"
+                            );
+
+                        loading.classList.add(
+                            "saindo"
+                        );
+                    },
+                    4000
+                );
+
+            }
+        );
+
+        /* =====================================================
+           CLICAR FORA DO AVISO
+        ===================================================== */
+
+        document
+            .getElementById("overlayRegisto")
+            .addEventListener(
+                "click",
+                function(event) {
+
+                    if (
+                        event.target === this
+                    ) {
+
+                        fecharAviso();
+
+                    }
+
+                }
+            );
+
+        /* =====================================================
+           ESC
+        ===================================================== */
+
+        document.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    fecharAviso();
+
+                }
+
+            }
+        );
+
+    </script>
+    <script src="assets/js/detalhe-produto.js"></script>
+    <script src="assets/js/informacoes-modal.js"></script>
+    <script src="assets/js/assistente.js"></script>
+
+</body>
+</html>
