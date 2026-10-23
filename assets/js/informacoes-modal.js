@@ -55,7 +55,6 @@
             kicker: "Grief & Glory",
             title: "GRIEF & GLORY: A Origem da FRAN7",
             content: `
-                <p>Nascida do luto. Feita para o legado.</p>
                 <p>A FRAN7 transforma memória em propósito e propósito em legado. Cada peça representa a força de continuar, honrar as origens e construir o próprio caminho.</p>
                 <h2>A nossa identidade</h2>
                 <p>Grief & Glory traduz a origem da FRAN7: a dor que nos move e a glória que construímos, juntos, dentro e fora do campo.</p>

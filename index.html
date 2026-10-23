@@ -45,6 +45,7 @@
     <meta name="twitter:image:alt" content="Logótipo da FRAN7">
 
     <script src="assets/js/entrada-site.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
@@ -2313,6 +2314,65 @@
             line-height: 1.6;
         }
 
+        @media (max-width: 750px) {
+            footer {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 28px 18px;
+                padding: 34px 18px 28px;
+            }
+
+            .footer-brand {
+                display: block;
+                grid-column: auto;
+            }
+
+            .footer-brand img {
+                width: 74px;
+                max-height: 42px;
+            }
+
+            footer .footer-brand p {
+                max-width: 100%;
+                margin-top: 10px;
+                font-size: 10px;
+                letter-spacing: .02em;
+                overflow-wrap: anywhere;
+            }
+
+            .footer-column {
+                min-width: 0;
+            }
+
+            .footer-column h2 {
+                margin-bottom: 12px;
+                font-size: 10px;
+                letter-spacing: 1.4px;
+            }
+
+            .footer-column a {
+                max-width: 100%;
+                margin-bottom: 8px;
+                font-size: 12px;
+                overflow-wrap: anywhere;
+            }
+
+            .footer-column:nth-of-type(4) {
+                display: block;
+                grid-column: auto;
+            }
+
+            .footer-social-links {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-top: 12px;
+            }
+
+            .footer-legal {
+                grid-column: 1 / -1;
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="assets/css/tema-automatico.css">
     <script src="assets/js/configuracoes.js"></script>
@@ -2473,10 +2533,6 @@
                 GRIEF &amp; GLORY.
             </h1>
 
-            <p>
-                Nascida do luto. Feita para o legado.
- 
-              </p>
          <video
 class="imagem-colecao"
 autoplay
@@ -2532,6 +2588,7 @@ O teu navegador não suporta este vídeo.
                 data-ai-model="Modelo FRAN7 01"
                 data-product-reserve="true"
                 data-gallery-images="assets/images/TRIBE.CASTANHA.jpeg|assets/images/TRIBLE.BEIGE.jpeg|assets/images/TIBLE.CINZA.jpeg"
+                data-gallery-views="Frente|Castanho|Bege|Cinza"
                 data-gallery-colors="Preto|Castanho|Bege|Cinza"
             >
 

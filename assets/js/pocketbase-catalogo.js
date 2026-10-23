@@ -41,6 +41,20 @@
         return Number.isFinite(valor) && valor > 0 ? valor : null;
     }
 
+    function obterFicheiros(record, field, pb) {
+        const value = record[field];
+        const files = Array.isArray(value) ? value : typeof value === "string" ? value.split("|") : [];
+        return files
+            .filter(function(file) { return typeof file === "string" && file.trim(); })
+            .map(function(file) { return pb.files.getURL(record, file.trim()); });
+    }
+
+    function obterLista(record, field) {
+        const value = record[field];
+        if (Array.isArray(value)) return value.map(String);
+        return typeof value === "string" ? value.split("|").map(function(item) { return item.trim(); }) : [];
+    }
+
     function criarModelo(record, pb) {
         const nome = typeof record.texto === "string" ? record.texto.trim() : "";
         const nomeImagem = typeof record.imagem === "string" ? record.imagem.trim() : "";
@@ -65,8 +79,11 @@
         artigo.dataset.productDescription =
             typeof record.descricao === "string" ? record.descricao : "";
         artigo.dataset.productReserve = "false";
-        artigo.dataset.galleryImages = "";
-        artigo.dataset.galleryColors = "";
+        artigo.dataset.galleryImages = obterFicheiros(record, "imagens_extra", pb).join("|");
+        artigo.dataset.galleryViews = obterLista(record, "vistas").join("|");
+        artigo.dataset.galleryColors = obterLista(record, "cores").join("|");
+        artigo.dataset.productBackImage = obterFicheiros(record, "imagem_costas", pb)[0] || "";
+        artigo.dataset.productModel = obterFicheiros(record, "modelo_3d", pb)[0] || "";
 
         const imagemContainer = document.createElement("div");
         imagemContainer.className = "modelo-imagem";
@@ -89,8 +106,11 @@
         favorito.dataset.favoriteImage = imagem;
         favorito.dataset.favoritePrice = String(valorPreco || 0);
         favorito.dataset.favoriteReserve = "false";
-        favorito.dataset.favoriteImages = "";
-        favorito.dataset.favoriteColors = "";
+        favorito.dataset.favoriteImages = artigo.dataset.galleryImages;
+        favorito.dataset.favoriteViews = artigo.dataset.galleryViews;
+        favorito.dataset.favoriteColors = artigo.dataset.galleryColors;
+        favorito.dataset.favoriteBackImage = artigo.dataset.productBackImage;
+        favorito.dataset.favoriteModel = artigo.dataset.productModel;
         favorito.setAttribute("aria-label", "Adicionar aos favoritos");
         favorito.setAttribute("aria-pressed", "false");
         favorito.innerHTML = '<span class="coracao" aria-hidden="true">♡</span>';

@@ -3,6 +3,14 @@
 
     const STORAGE_KEY = "fran7_favorites_v1";
 
+    function lerListaPipe(valor, preservarVazios) {
+        if (!valor) {
+            return [];
+        }
+        const valores = valor.split("|");
+        return preservarVazios ? valores : valores.filter(Boolean);
+    }
+
     function carregarFavoritos() {
         try {
             const favoritos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -64,12 +72,20 @@
             imagem: button.dataset.favoriteImage,
             preco: Number(button.dataset.favoritePrice) || 0,
             reservar: button.dataset.favoriteReserve === "true" || article?.dataset.productReserve === "true",
-            imagensExtra: (button.dataset.favoriteImages || article?.dataset.galleryImages || "")
-                .split("|")
-                .filter(Boolean),
-            cores: (button.dataset.favoriteColors || article?.dataset.galleryColors || "")
-                .split("|")
-                .filter(Boolean)
+            imagensExtra: lerListaPipe(
+                button.dataset.favoriteImages || article?.dataset.galleryImages || "",
+                false
+            ),
+            vistas: lerListaPipe(
+                button.dataset.favoriteViews || article?.dataset.galleryViews || "",
+                true
+            ),
+            cores: lerListaPipe(
+                button.dataset.favoriteColors || article?.dataset.galleryColors || "",
+                true
+            ),
+            imagemCostas: button.dataset.favoriteBackImage || article?.dataset.productBackImage || "",
+            modelo3D: button.dataset.favoriteModel || article?.dataset.productModel || ""
         };
         const favoritos = carregarFavoritos();
         const index = favoritos.findIndex(function(current) {

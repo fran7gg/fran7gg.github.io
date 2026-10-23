@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    const IMAGE_LIMIT = 5;
+    const IMAGE_LIMIT = 8;
     const overlay = document.createElement("div");
     overlay.className = "fran7-product-overlay";
     overlay.hidden = true;
@@ -52,31 +52,59 @@
         const description = article.dataset.productDescription ||
             article.querySelector(".produto-info > p:not(.produto-etiqueta):not(.produto-preco), .modelo-info > p:not(.modelo-etiqueta):not(.modelo-preco)")?.textContent.trim() ||
             "Uma peça da coleção FRAN7. Confirma os detalhes e a disponibilidade connosco.";
-        const images = [
+        const imageSources = [
             image?.getAttribute("src") || "",
             ...(article.dataset.galleryImages || image?.dataset.galleryImages || "")
                 .split("|")
                 .map(function(src) { return src.trim(); })
                 .filter(Boolean)
         ].slice(0, IMAGE_LIMIT);
+        const viewLabels = (article.dataset.galleryViews || image?.dataset.galleryViews || "")
+            .split("|")
+            .map(function(label) { return label.trim(); });
+        const colors = (article.dataset.galleryColors || image?.dataset.galleryColors || "")
+            .split("|")
+            .map(function(color) { return color.trim(); });
+        const views = imageSources.map(function(src, index) {
+            return {
+                type: "image",
+                src: src,
+                label: viewLabels[index] || colors[index] || (index === 0 ? "Frente" : "Vista " + (index + 1)),
+                color: colors[index] || "",
+                side: /costas|traseira|back/i.test(viewLabels[index] || "") ? "back" : "front"
+            };
+        });
+        const backImage = (article.dataset.productBackImage || "").trim();
+        if (backImage && views.length < IMAGE_LIMIT) {
+            views.splice(1, 0, {
+                type: "image",
+                src: backImage,
+                label: "Costas",
+                color: "",
+                side: "back"
+            });
+            for (let index = 2; index < views.length; index += 1) {
+                views[index].color = colors[index - 1] || "";
+            }
+        }
+        const model = (article.dataset.productModel || "").trim();
+        if (model) views.push({ type: "model", src: model, label: "3D", color: "" });
 
         return {
             article: article,
             name: name,
             price: price,
             description: description,
-            images: images,
+            views: views,
+            modelFallback: image?.getAttribute("src") || "",
             reservar: article.dataset.productReserve === "true",
-            colors: (article.dataset.galleryColors || image?.dataset.galleryColors || "")
-                .split("|")
-                .map(function(color) { return color.trim(); }),
             id: article.dataset.productId || (name + "|" + (image?.getAttribute("src") || ""))
         };
     }
 
-    function showImage(src, alt) {
+    function showView(view, product) {
         mainSlot.replaceChildren();
-        if (!src) {
+        if (!view || !view.src) {
             const placeholder = document.createElement("div");
             placeholder.className = "fran7-product-main-placeholder";
             placeholder.textContent = "Fotografia do produto";
@@ -84,41 +112,82 @@
             return;
         }
 
+        if (view.type === "model") {
+            if (!window.customElements?.get("model-viewer")) {
+                console.warn("O visualizador 3D não está disponível; a imagem frontal será apresentada.");
+                showView({
+                    type: "image",
+                    src: product.modelFallback,
+                    label: "Frente",
+                    side: "front"
+                }, product);
+                return;
+            }
+
+            const viewer = document.createElement("model-viewer");
+            viewer.className = "fran7-product-model-viewer fran7-product-view-enter";
+            viewer.setAttribute("src", view.src);
+            viewer.setAttribute("alt", product.name);
+            viewer.setAttribute("camera-controls", "");
+            viewer.setAttribute("auto-rotate", "");
+            viewer.setAttribute("shadow-intensity", "1");
+            viewer.addEventListener("error", function() {
+                console.error("Não foi possível carregar o modelo 3D do produto:", view.src);
+                showView({
+                    type: "image",
+                    src: product.modelFallback,
+                    label: "Frente",
+                    side: "front"
+                }, product);
+            }, { once: true });
+            mainSlot.appendChild(viewer);
+            return;
+        }
+
+        const stage = document.createElement("div");
+        stage.className = "fran7-product-image-stage fran7-product-view-enter";
         const image = document.createElement("img");
         image.className = "fran7-product-main-image";
-        image.src = src;
-        image.alt = alt;
-        mainSlot.appendChild(image);
+        image.src = view.src;
+        image.alt = product.name + " — " + view.label;
+        stage.appendChild(image);
+        mainSlot.appendChild(stage);
     }
 
     function renderGallery(product) {
         thumbnails.replaceChildren();
-        const sources = product.images.slice();
-        thumbnails.hidden = sources.length < 2;
+        thumbnails.hidden = product.views.length < 2;
 
-        sources.forEach(function(src, index) {
+        product.views.forEach(function(view, index) {
             const button = document.createElement("button");
             button.className = "fran7-product-thumbnail";
             button.type = "button";
-            const color = product.colors[index];
-            button.setAttribute("aria-label", color ? "Cor: " + color : index === 0 ? "Fotografia principal" : "Fotografia adicional " + index);
+            button.setAttribute("aria-label", view.label);
             button.setAttribute("aria-pressed", String(index === 0));
-            button.dataset.productImage = src;
-            button.dataset.productIndex = String(index);
+            button.dataset.viewIndex = String(index);
 
-            const image = document.createElement("img");
-            image.src = src;
-            image.alt = color ? product.name + " — " + color : index === 0 ? product.name : product.name + " — fotografia " + (index + 1);
-            button.appendChild(image);
+            if (view.type === "model") {
+                button.classList.add("fran7-product-thumbnail-model");
+                button.textContent = "3D";
+            } else {
+                const image = document.createElement("img");
+                image.src = view.src;
+                image.alt = "";
+                button.appendChild(image);
+            }
+            const label = document.createElement("span");
+            label.className = "fran7-product-thumbnail-label";
+            label.textContent = view.label;
+            button.appendChild(label);
             thumbnails.appendChild(button);
         });
-        showImage(product.images[0], product.name);
+        showView(product.views[0], product);
         atualizarCorSelecionada(0);
     }
 
     function atualizarCorSelecionada(index) {
-        const galleryColor = currentProduct.colors[index] || "";
-        selectedColor = galleryColor;
+        const galleryColor = currentProduct.views[index]?.color || "";
+        if (galleryColor) selectedColor = galleryColor;
         colorLabel.textContent = selectedColor ? "Cor: " + selectedColor : "";
         colorLabel.hidden = !selectedColor;
     }
@@ -132,7 +201,7 @@
         addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
         selectedColor = "";
         renderGallery(currentProduct);
-        selectedImage = currentProduct.images[0] || "";
+        selectedImage = currentProduct.views[0]?.src || "";
         overlay.hidden = false;
         document.body.style.overflow = "hidden";
         closeButton.focus();
@@ -167,16 +236,19 @@
     thumbnails.addEventListener("click", function(event) {
         const button = event.target.closest(".fran7-product-thumbnail");
         if (!button) return;
-        selectedImage = button.dataset.productImage;
-        showImage(selectedImage, currentProduct.name);
-        atualizarCorSelecionada(Number(button.dataset.productIndex));
+        const viewIndex = Number(button.dataset.viewIndex);
+        const view = currentProduct.views[viewIndex];
+        if (!view) return;
+        selectedImage = view.type === "image" ? view.src : currentProduct.modelFallback;
+        showView(view, currentProduct);
+        atualizarCorSelecionada(viewIndex);
         thumbnails.querySelectorAll(".fran7-product-thumbnail").forEach(function(item) {
             item.setAttribute("aria-pressed", String(item === button));
         });
     });
 
     addButton.addEventListener("click", function() {
-        if (currentProduct.colors.length > 0 && !selectedColor) {
+        if (currentProduct.views.some(function(view) { return view.color; }) && !selectedColor) {
             window.alert("Seleciona a fotografia da cor que pretendes.");
             return;
         }
@@ -185,7 +257,7 @@
         const price = Number((currentProduct.price.match(/[\d.]+/) || ["0"])[0].replace(/\./g, "")) || 0;
         const item = {
             nome: currentProduct.name,
-            imagem: selectedImage || currentProduct.images[0] || "",
+            imagem: selectedImage || currentProduct.modelFallback || "",
             preco: price,
             cor: selectedColor
         };

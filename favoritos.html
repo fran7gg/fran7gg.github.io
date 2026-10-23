@@ -15,6 +15,7 @@
     <meta name="color-scheme" content="light dark">
     <title>Os meus favoritos | FRAN7</title>
     <link rel="icon" type="image/png" href="assets/images/logoo.png.png">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
     <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css">
@@ -312,6 +313,53 @@
 
             const grid = document.getElementById("favoritosGrid");
 
+            function migrarVistasDaTshirt(favoritos) {
+                const imagensRetiradas = new Set([
+                    "assets/images/tshirt-lateral.png",
+                    "assets/images/tshirt-costas.png"
+                ]);
+                let alterado = false;
+
+                favoritos.forEach(function(item) {
+                    if (item.nome !== "Modelo FRAN7 01" &&
+                        item.nome !== "T-shirt FRAN7 Tribal") {
+                        return;
+                    }
+
+                    const imagens = Array.isArray(item.imagensExtra)
+                        ? item.imagensExtra.slice()
+                        : [];
+                    const vistas = Array.isArray(item.vistas) ? item.vistas.slice() : [];
+                    const cores = Array.isArray(item.cores) ? item.cores.slice() : [];
+                    const imagensAtualizadas = [];
+                    const vistasAtualizadas = [];
+                    const coresAtualizadas = [];
+
+                    imagens.forEach(function(imagem, index) {
+                        if (typeof imagem !== "string" || !imagem || imagensRetiradas.has(imagem)) {
+                            return;
+                        }
+                        imagensAtualizadas.push(imagem);
+                        vistasAtualizadas.push(vistas[index] || "");
+                        coresAtualizadas.push(cores[index] || "");
+                    });
+
+                    if (JSON.stringify(item.imagensExtra || []) !== JSON.stringify(imagensAtualizadas) ||
+                        JSON.stringify(item.vistas || []) !== JSON.stringify(vistasAtualizadas) ||
+                        JSON.stringify(item.cores || []) !== JSON.stringify(coresAtualizadas)) {
+                        item.imagensExtra = imagensAtualizadas;
+                        item.vistas = vistasAtualizadas;
+                        item.cores = coresAtualizadas;
+                        alterado = true;
+                    }
+                });
+
+                if (alterado) {
+                    localStorage.setItem("fran7_favorites_v1", JSON.stringify(favoritos));
+                }
+                return favoritos;
+            }
+
             function renderizarFavoritos() {
                 let favoritos;
                 try {
@@ -329,6 +377,11 @@
                     errorMessage.textContent = "Não foi possível carregar os favoritos. Atualiza a página para tentar novamente.";
                     grid.appendChild(errorMessage);
                     return;
+                }
+                try {
+                    favoritos = migrarVistasDaTshirt(favoritos);
+                } catch (error) {
+                    console.error("Não foi possível atualizar as imagens dos favoritos:", error);
                 }
 
                 grid.replaceChildren();
@@ -348,9 +401,14 @@
                 favoritos.forEach(function(item) {
                     const card = document.createElement("article");
                     card.className = "favorito-card";
+                    card.dataset.productName = item.nome;
+                    card.dataset.productPrice = String(Number(item.preco) || 0);
                     card.dataset.productReserve = item.reservar === true ? "true" : "false";
                     card.dataset.galleryImages = (item.imagensExtra || []).join("|");
                     card.dataset.galleryColors = (item.cores || []).join("|");
+                    card.dataset.galleryViews = (item.vistas || []).join("|");
+                    card.dataset.productBackImage = item.imagemCostas || "";
+                    card.dataset.productModel = item.modelo3D || "";
 
                     const image = document.createElement("img");
                     image.src = item.imagem;
@@ -386,6 +444,12 @@
                     remove.dataset.favoriteName = item.nome;
                     remove.dataset.favoriteImage = item.imagem;
                     remove.dataset.favoritePrice = String(Number(item.preco) || 0);
+                    remove.dataset.favoriteReserve = item.reservar === true ? "true" : "false";
+                    remove.dataset.favoriteImages = (item.imagensExtra || []).join("|");
+                    remove.dataset.favoriteViews = (item.vistas || []).join("|");
+                    remove.dataset.favoriteColors = (item.cores || []).join("|");
+                    remove.dataset.favoriteBackImage = item.imagemCostas || "";
+                    remove.dataset.favoriteModel = item.modelo3D || "";
                     remove.setAttribute("aria-label", "Remover dos favoritos");
                     remove.setAttribute("aria-pressed", "true");
                     remove.innerHTML = '<span class="coracao" aria-hidden="true">♥</span>';

@@ -15,6 +15,7 @@
     <meta name="color-scheme" content="light dark">
     <title>Coleções | FRAN7</title>
     <link rel="icon" type="image/png" href="assets/images/logoo.png.png">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
     <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css">
@@ -414,7 +415,7 @@
                 descricao: "Descobre os modelos FRAN7 e consulta connosco os tamanhos e a disponibilidade antes de fazer o teu pedido.",
                 capa: "assets/images/a3.jpeg",
                 produtos: [
-                    { nome: "T-shirt FRAN7 Tribal", imagem: "assets/images/1.png", preco: "11.000 Kz", imagensExtra: ["assets/images/TRIBE.CASTANHA.jpeg", "assets/images/TRIBLE.BEIGE.jpeg", "assets/images/TIBLE.CINZA.jpeg"], cores: ["Preto", "Castanho", "Bege", "Cinza"], reservar: true },
+                    { nome: "T-shirt FRAN7 Tribal", imagem: "assets/images/1.png", preco: "11.000 Kz", imagensExtra: ["assets/images/TRIBE.CASTANHA.jpeg", "assets/images/TRIBLE.BEIGE.jpeg", "assets/images/TIBLE.CINZA.jpeg"], vistas: ["Frente", "Castanho", "Bege", "Cinza"], cores: ["Preto", "Castanho", "Bege", "Cinza"], reservar: true },
                     { nome: "T-shirt FRAN7", imagem: "assets/images/3.png", preco: "7.000 Kz", imagensExtra: [], cores: [] },
                     { nome: "Boné FRAN7 Modelo 2", imagem: "assets/images/CASTANHO.MODELO2.jpeg", preco: "Consultar preço", imagensExtra: ["assets/images/CINZA.MODELO2.jpeg"], cores: ["Castanho", "Cinza"] },
                     { nome: "Boné FRAN7", imagem: "assets/images/4.png", preco: "Consultar preço", imagensExtra: [], cores: [] },
@@ -428,9 +429,9 @@
                 descricao: "Explora os modelos FRAN7. Fala connosco para confirmar os tamanhos, o corte e a disponibilidade de cada peça.",
                 capa: "assets/images/mulheres.jpeg",
                 produtos: [
-                    { nome: "T-shirt FRAN7 Tribal", imagem: "assets/images/1.png", preco: "11.000 Kz", imagensExtra: ["assets/images/TRIBE.CASTANHA.jpeg", "assets/images/TRIBLE.BEIGE.jpeg", "assets/images/TIBLE.CINZA.jpeg"], cores: ["Preto", "Castanho", "Bege", "Cinza"], reservar: true },
+                    { nome: "T-shirt FRAN7 Tribal", imagem: "assets/images/1.png", preco: "11.000 Kz", imagensExtra: ["assets/images/TRIBE.CASTANHA.jpeg", "assets/images/TRIBLE.BEIGE.jpeg", "assets/images/TIBLE.CINZA.jpeg"], vistas: ["Frente", "Castanho", "Bege", "Cinza"], cores: ["Preto", "Castanho", "Bege", "Cinza"], reservar: true },
                     { nome: "T-shirt FRAN7", imagem: "assets/images/3.png", preco: "7.000 Kz", imagensExtra: [], cores: [] },
-                    { nome: "Boné FRAN7 Modelo 2", imagem: "assets/images/CASTANHO.MODELO2.jpeg", preco: "Consultar preço", imagensExtra: ["assets/images/CINZA.MODELO2.jpeg"], cores: ["Castanho", "Cinza"] },
+                    { nome: "Boné FRAN7 Modelo 2", imagem: "assets/images/CASTANHO.MODELO2.jpeg", preco: "Consultar preço", imagensExtra: ["assets/images/CINZA.MODELO2.jpeg"], vistas: ["Castanho", "Cinza"], cores: ["Castanho", "Cinza"] },
                     { nome: "Boné FRAN7", imagem: "assets/images/2.png", preco: "7.000 Kz", imagensExtra: [], cores: [] },
                     { nome: "Boné FRAN7", imagem: "assets/images/4.png", preco: "Consultar preço", imagensExtra: [], cores: [] },
                     { nome: "Conjunto Feminino FRAN7", imagem: "assets/images/mulheres,%20conjunto.jpg", preco: "Consultar preço", imagensExtra: [], cores: [] },
@@ -476,7 +477,7 @@
                 );
 
                 return `
-                    <article class="produto" data-product-name="${produto.nome}" data-product-price="${produto.preco}" data-product-reserve="${produto.reservar || false}" data-gallery-images="${(produto.imagensExtra || []).join("|")}" data-gallery-colors="${(produto.cores || []).join("|")}">
+                    <article class="produto" data-product-name="${produto.nome}" data-product-price="${produto.preco}" data-product-reserve="${produto.reservar || false}" data-gallery-images="${(produto.imagensExtra || []).join("|")}" data-gallery-colors="${(produto.cores || []).join("|")}" data-gallery-views="${(produto.vistas || []).join("|")}" data-product-back-image="${produto.imagemCostas || ""}" data-product-model="${produto.modelo3D || ""}">
                         <div class="produto-imagem">
                             <img src="${produto.imagem}" alt="${produto.nome}" loading="lazy">
                             <button
@@ -488,6 +489,9 @@
                                 data-favorite-reserve="${produto.reservar || false}"
                                 data-favorite-images="${(produto.imagensExtra || []).join("|")}"
                                 data-favorite-colors="${(produto.cores || []).join("|")}"
+                                data-favorite-views="${(produto.vistas || []).join("|")}"
+                                data-favorite-back-image="${produto.imagemCostas || ""}"
+                                data-favorite-model="${produto.modelo3D || ""}"
                                 aria-label="Adicionar aos favoritos"
                                 aria-pressed="false"
                             ><span class="coracao" aria-hidden="true">♡</span></button>

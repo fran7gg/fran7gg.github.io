@@ -188,8 +188,24 @@ body:not(.fran7-subpage) .imagem-colecao {
 
 body:not(.fran7-subpage) .produto-imagem,
 body:not(.fran7-subpage) .carrinho-item-imagem {
-    background: var(--fran7-theme-surface) !important;
+    background: #fff !important;
     color: var(--fran7-theme-text);
+}
+
+body:not(.fran7-subpage) .produto-imagem img,
+.fran7-subpage .modelo-imagem,
+.fran7-subpage .produto-imagem,
+.fran7-subpage .favorito-card > img,
+.fran7-subpage .modelo-imagem img,
+.fran7-subpage .produto-imagem img {
+    background: #fff !important;
+}
+
+body:not(.fran7-subpage) .produto-imagem img,
+.fran7-subpage .modelo-imagem img,
+.fran7-subpage .produto-imagem img,
+.fran7-subpage .favorito-card > img {
+    object-fit: contain;
 }
 
 body:not(.fran7-subpage) .produto-imagem .botao-favorito {
@@ -338,16 +354,8 @@ body:not(.fran7-subpage) footer .footer-column a:hover {
 
 .fran7-subpage .modelo-imagem,
 .fran7-subpage .produto-imagem,
-.fran7-subpage .favorito-card > img,
-.fran7-subpage .imagem-capa {
-    background-color: var(--fran7-theme-hover);
-}
-
-.fran7-subpage .modelo-imagem img,
-.fran7-subpage .produto-imagem img,
-.fran7-subpage .favorito-card img,
-.fran7-subpage .imagem-capa {
-    background-color: var(--fran7-theme-hover);
+.fran7-subpage .favorito-card > img {
+    background: #fff !important;
 }
 
 .fran7-subpage .modelo-imagem .botao-favorito,
