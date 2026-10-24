@@ -40,6 +40,18 @@
     let selectedColor = "";
     let previousFocus = null;
 
+    function obterPreco(valor) {
+        if (window.Fran7Checkout) {
+            return window.Fran7Checkout.parsePrice(valor) || 0;
+        }
+        const texto = String(valor || "").trim().replace(/\s|Kz|AOA/gi, "");
+        const normalizado = /^\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(texto)
+            ? texto.replace(/\./g, "").replace(",", ".")
+            : texto.replace(",", ".");
+        const preco = Number(normalizado);
+        return Number.isFinite(preco) && preco > 0 ? preco : 0;
+    }
+
     function getProduct(article) {
         const image = article.querySelector(".produto-imagem img, .modelo-imagem img, .favorito-card > img");
         const name = article.dataset.productName ||
@@ -254,7 +266,7 @@
         }
 
         const source = currentProduct.article.querySelector(".botao-produto");
-        const price = Number((currentProduct.price.match(/[\d.]+/) || ["0"])[0].replace(/\./g, "")) || 0;
+        const price = obterPreco(currentProduct.price);
         const item = {
             nome: currentProduct.name,
             imagem: selectedImage || currentProduct.modelFallback || "",

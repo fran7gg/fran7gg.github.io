@@ -1,7 +1,8 @@
 (function() {
     "use strict";
 
-    const POCKETBASE_URL = "http://127.0.0.1:8090";
+    const POCKETBASE_URL = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
+        window.FRAN7_POCKETBASE_URL || "http://127.0.0.1:8090";
     const COLLECTION = "produtos_loja";
     const grid = document.getElementById("modelosGrid");
 

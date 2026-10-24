@@ -7,6 +7,21 @@
     const NOTE_KEY = "fran7_cart_note_v1";
     let items = [];
 
+    function obterPreco(valor) {
+        if (window.Fran7Checkout) {
+            return window.Fran7Checkout.parsePrice(valor) || 0;
+        }
+        if (typeof valor === "number") {
+            return Number.isFinite(valor) && valor > 0 ? valor : 0;
+        }
+        const texto = String(valor || "").trim().replace(/\s|Kz|AOA/gi, "");
+        const normalizado = /^\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(texto)
+            ? texto.replace(/\./g, "").replace(",", ".")
+            : texto.replace(",", ".");
+        const preco = Number(normalizado);
+        return Number.isFinite(preco) && preco > 0 ? preco : 0;
+    }
+
     function tamanhoAutomatico(nome) {
         return /\b(bon[eé]|chap[eé]u|meias?|socks?)\b/i.test(nome);
     }
@@ -36,7 +51,7 @@
                 return {
                     nome: item.nome,
                     imagem: item.imagem,
-                    preco: Number(item.preco),
+                    preco: obterPreco(item.preco),
                     quantidade: Number(item.quantidade),
                     cor: typeof item.cor === "string" ? item.cor : "",
                     tamanho: tamanhoAutomatico(item.nome)
@@ -147,6 +162,7 @@
         const totalQuantidade = items.reduce(function(total, item) {
             return total + item.quantidade;
         }, 0);
+        const totalPendente = items.some(function(item) { return !item.preco; });
         const total = items.reduce(function(sum, item) {
             return sum + item.preco * item.quantidade;
         }, 0);
@@ -197,7 +213,10 @@
 
                 const price = document.createElement("p");
                 price.className = "fran7-cart-item-price";
-                price.textContent = formatarPreco(item.preco);
+                price.textContent = item.preco
+                    ? formatarPreco(item.preco) + " × " + item.quantidade + " = " +
+                        formatarPreco(item.preco * item.quantidade)
+                    : "Preço a confirmar";
 
                 const quantity = document.createElement("div");
                 quantity.className = "fran7-cart-quantity";
@@ -248,7 +267,7 @@
             });
         }
 
-        totalElement.textContent = formatarPreco(total);
+        totalElement.textContent = totalPendente ? "A confirmar" : formatarPreco(total);
         if (location) {
             location.value = localStorage.getItem(LOCATION_KEY) || "";
         }
@@ -281,24 +300,28 @@
     }
 
     function adicionar(item) {
+        const nome = String(item.nome || "Produto FRAN7").trim();
+        const imagem = String(item.imagem || "");
+        const preco = obterPreco(item.preco);
+        const cor = String(item.cor || "").trim();
+        const tamanho = tamanhoAutomatico(nome)
+            ? "X"
+            : String(item.tamanho || "").trim();
         const existing = items.find(function(current) {
-            return current.nome === item.nome && current.imagem === item.imagem;
+            return current.nome === nome && current.imagem === imagem &&
+                current.preco === preco && current.cor === cor && current.tamanho === tamanho;
         });
 
         if (existing) {
             existing.quantidade += 1;
-            if (!existing.cor && item.cor) {
-                existing.cor = item.cor;
-            }
         } else {
-            const nome = String(item.nome || "");
             items.push({
                 nome: nome,
-                imagem: item.imagem,
-                preco: Number(item.preco) || 0,
+                imagem: imagem,
+                preco: preco,
                 quantidade: 1,
-                cor: String(item.cor || ""),
-                tamanho: tamanhoAutomatico(nome) ? "X" : ""
+                cor: cor,
+                tamanho: tamanho
             });
         }
 
@@ -307,7 +330,7 @@
         window.setTimeout(focarCampoEmFalta, 350);
     }
 
-    function enviarPedido() {
+    async function enviarPedido() {
         const location = document.getElementById("fran7CartLocation").value.trim();
         const city = document.getElementById("fran7CartCity").value.trim();
         const note = document.getElementById("fran7CartNote").value.trim();
@@ -327,34 +350,28 @@
             return;
         }
 
-        const total = items.reduce(function(sum, item) {
-            return sum + item.preco * item.quantidade;
-        }, 0);
-        const quantity = items.reduce(function(sum, item) {
-            return sum + item.quantidade;
-        }, 0);
-        const summary = items.map(function(item) {
-            return item.nome + " x" + item.quantidade +
-                " (cor: " + item.cor + ", tamanho: " + item.tamanho + ")";
-        }).join(" | ");
-        const messageParts = [
-            "Olá! Quero finalizar este pedido.",
-            "- Produtos: " + summary,
-            "- Cidade: " + city,
-            "- Localização: " + location,
-            "- Quantidade total: " + quantity,
-            "- Total indicado: " + formatarPreco(total)
-        ];
-        if (note) {
-            messageParts.push("- Comentário: " + note);
+        const button = document.querySelector(".fran7-cart-submit");
+        button.disabled = true;
+        button.textContent = "A registar encomenda...";
+        try {
+            if (!window.Fran7Checkout) {
+                throw new Error("O serviço de checkout não está carregado.");
+            }
+            const result = await window.Fran7Checkout.finalize(items, {
+                cidade: city,
+                localizacao: location,
+                comentario: note
+            });
+            mostrarAviso("Pedido " + result.order.id_pedido + " registado. " +
+                (result.pdfGerado ? "A fatura foi descarregada." : "Não foi possível gerar o PDF."));
+        } catch (error) {
+            console.error("Não foi possível registar o pedido FRAN7:", error);
+            mostrarAviso("Não foi possível registar o pedido no PocketBase. " +
+                "Confirma a ligação e tenta novamente. " + (error.message || ""));
+        } finally {
+            button.disabled = false;
+            button.textContent = "FINALIZAR COMPRA";
         }
-        const message = messageParts.join("\n");
-
-        window.open(
-            "https://wa.me/244973560521?text=" + encodeURIComponent(message),
-            "_blank",
-            "noopener,noreferrer"
-        );
     }
 
     function montarInterface() {
@@ -419,7 +436,7 @@
                         </span>
                         <span id="fran7CartTotal">0 Kz</span>
                     </div>
-                    <button type="button" class="fran7-cart-submit">Enviar pedido pelo WhatsApp</button>
+                    <button type="button" class="fran7-cart-submit">FINALIZAR COMPRA</button>
                 </div>
             </section>
         `;

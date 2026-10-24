@@ -4199,11 +4199,17 @@ O teu navegador não suporta este vídeo.
 
             event.preventDefault();
 
-            const produtoExistente =
-                carrinho.find(
-                    item =>
-                        item.nome === nome && item.imagem === imagem
-                );
+            const precoNumerico = window.Fran7Checkout
+                ? window.Fran7Checkout.parsePrice(preco) || 0
+                : Number(preco) || 0;
+            const corSelecionada = cor || "";
+            const tamanhoSelecionado = tamanhoAutomatico(nome) ? "X" : "";
+            const produtoExistente = carrinho.find(function(item) {
+                return item.nome === nome && item.imagem === imagem &&
+                    Number(item.preco) === precoNumerico &&
+                    (item.cor || "") === corSelecionada &&
+                    (item.tamanho || "") === tamanhoSelecionado;
+            });
 
             if (produtoExistente) {
 
@@ -4214,11 +4220,11 @@ O teu navegador não suporta este vídeo.
                 carrinho.push({
 
                     nome: nome,
-                    preco: preco,
+                    preco: precoNumerico,
                     imagem: imagem,
                     quantidade: 1,
-                    cor: cor || "",
-                    tamanho: tamanhoAutomatico(nome) ? "X" : ""
+                    cor: corSelecionada,
+                    tamanho: tamanhoSelecionado
 
                 });
 
@@ -4542,7 +4548,7 @@ O teu navegador não suporta este vídeo.
            FINALIZAR COMPRA
         ===================================================== */
 
-        function finalizarCompra() {
+        async function finalizarCompra() {
 
             if (carrinho.length === 0) {
 
@@ -4572,30 +4578,28 @@ O teu navegador não suporta este vídeo.
                 return;
             }
 
-            const total = carrinho.reduce(function(soma, item) {
-                return soma + item.preco * item.quantidade;
-            }, 0);
-            const quantidade = carrinho.reduce(function(soma, item) {
-                return soma + item.quantidade;
-            }, 0);
-            const resumo = carrinho.map(function(item) {
-                return item.nome + " x" + item.quantidade +
-                    " (cor: " + item.cor + ", tamanho: " + item.tamanho + ")";
-            }).join(" | ");
-            const mensagem = [
-                "Olá! Quero finalizar este pedido.",
-                "- Produtos: " + resumo,
-                "- Cidade: " + cidade,
-                "- Bairro/localização: " + localizacao,
-                "- Quantidade total: " + quantidade,
-                "- Total indicado: " + formatarPreco(total)
-            ];
-            if (comentario) mensagem.push("- Comentário: " + comentario);
-            window.open(
-                "https://wa.me/244973560521?text=" + encodeURIComponent(mensagem.join("\n")),
-                "_blank",
-                "noopener,noreferrer"
-            );
+            const button = document.querySelector(".botao-finalizar");
+            button.disabled = true;
+            button.textContent = "A REGISTAR ENCOMENDA...";
+            try {
+                if (!window.Fran7Checkout) {
+                    throw new Error("O serviço de checkout não está carregado.");
+                }
+                const result = await window.Fran7Checkout.finalize(carrinho, {
+                    cidade: cidade,
+                    localizacao: localizacao,
+                    comentario: comentario
+                });
+                alert("Pedido " + result.order.id_pedido + " registado." +
+                    (result.pdfGerado ? " A fatura foi descarregada." : " O PDF não pôde ser gerado."));
+            } catch (error) {
+                console.error("Não foi possível registar o pedido FRAN7:", error);
+                alert("Não foi possível guardar o pedido no PocketBase. " +
+                    "Confirma a ligação e tenta novamente. " + (error.message || ""));
+            } finally {
+                button.disabled = false;
+                button.textContent = "FINALIZAR COMPRA";
+            }
 
         }
 
@@ -4980,6 +4984,8 @@ O teu navegador não suporta este vídeo.
         atualizarCarrinho();
 
     </script>
+    <script src="assets/js/fran7-checkout-config.js"></script>
+    <script src="assets/js/fran7-checkout.js"></script>
     <script src="assets/js/favoritos.js"></script>
     <script src="assets/js/detalhe-produto.js"></script>
     <script src="assets/js/informacoes-modal.js"></script>
