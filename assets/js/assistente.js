@@ -16,7 +16,7 @@
         {name: "Modelo FRAN7 12", price: "Consultar preço", image: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.24%20PM.jpeg", aliases: ["modelo 12", "modelo fran7 12"]},
         {name: "T-shirt FRAN7 Tribal", price: "11.000 Kz", image: "assets/images/1.png", aliases: ["t shirt fran7 tribal", "camisola tribal"]},
         {name: "T-shirt FRAN7", price: "7.000 Kz", image: "assets/images/3.png", aliases: ["t shirt fran7"]},
-        {name: "Boné FRAN7 Modelo 2", price: "Consultar preço", image: "assets/images/CASTANHO.MODELO2.jpeg", images: ["assets/images/CINZA.MODELO2.jpeg"], colors: ["Castanho", "Cinza"], aliases: ["bone modelo 2", "bone modelo 02", "chapeu modelo 2", "chapeu modelo 02", "bone fran7 modelo 2"]},
+        {name: "Boné FRAN7 Modelo 2", price: "7.000 Kz", image: "assets/images/CASTANHO.MODELO2.jpeg", images: ["assets/images/CINZA.MODELO2.jpeg"], colors: ["Castanho", "Cinza"], aliases: ["bone modelo 2", "bone modelo 02", "chapeu modelo 2", "chapeu modelo 02", "bone fran7 modelo 2"]},
         {name: "Boné FRAN7", price: "7.000 Kz", image: "assets/images/2.png", aliases: ["bone fran7"]},
         {name: "Boné FRAN7", price: "Consultar preço", image: "assets/images/4.png", aliases: ["bone fran7"]},
         {name: "FRAN7 Performance", price: "Consultar preço", image: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.22%20PM.jpeg", aliases: ["fran7 performance"]},

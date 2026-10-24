@@ -241,13 +241,6 @@
     line-height: 1.4;
 }
 
-.fran7-cart-item-shipping {
-    margin: 0 0 8px;
-    color: #47725d;
-    font-size: 10px;
-    font-weight: 650;
-}
-
 .fran7-cart-item-options {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

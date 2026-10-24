@@ -222,9 +222,6 @@
                 price.textContent = item.preco
                     ? formatarPreco(item.preco * item.quantidade)
                     : "Preço a confirmar";
-                const shipping = document.createElement("p");
-                shipping.className = "fran7-cart-item-shipping";
-                shipping.textContent = "Frete Grátis";
 
                 const quantity = document.createElement("div");
                 quantity.className = "fran7-cart-quantity";
@@ -256,7 +253,7 @@
                 });
 
                 quantity.append(decrease, quantityValue, increase);
-                details.append(name, price, shipping, quantity);
+                details.append(name, price, quantity);
 
                 const options = document.createElement("div");
                 options.className = "fran7-cart-item-options";

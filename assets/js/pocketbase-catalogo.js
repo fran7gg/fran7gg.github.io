@@ -4,6 +4,7 @@
     const POCKETBASE_URL = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
         window.FRAN7_POCKETBASE_URL || "http://127.0.0.1:8090";
     const COLLECTION = "produtos_loja";
+    const PRICE_OVERRIDES = { "Boné FRAN7 Modelo 2": 7000 };
     const grid = document.getElementById("modelosGrid");
 
     function mostrarEstado(mensagem) {
@@ -65,7 +66,7 @@
         }
 
         const imagem = pb.files.getURL(record, nomeImagem);
-        const valorPreco = obterPrecoValido(record.preco);
+        const valorPreco = PRICE_OVERRIDES[nome] || obterPrecoValido(record.preco);
         const preco = valorPreco === null
             ? ""
             : valorPreco.toLocaleString("pt-AO") + " Kz";

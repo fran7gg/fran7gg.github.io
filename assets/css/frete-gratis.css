@@ -1,20 +1,3 @@
-.produto-info::after,
-.modelo-info::after {
-    content: "Frete Grátis";
-    display: block;
-    width: fit-content;
-    max-width: 100%;
-    margin-top: 7px;
-    padding: 4px 8px;
-    border: 1px solid rgba(71, 114, 93, .22);
-    border-radius: 999px;
-    background: rgba(71, 114, 93, .08);
-    color: #47725d;
-    font-size: 10px;
-    font-weight: 650;
-    line-height: 1.2;
-}
-
 .carrinho-envio-gratis {
     margin: 0 0 10px;
     color: #47725d;
