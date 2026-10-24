@@ -4,24 +4,18 @@
     const pages = {
         informacoes: {
             kicker: "Apoio ao cliente",
-            title: "Informações",
+            title: "Entregas e trocas",
             content: `
-                <p>Encontra aqui os passos para escolher um artigo e enviar o teu pedido à FRAN7.</p>
-                <h2>Como comprar</h2>
-                <ul>
-                    <li>Explora os produtos, o catálogo ou a coleção que procuras.</li>
-                    <li>Adiciona os artigos à sacola e indica a cor, o tamanho, a quantidade e a localização.</li>
-                    <li>Envia o pedido pelo WhatsApp para confirmar disponibilidade e combinar os detalhes.</li>
-                </ul>
-                <h2>Disponibilidade e preços</h2>
-                <p>Os tamanhos, cores e disponibilidade podem variar. Quando o preço estiver indicado como “Consultar”, confirma-o com a equipa antes de concluir o pedido.</p>
-                <h2>Privacidade e apoio</h2>
-                <p>A sacola fica guardada neste navegador. Os dados do pedido só são incluídos na mensagem do WhatsApp quando escolhes enviá-la.</p>
-                <div class="fran7-info-actions">
-                    <a class="fran7-info-button" href="#" data-info-page="privacidade">Política de privacidade</a>
-                    <a class="fran7-info-button" href="https://wa.me/244973560521" target="_blank" rel="noopener noreferrer">Contactar a FRAN7</a>
-                    <a class="fran7-info-button" href="#" data-info-page="feedback">Enviar feedback</a>
-                </div>`
+                <p>As entregas são organizadas após a confirmação da disponibilidade dos artigos, do endereço e dos detalhes do pedido. O prazo e o custo são comunicados antes da confirmação final.</p>
+                <h2>Entregas em Luanda</h2>
+                <p>Em Luanda, a entrega pode ser combinada para o endereço indicado ou para um ponto de encontro acordado com a FRAN7. A data estimada, a modalidade disponível e o respetivo custo dependem da localização e serão confirmados antes do envio.</p>
+                <h2>Entregas para as demais províncias</h2>
+                <p>Para outras províncias de Angola, o envio é combinado através de um serviço de transporte interprovincial disponível. O prazo de trânsito, o local de levantamento ou entrega e os custos variam conforme o destino e são informados antes da confirmação do pedido. Após o envio, a previsão pode depender também do serviço de transporte.</p>
+                <h2>Trocas e devoluções</h2>
+                <p>Os pedidos de troca ou devolução devem ser comunicados dentro do prazo legal aplicável, contado a partir da receção do artigo. A análise é feita nos termos da legislação de defesa do consumidor aplicável em Angola.</p>
+                <p>Para a avaliação, o artigo deve estar por lavar, sem sinais de uso e com as etiquetas originais intactas. Estas condições não limitam os direitos que a legislação aplicável reconhece ao consumidor.</p>
+                <h2>Contacto</h2>
+                <p>Para tratar de entregas, trocas ou devoluções, contacta exclusivamente o e-mail oficial <a href="mailto:fran7officiall@gmail.com">fran7officiall@gmail.com</a>. Inclui o número ou a referência do pedido e uma descrição do assunto.</p>`
         },
         termos: {
             kicker: "Informações FRAN7",
