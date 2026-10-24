@@ -261,7 +261,7 @@
 
     addButton.addEventListener("click", function() {
         if (currentProduct.views.some(function(view) { return view.color; }) && !selectedColor) {
-            window.alert("Seleciona a fotografia da cor que pretendes.");
+            window.Fran7Notify.alert("Seleciona a fotografia da cor que pretendes.", { title: "Escolhe uma cor" });
             return;
         }
 

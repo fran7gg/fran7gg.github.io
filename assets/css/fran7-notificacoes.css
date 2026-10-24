@@ -1,0 +1,114 @@
+.fran7-notice-overlay[hidden] {
+    display: none;
+}
+
+.fran7-notice-overlay {
+    position: fixed;
+    z-index: 100500;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(8, 10, 14, .48);
+    backdrop-filter: blur(14px) saturate(125%);
+    -webkit-backdrop-filter: blur(14px) saturate(125%);
+    opacity: 0;
+    transition: opacity .22s ease;
+}
+
+.fran7-notice-overlay.is-open {
+    opacity: 1;
+}
+
+.fran7-notice-dialog {
+    width: min(390px, 100%);
+    padding: 25px 24px 20px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 20px;
+    background: rgba(27, 29, 34, .94);
+    color: #f7f7f8;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .34);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    text-align: center;
+    transform: translateY(8px) scale(.98);
+    transition: transform .22s cubic-bezier(.2, .8, .2, 1);
+}
+
+.fran7-notice-overlay.is-open .fran7-notice-dialog {
+    transform: translateY(0) scale(1);
+}
+
+.fran7-notice-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 14px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.fran7-notice-title {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 650;
+    line-height: 1.3;
+}
+
+.fran7-notice-message {
+    margin: 0;
+    color: rgba(245, 246, 248, .76);
+    font-size: 14px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.fran7-notice-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.fran7-notice-button {
+    flex: 1;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .16s ease, transform .16s ease;
+}
+
+.fran7-notice-button:hover {
+    background: rgba(255, 255, 255, .17);
+}
+
+.fran7-notice-button:active {
+    transform: scale(.98);
+}
+
+.fran7-notice-button-primary {
+    border-color: #f5f5f5;
+    background: #f5f5f5;
+    color: #17181b;
+}
+
+.fran7-notice-button-primary:hover {
+    background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fran7-notice-overlay,
+    .fran7-notice-dialog,
+    .fran7-notice-button {
+        transition: none;
+    }
+}

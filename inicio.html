@@ -43,6 +43,7 @@
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="assets/js/entrada-site.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
+    <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
 
@@ -3644,7 +3645,7 @@ O teu navegador não suporta este vídeo.
                         <path class="gmail-right" d="M20 7v11"/>
                     </svg>
                 </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <a href="https://www.youtube.com/@AdelinoSabino-ez5zp?themeRefresh=1" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <rect x="2.5" y="5" width="19" height="14" rx="4"/>
                         <path d="m10 9 5 3-5 3z"/>
@@ -4552,9 +4553,7 @@ O teu navegador não suporta este vídeo.
 
             if (carrinho.length === 0) {
 
-                alert(
-                    "O teu carrinho está vazio."
-                );
+                await window.Fran7Notify.alert("O teu carrinho está vazio.", { title: "Carrinho vazio" });
 
                 return;
 
@@ -4568,12 +4567,12 @@ O teu navegador não suporta este vídeo.
             });
 
             if (itemEmFalta) {
-                alert("Preenche a cor e o tamanho de cada produto. Chapéus e meias usam tamanho X.");
+                await window.Fran7Notify.alert("Preenche a cor e o tamanho de cada produto. Chapéus e meias usam tamanho X.", { title: "Faltam opções" });
                 focarOpcaoEmFalta();
                 return;
             }
             if (!cidade || !localizacao) {
-                alert("Preenche a cidade e o bairro/localização de entrega.");
+                await window.Fran7Notify.alert("Preenche a cidade e o bairro/localização de entrega.", { title: "Falta o endereço" });
                 (cidade ? document.getElementById("carrinhoLocalizacao") : document.getElementById("carrinhoCidade")).focus();
                 return;
             }
@@ -4590,12 +4589,12 @@ O teu navegador não suporta este vídeo.
                     localizacao: localizacao,
                     comentario: comentario
                 });
-                alert("Pedido " + result.order.id_pedido + " registado." +
-                    (result.pdfGerado ? " A fatura foi descarregada." : " O PDF não pôde ser gerado."));
+                await window.Fran7Notify.alert("Pedido " + result.order.id_pedido + " registado." +
+                    (result.pdfGerado ? " A fatura foi descarregada." : " O PDF não pôde ser gerado."), { title: "Pedido registado" });
             } catch (error) {
                 console.error("Não foi possível registar o pedido FRAN7:", error);
-                alert("Não foi possível guardar o pedido no PocketBase. " +
-                    "Confirma a ligação e tenta novamente. " + (error.message || ""));
+                await window.Fran7Notify.alert("Não foi possível guardar o pedido no PocketBase. " +
+                    "Confirma a ligação e tenta novamente. " + (error.message || ""), { title: "Falha no checkout" });
             } finally {
                 button.disabled = false;
                 button.textContent = "FINALIZAR COMPRA";
@@ -4984,6 +4983,7 @@ O teu navegador não suporta este vídeo.
         atualizarCarrinho();
 
     </script>
+    <script src="assets/js/fran7-notificacoes.js"></script>
     <script src="assets/js/fran7-checkout-config.js"></script>
     <script src="assets/js/fran7-checkout.js"></script>
     <script src="assets/js/favoritos.js"></script>

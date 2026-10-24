@@ -76,7 +76,7 @@
                 <h2>Parceiro FRAN7 — Vozes Visionárias Podcast</h2>
                 <p>Conhece o podcast e acompanha as conversas no canal oficial do YouTube.</p>
                 <div class="fran7-info-actions">
-                    <a class="fran7-info-button" href="https://youtube.com/@adelinosabino-ez5zp?si=zctakTPyO9j1VUCS" target="_blank" rel="noopener noreferrer">Ver no YouTube</a>
+                    <a class="fran7-info-button" href="https://www.youtube.com/@AdelinoSabino-ez5zp?themeRefresh=1" target="_blank" rel="noopener noreferrer">Ver no YouTube</a>
                 </div>
                 <h2>Queres propor uma parceria?</h2>
                 <p>Envia a tua proposta à equipa FRAN7 para conversarmos sobre a ideia.</p>
