@@ -21,10 +21,18 @@
             kicker: "Informações FRAN7",
             title: "Termos e condições",
             content: `
-                <p class="fran7-info-note">Informação provisória — confirma os detalhes de cada pedido diretamente com a FRAN7.</p>
-                <p>Os modelos, tamanhos, cores, preços e disponibilidade podem variar. Os preços assinalados como “Consultar” devem ser confirmados antes do pedido.</p>
-                <p>O envio do pedido pelo WhatsApp serve para combinar a disponibilidade, a entrega e o pagamento com a equipa FRAN7. O total apresentado na sacola é indicativo até essa confirmação.</p>
-                <p>Para esclarecer uma questão, contacta <a href="mailto:fran7officiall@gmail.com">fran7officiall@gmail.com</a> ou <a href="https://wa.me/244973560521" target="_blank" rel="noopener noreferrer">WhatsApp FRAN7</a>.</p>`
+                <p>Estes termos regulam a consulta e a realização de encomendas de produtos FRAN7 através deste website. Ao enviar uma encomenda, o cliente confirma que reviu os artigos, as opções selecionadas e os dados fornecidos.</p>
+                <h2>Propriedade intelectual</h2>
+                <p>As marcas, o lema “Grief &amp; Glory”, os textos, fotografias, imagens, elementos gráficos, desenhos e demais conteúdos apresentados no website pertencem à FRAN7 ou são utilizados com autorização. Não é permitida a sua cópia, reprodução, distribuição, adaptação ou utilização comercial sem autorização prévia por escrito da FRAN7, salvo nos casos permitidos por lei.</p>
+                <h2>Encomendas e confirmação de stock</h2>
+                <p>Os artigos apresentados no website constituem uma oferta sujeita a confirmação de disponibilidade, tamanho, cor e demais características. O envio da sacola abre uma mensagem de pedido e não confirma, por si só, a aceitação da encomenda. A FRAN7 confirma os detalhes e a disponibilidade antes de concluir a compra.</p>
+                <h2>Preços e pagamentos</h2>
+                <p>Os preços são apresentados em Kwanzas angolanos (Kz). Quando um artigo indicar “Consultar”, o respetivo preço deve ser confirmado antes da compra. O total da sacola é indicativo até serem confirmados o stock, o preço final, os custos de entrega e as condições de pagamento.</p>
+                <p>Antes da conclusão da compra, a FRAN7 comunica o valor final e os meios de pagamento disponíveis para a encomenda. O cliente deve verificar esses dados e manifestar a sua concordância antes de efetuar o pagamento. Qualquer alteração relevante ao pedido depende de confirmação e da disponibilidade dos artigos.</p>
+                <h2>Disponibilidade do website e responsabilidade</h2>
+                <p>A FRAN7 procura manter o website disponível e atualizado, mas não garante funcionamento contínuo ou sem erros. Podem ocorrer interrupções temporárias por manutenção, falhas técnicas, conectividade ou fatores fora do controlo razoável da FRAN7. Na medida permitida pela lei, a FRAN7 não responde por prejuízos causados exclusivamente por essas indisponibilidades temporárias, sem limitar os direitos obrigatórios do consumidor nem as responsabilidades que não possam ser excluídas por lei.</p>
+                <h2>Contacto</h2>
+                <p>Para questões sobre estes termos ou uma encomenda, contacta a FRAN7 exclusivamente pelo e-mail oficial <a href="mailto:fran7officiall@gmail.com">fran7officiall@gmail.com</a>.</p>`
         },
         privacidade: {
             kicker: "Informações FRAN7",
