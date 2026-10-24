@@ -236,28 +236,6 @@
             font-weight: 700;
         }
 
-        .pedir {
-            display: flex;
-            min-height: 44px;
-            align-items: center;
-            justify-content: center;
-            padding: 0 12px;
-            border: 1px solid rgba(128, 128, 128, .4);
-            border-radius: 12px;
-            background: rgba(128, 128, 128, .1);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .06em;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .pedir:hover {
-            border-color: #25d366;
-            background: #25d366;
-            color: #fff;
-        }
-
         .rodape {
             padding: 24px 20px;
             border-top: 1px solid rgba(128, 128, 128, .28);
@@ -476,10 +454,6 @@
                 .setAttribute("aria-current", "page");
 
             const produtos = colecao.produtos.map(function(produto) {
-                const mensagem = encodeURIComponent(
-                    `Olá! Tenho interesse neste modelo da coleção ${colecao.titulo}: ${produto.nome}. Gostaria de confirmar tamanhos e disponibilidade.`
-                );
-
                 return `
                     <article class="produto" data-product-name="${produto.nome}" data-product-price="${produto.preco}" data-product-reserve="${produto.reservar || false}" data-gallery-images="${(produto.imagensExtra || []).join("|")}" data-gallery-colors="${(produto.cores || []).join("|")}" data-gallery-views="${(produto.vistas || []).join("|")}" data-product-back-image="${produto.imagemCostas || ""}" data-product-model="${produto.modelo3D || ""}">
                         <div class="produto-imagem">
@@ -512,12 +486,6 @@
                                 data-cart-price="${Number(produto.preco.replace(/[^0-9]/g, "")) || 0}"
                                 aria-label="${produto.reservar ? "Reservar" : "Adicionar"} ${produto.nome} ${produto.reservar ? "" : "ao carrinho"}"
                             >${produto.reservar ? "RESERVAR" : "ADICIONAR AO CARRINHO"}</button>
-                            <a
-                                class="pedir"
-                                href="https://wa.me/244973560521?text=${mensagem}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >CONSULTAR PELO WHATSAPP</a>
                         </div>
                     </article>
                 `;
