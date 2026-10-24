@@ -1,0 +1,48 @@
+.produto-info::after,
+.modelo-info::after {
+    content: "Frete Grátis";
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 7px;
+    padding: 4px 8px;
+    border: 1px solid rgba(71, 114, 93, .22);
+    border-radius: 999px;
+    background: rgba(71, 114, 93, .08);
+    color: #47725d;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.2;
+}
+
+.carrinho-envio-gratis {
+    margin: 0 0 10px;
+    color: #47725d;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.carrinho-desconto-selo {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(71, 114, 93, .22);
+    border-radius: 10px;
+    background: rgba(71, 114, 93, .08);
+    color: #3d7057;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.carrinho-resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 7px;
+    color: #666;
+    font-size: 12px;
+}
+
+.carrinho-resumo-linha[hidden],
+.carrinho-desconto-selo[hidden] {
+    display: none;
+}

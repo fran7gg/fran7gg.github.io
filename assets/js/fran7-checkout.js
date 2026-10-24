@@ -49,6 +49,12 @@
         return (CONFIG.invoicePrefix || "FT") + "-" + date.getFullYear() + "-" + unique;
     }
 
+    function calcularDesconto(quantidade) {
+        if (quantidade >= 3) return 2000;
+        if (quantidade === 2) return 1500;
+        return 0;
+    }
+
     function lerPerfilCliente() {
         let profile = {};
         try {
@@ -80,14 +86,21 @@
             };
         });
         const totalPending = products.some(function(item) { return item.total_item === null; });
-        const total = totalPending ? null : products.reduce(function(sum, item) {
-            return sum + item.total_item;
+        const quantidadeTotal = products.reduce(function(sum, item) { return sum + item.quantidade; }, 0);
+        const subtotal = products.reduce(function(sum, item) {
+            return sum + (item.total_item || 0);
         }, 0);
+        const discount = calcularDesconto(quantidadeTotal);
+        const total = totalPending ? null : Math.max(0, subtotal - discount);
         const order = {
             id_pedido: gerarNumeroPedido(date),
             data_hora: date.toISOString(),
             moeda: "AOA",
             produtos: products,
+            quantidade_total: quantidadeTotal,
+            valor_subtotal: subtotal,
+            desconto_quantidade: discount,
+            frete_gratis: true,
             valor_total: total,
             total_pendente: totalPending,
             cidade: String(details.cidade || "").trim(),
@@ -106,6 +119,9 @@
             data_hora: order.data_hora,
             moeda: order.moeda,
             produtos: order.produtos,
+            valor_subtotal: order.valor_subtotal,
+            desconto_quantidade: order.desconto_quantidade,
+            frete_gratis: order.frete_gratis,
             valor_total: order.valor_total,
             remetente: {
                 nome: CONFIG.brandName || "FRAN7",
@@ -301,19 +317,33 @@
             y += rowHeight;
         });
 
-        if (y + 48 > pageHeight - 20) {
+        const totals = [
+            [order.total_pendente ? "SUBTOTAL PARCIAL" : "SUBTOTAL", formatPrice(order.valor_subtotal)],
+            ["ENVIO PARA ANGOLA", "GRÁTIS"]
+        ];
+        if (order.desconto_quantidade > 0) {
+            totals.push(["DESCONTO DE QUANTIDADE", "- " + formatPrice(order.desconto_quantidade)]);
+        }
+        totals.push(["TOTAL FINAL", formatPrice(order.valor_total)]);
+
+        if (y + totals.length * 7 + 37 > pageHeight - 20) {
             doc.addPage();
             drawHeader();
             y = 48;
         }
-        y += 8;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
-        doc.text("TOTAL", 155, y, { align: "right" });
-        doc.text(formatPrice(order.valor_total), right, y, { align: "right" });
+        y += 7;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        totals.forEach(function(row, index) {
+            const isFinal = index === totals.length - 1;
+            doc.setFont("helvetica", isFinal ? "bold" : "normal");
+            doc.text(row[0], 155, y, { align: "right" });
+            doc.text(row[1], right, y, { align: "right" });
+            y += isFinal ? 9 : 6;
+        });
         doc.setFont("helvetica", "normal");
         doc.setFontSize(8.5);
-        y += 12;
+        y += 3;
         doc.text("PAGAMENTO", left, y);
         doc.text("IBAN: " + (CONFIG.iban || "A confirmar com a FRAN7"), left, y + 6);
         doc.text("Multicaixa Express: " + (CONFIG.multicaixaExpress || "A confirmar com a FRAN7"), left, y + 12);
@@ -348,7 +378,9 @@
                 " | unitário: " + formatAmount(item.preco_unitario) +
                 " | total: " + formatAmount(item.total_item));
         });
-        lines.push("Total indicado: " + formatAmount(order.valor_total));
+        lines.push("Subtotal: " + formatAmount(order.valor_subtotal));
+        lines.push("Entrega: Grátis");
+        lines.push("Total Final: " + formatAmount(order.valor_total));
         lines.push("Cidade: " + order.cidade);
         lines.push("Bairro/Localização: " + order.bairro_localizacao);
         if (order.telefone_cliente) lines.push("Telefone do cliente: " + order.telefone_cliente);
@@ -411,7 +443,7 @@
                 "id_pedido", "data_hora", "nome_cliente", "email_cliente", "telefone_cliente",
                 "cidade", "bairro_localizacao", "comentario", "nome_produto", "imagem",
                 "tamanho", "cor", "quantidade", "preco_unitario", "total_item",
-                "valor_total", "moeda", "estado"
+                "valor_subtotal", "desconto_quantidade", "frete_gratis", "valor_total", "moeda", "estado"
             ];
             const rows = [columns.join(",")];
             saved.forEach(function(order) {
@@ -421,6 +453,7 @@
                         order.telefone_cliente, order.cidade, order.bairro_localizacao,
                         order.comentario, item.nome, item.imagem, item.tamanho, item.cor,
                         item.quantidade, item.preco_unitario, item.total_item,
+                        order.valor_subtotal, order.desconto_quantidade, order.frete_gratis,
                         order.valor_total, order.moeda, order.estado
                     ].map(csvCell).join(","));
                 });
@@ -443,6 +476,7 @@
         parsePrice: parsePrice,
         formatAmount: formatAmount,
         createOrder: criarPedido,
+        calculateDiscount: calcularDesconto,
         finalize: finalizar,
         exportOrders: exportOrders
     };

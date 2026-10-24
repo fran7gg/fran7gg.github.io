@@ -43,6 +43,7 @@
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="assets/js/entrada-site.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
+    <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
@@ -3712,14 +3713,22 @@ O teu navegador não suporta este vídeo.
 
                 <div class="carrinho-total">
 
-                    <span>TOTAL INDICADO</span>
+                    <span>TOTAL FINAL</span>
 
                     <span id="carrinhoTotal">
                         0 Kz
                     </span>
 
                 </div>
-                <p class="carrinho-total-nota">Estimativa sujeita a confirmação.</p>
+                <div class="carrinho-resumo-linha">
+                    <span>Subtotal</span>
+                    <span id="carrinhoSubtotal">0 Kz</span>
+                </div>
+                <div class="carrinho-resumo-linha">
+                    <span>Entrega</span>
+                    <span>Grátis</span>
+                </div>
+                <div class="carrinho-desconto-selo" id="carrinhoDescontoSelo" hidden></div>
 
                 <div class="carrinho-dados-entrega">
                     <label for="carrinhoCidade">Cidade <span aria-hidden="true">*</span></label>
@@ -4316,6 +4325,8 @@ O teu navegador não suporta este vídeo.
                 document.getElementById(
                     "carrinhoTotal"
                 );
+            const subtotalElemento = document.getElementById("carrinhoSubtotal");
+            const descontoSelo = document.getElementById("carrinhoDescontoSelo");
 
             conteudo.innerHTML = "";
             document.getElementById("carrinhoCidade").value =
@@ -4336,20 +4347,24 @@ O teu navegador não suporta este vídeo.
                 );
 
                 totalElemento.textContent = "0 Kz";
+                subtotalElemento.textContent = "0 Kz";
+                descontoSelo.hidden = true;
 
                 return;
 
             }
 
-            let total = 0;
+            let subtotal = 0;
+            let totalPendente = false;
             let quantidadeTotal = 0;
 
             carrinho.forEach(
                 function(item,index) {
 
-                    total +=
+                    subtotal +=
                         item.preco *
                         item.quantidade;
+                    totalPendente = totalPendente || !item.preco;
 
                     quantidadeTotal +=
                         item.quantidade;
@@ -4382,7 +4397,8 @@ O teu navegador não suporta este vídeo.
                     nome.style.paddingRight = "30px";
                     const preco = document.createElement("p");
                     preco.textContent = item.preco
-                        ? formatarPreco(item.preco)
+                        ? formatarPreco(item.preco) + " × " + item.quantidade + " = " +
+                            formatarPreco(item.preco * item.quantidade)
                         : "Consultar preço";
                     const quantidade = document.createElement("div");
                     quantidade.className = "quantidade";
@@ -4462,8 +4478,19 @@ O teu navegador não suporta este vídeo.
                 "visivel"
             );
 
-            totalElemento.textContent =
-                formatarPreco(total);
+            const desconto = window.Fran7Checkout
+                ? window.Fran7Checkout.calculateDiscount(quantidadeTotal)
+                : (quantidadeTotal >= 3 ? 2000 : quantidadeTotal === 2 ? 1500 : 0);
+            subtotalElemento.textContent = totalPendente
+                ? formatarPreco(subtotal) + " + itens a confirmar"
+                : formatarPreco(subtotal);
+            descontoSelo.hidden = desconto === 0;
+            descontoSelo.textContent = quantidadeTotal >= 3
+                ? "Desconto máximo de quantidade aplicado!"
+                : "Desconto por volume aplicado!";
+            totalElemento.textContent = totalPendente
+                ? "A confirmar"
+                : formatarPreco(Math.max(0, subtotal - desconto));
 
         }
 

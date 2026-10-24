@@ -240,6 +240,13 @@
     font-size: 12px;
 }
 
+.fran7-cart-item-shipping {
+    margin: -5px 0 9px;
+    color: #47725d;
+    font-size: 10px;
+    font-weight: 650;
+}
+
 .fran7-cart-item-options {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -327,6 +334,38 @@
 .fran7-cart-footer {
     padding-top: 16px;
     border-top: 1px solid rgba(128, 128, 128, .25);
+}
+
+.fran7-cart-shipping-note {
+    margin: 0 0 10px;
+    color: #47725d;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.fran7-cart-discount-badge {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(71, 114, 93, .25);
+    border-radius: 10px;
+    background: rgba(71, 114, 93, .08);
+    color: #3d7057;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.fran7-cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 7px;
+    color: #666;
+    font-size: 12px;
+}
+
+.fran7-cart-summary-row[hidden],
+.fran7-cart-discount-badge[hidden] {
+    display: none;
 }
 
 .fran7-cart-total {

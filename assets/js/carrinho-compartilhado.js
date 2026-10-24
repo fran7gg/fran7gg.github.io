@@ -150,6 +150,8 @@
     function renderizar() {
         const count = document.getElementById("fran7CartCount");
         const list = document.getElementById("fran7CartItems");
+        const subtotalElement = document.getElementById("fran7CartSubtotal");
+        const discountBadge = document.getElementById("fran7CartDiscountBadge");
         const totalElement = document.getElementById("fran7CartTotal");
         const location = document.getElementById("fran7CartLocation");
         const city = document.getElementById("fran7CartCity");
@@ -163,9 +165,13 @@
             return total + item.quantidade;
         }, 0);
         const totalPendente = items.some(function(item) { return !item.preco; });
-        const total = items.reduce(function(sum, item) {
+        const subtotal = items.reduce(function(sum, item) {
             return sum + item.preco * item.quantidade;
         }, 0);
+        const desconto = window.Fran7Checkout
+            ? window.Fran7Checkout.calculateDiscount(totalQuantidade)
+            : (totalQuantidade >= 3 ? 2000 : totalQuantidade === 2 ? 1500 : 0);
+        const total = Math.max(0, subtotal - desconto);
 
         count.textContent = String(totalQuantidade);
         list.replaceChildren();
@@ -217,6 +223,9 @@
                     ? formatarPreco(item.preco) + " × " + item.quantidade + " = " +
                         formatarPreco(item.preco * item.quantidade)
                     : "Preço a confirmar";
+                const shipping = document.createElement("p");
+                shipping.className = "fran7-cart-item-shipping";
+                shipping.textContent = "Frete Grátis";
 
                 const quantity = document.createElement("div");
                 quantity.className = "fran7-cart-quantity";
@@ -248,7 +257,7 @@
                 });
 
                 quantity.append(decrease, quantityValue, increase);
-                details.append(name, price, quantity);
+                details.append(name, price, shipping, quantity);
 
                 const options = document.createElement("div");
                 options.className = "fran7-cart-item-options";
@@ -267,6 +276,17 @@
             });
         }
 
+        if (subtotalElement) {
+            subtotalElement.textContent = totalPendente
+                ? formatarPreco(subtotal) + " + itens a confirmar"
+                : formatarPreco(subtotal);
+        }
+        if (discountBadge) {
+            discountBadge.hidden = desconto === 0;
+            discountBadge.textContent = totalQuantidade >= 3
+                ? "Desconto máximo de quantidade aplicado!"
+                : "Desconto por volume aplicado!";
+        }
         totalElement.textContent = totalPendente ? "A confirmar" : formatarPreco(total);
         if (location) {
             location.value = localStorage.getItem(LOCATION_KEY) || "";
@@ -429,9 +449,15 @@
                         <span id="fran7CartNoticeText"></span>
                         <button type="button" id="fran7CartNoticeAction">Preencher agora</button>
                     </div>
+                    <div class="fran7-cart-summary-row">
+                        <span>Subtotal</span>
+                        <span id="fran7CartSubtotal">0 Kz</span>
+                    </div>
+                    <div class="fran7-cart-summary-row"><span>Entrega</span><span>Grátis</span></div>
+                    <div class="fran7-cart-discount-badge" id="fran7CartDiscountBadge" hidden></div>
                     <div class="fran7-cart-total">
                         <span class="fran7-cart-total-label">
-                            <span>TOTAL INDICADO</span>
+                            <span>TOTAL FINAL</span>
                             <span class="fran7-cart-total-note">Estimativa sujeita a confirmação.</span>
                         </span>
                         <span id="fran7CartTotal">0 Kz</span>
