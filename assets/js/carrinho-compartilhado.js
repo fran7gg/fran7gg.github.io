@@ -220,8 +220,7 @@
                 const price = document.createElement("p");
                 price.className = "fran7-cart-item-price";
                 price.textContent = item.preco
-                    ? formatarPreco(item.preco) + " × " + item.quantidade + " = " +
-                        formatarPreco(item.preco * item.quantidade)
+                    ? formatarPreco(item.preco * item.quantidade)
                     : "Preço a confirmar";
                 const shipping = document.createElement("p");
                 shipping.className = "fran7-cart-item-shipping";

@@ -1833,12 +1833,12 @@
 
         .carrinho-item-info h3 {
             font-size: 15px;
-            margin-bottom: 7px;
+            margin: 0 34px 6px 0;
         }
 
         .carrinho-item-info p {
             font-size: 13px;
-            margin-bottom: 10px;
+            margin: 0 0 8px;
         }
 
         .quantidade {
@@ -1875,12 +1875,6 @@
 
             font-size: 13px;
             font-weight: bold;
-        }
-
-        .carrinho-item-preco {
-            font-size: 14px;
-            font-weight: bold;
-            white-space: nowrap;
         }
 
         .carrinho-vazio {
@@ -4397,8 +4391,7 @@ O teu navegador não suporta este vídeo.
                     nome.style.paddingRight = "30px";
                     const preco = document.createElement("p");
                     preco.textContent = item.preco
-                        ? formatarPreco(item.preco) + " × " + item.quantidade + " = " +
-                            formatarPreco(item.preco * item.quantidade)
+                        ? formatarPreco(item.preco * item.quantidade)
                         : "Consultar preço";
                     const quantidade = document.createElement("div");
                     quantidade.className = "quantidade";
@@ -4448,11 +4441,6 @@ O teu navegador não suporta este vídeo.
                     });
                     detalhes.append(nome, preco, quantidade, opcoes);
 
-                    const totalItem = document.createElement("div");
-                    totalItem.className = "carrinho-item-preco";
-                    totalItem.textContent = item.preco
-                        ? formatarPreco(item.preco * item.quantidade)
-                        : "Consultar preço";
                     const remover = document.createElement("button");
                     remover.type = "button";
                     remover.className = "carrinho-remover";
@@ -4462,7 +4450,7 @@ O teu navegador não suporta este vídeo.
                         carrinho.splice(index, 1);
                         guardarCarrinho();
                     });
-                    produto.append(caixaImagem, detalhes, totalItem, remover);
+                    produto.append(caixaImagem, detalhes, remover);
 
                     conteudo.appendChild(
                         produto
