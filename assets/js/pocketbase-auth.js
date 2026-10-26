@@ -2,8 +2,10 @@
     "use strict";
 
     const POCKETBASE_HOST = window.location.hostname || "127.0.0.1";
-    const POCKETBASE_URL = window.FRAN7_POCKETBASE_URL ||
-        "http://" + POCKETBASE_HOST + ":8090";
+    const POCKETBASE_PROTOCOL = window.location.protocol === "https:" ? "https:" : "http:";
+    const POCKETBASE_URL = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
+        window.FRAN7_POCKETBASE_URL ||
+        POCKETBASE_PROTOCOL + "//" + POCKETBASE_HOST + ":8090";
     const COLLECTION = "usuarios_loja";
     const AUTH_STORAGE_KEY = "fran7_loja_pocketbase_auth";
     const SESSION_KEYS = [
@@ -48,6 +50,9 @@
             callbacks.slice().forEach(function(callback) {
                 callback(token, record);
             });
+            window.dispatchEvent(new CustomEvent("fran7-auth-changed", {
+                detail: { authenticated: Boolean(token && record) }
+            }));
         }
 
         function carregar() {
@@ -230,6 +235,15 @@
         guardarSessao: guardarSessao,
         estaAutenticado: function() {
             return pb.authStore.isValid;
+        },
+        obterSessao: function() {
+            if (!pb.authStore.isValid || !pb.authStore.record?.id) {
+                return null;
+            }
+            return {
+                token: pb.authStore.token,
+                record: pb.authStore.record
+            };
         }
     };
 })();

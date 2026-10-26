@@ -30,23 +30,24 @@
     <meta property="og:title" content="FRAN7 | Grief &amp; Glory">
     <meta property="og:description" content="Conheça a nova coleção e estilo único da FRAN7.">
     <meta property="og:url" content="https://fran7official.github.io/Fran7/">
-    <meta property="og:image" content="https://fran7official.github.io/Fran7/flux-logo.png">
+    <meta property="og:image" content="https://fran7official.github.io/Fran7/assets/images/logo.png.png">
     <meta property="og:image:alt" content="Logótipo da FRAN7">
     <meta property="og:image:type" content="image/png">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="FRAN7 | Grief &amp; Glory">
     <meta name="twitter:description" content="Conheça a nova coleção e estilo único da FRAN7.">
-    <meta name="twitter:image" content="https://fran7official.github.io/Fran7/flux-logo.png">
+    <meta name="twitter:image" content="https://fran7official.github.io/Fran7/assets/images/logo.png.png">
     <meta name="twitter:image:alt" content="Logótipo da FRAN7">
 
+    <script src="assets/js/fran7-sessao.js"></script>
     <script src="assets/js/entrada-site.js"></script>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
-    <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css">
+    <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css?v=20261026-2">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
-    <link rel="stylesheet" href="assets/css/detalhe-produto.css">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261026-2">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
 
     <style>
@@ -82,7 +83,7 @@
         #loading-screen {
             position: fixed;
             inset: 0;
-            background: #fff;
+            background: #000000;
 
             display: flex;
             align-items: center;
@@ -107,53 +108,6 @@
         .loading-logo {
             width: 180px;
             max-width: 65vw;
-
-            filter: brightness(0);
-
-            animation:
-                logoZoom
-                5s
-                ease-in-out
-                infinite;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            #loading-screen {
-                background: #000;
-            }
-
-            .loading-logo {
-                filter: brightness(0) invert(1);
-            }
-        }
-
-        @media (prefers-color-scheme: light) {
-            #loading-screen {
-                background: #fff;
-            }
-
-            .loading-logo {
-                filter: brightness(0);
-            }
-        }
-
-        @keyframes logoZoom {
-
-            0% {
-                opacity: 0.70;
-                transform: scale(0.88);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.08);
-            }
-
-            100% {
-                opacity: 0.70;
-                transform: scale(0.88);
-            }
-
         }
 
         /* =====================================================
@@ -976,6 +930,123 @@
                 1px solid;
         }
 
+        .home-photo-area {
+            padding: 0;
+        }
+
+        .home-photo-grid {
+            width: 100%;
+        }
+
+        .home-photo-slot {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100vh;
+            min-height: 500px;
+            margin: 0;
+            background: linear-gradient(145deg, #111, #080808);
+        }
+
+        .home-photo-slot img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .home-photo-slot--feature {
+            height: auto;
+            min-height: 0;
+            background: #080808;
+        }
+
+        .home-photo-slot--feature img {
+            width: 100%;
+            height: auto;
+            object-fit: initial;
+        }
+
+        .home-photo-slot--feature::after {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0.04) 30%,
+                rgba(0, 0, 0, 0.25) 58%,
+                rgba(0, 0, 0, 0.78) 100%
+            );
+            content: "";
+            pointer-events: none;
+        }
+
+        .home-photo-overlay {
+            position: absolute;
+            z-index: 1;
+            right: 24px;
+            bottom: clamp(28px, 6vw, 88px);
+            left: clamp(24px, 7vw, 100px);
+            max-width: 720px;
+            color: #fff;
+        }
+
+        .home-photo-eyebrow {
+            margin-bottom: 14px;
+            font-size: 11px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+
+        .home-photo-overlay h2 {
+            margin: 0 0 14px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(34px, 6.5vw, 76px);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            line-height: 0.98;
+            text-wrap: balance;
+        }
+
+        .home-photo-overlay p:not(.home-photo-eyebrow) {
+            max-width: 480px;
+            margin: 0 0 26px;
+            color: rgba(255, 255, 255, 0.84);
+            font-size: clamp(14px, 1.5vw, 17px);
+            line-height: 1.6;
+        }
+
+        .home-photo-button {
+            display: inline-flex;
+            min-height: 48px;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 0 22px;
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        .home-photo-button:hover {
+            background: #fff;
+            color: #080808;
+        }
+
+        .home-photo-slot figcaption {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: #777;
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
         .titulo {
             text-align: center;
 
@@ -1559,6 +1630,34 @@
 
             .hero {
                 padding-top: 120px;
+            }
+
+            .home-photo-overlay {
+                right: 20px;
+                bottom: 28px;
+                left: 20px;
+            }
+
+            .home-photo-eyebrow {
+                margin-bottom: 10px;
+                font-size: 9px;
+            }
+
+            .home-photo-overlay h2 {
+                max-width: 460px;
+                margin-bottom: 10px;
+                font-size: clamp(32px, 9vw, 48px);
+            }
+
+            .home-photo-overlay p:not(.home-photo-eyebrow) {
+                margin-bottom: 18px;
+                font-size: 13px;
+            }
+
+            .home-photo-button {
+                min-height: 44px;
+                padding: 0 15px;
+                font-size: 9px;
             }
 
             .imagem-colecao {
@@ -2374,6 +2473,9 @@
 
     </style>
     <link rel="stylesheet" href="assets/css/tema-automatico.css">
+    <link rel="stylesheet" href="assets/css/preloader-shimmer.css">
+    <link rel="stylesheet" href="assets/css/botoes-outline.css">
+    <link rel="stylesheet" href="assets/css/classificacao-estrelas.css?v=20261026-1">
     <script src="assets/js/configuracoes.js"></script>
 
 </head>
@@ -2386,11 +2488,13 @@
 
     <div id="loading-screen">
 
-        <img
-            src="assets/images/logo.png.png"
-            alt="FRAN7"
-            class="loading-logo"
-        >
+        <div class="fr7-preloader-logo">
+            <img
+                src="assets/images/logo.png.png"
+                alt="FRAN7"
+                class="loading-logo"
+            >
+        </div>
 
     </div>
 
@@ -2416,10 +2520,6 @@
             <a href="colecao.html?categoria=homens" data-protegido="true">Homens</a>
             <a href="colecao.html?categoria=criancas" data-protegido="true">Crianças</a>
             <a href="#informacoes" data-info-page="sobre">A marca ↗</a>
-            <a href="http://localhost:5173/" target="_blank" rel="noopener noreferrer" class="nav-link highlight-social" style="display: inline-flex; align-items: center; gap: 8px;">
-                <img src="assets/images/flux-logo.png" alt="" width="24" height="24" style="object-fit: cover; border-radius: 6px;">
-                FLUX ↗
-            </a>
         </nav>
 
         <!-- UTILIZADOR -->
@@ -2558,6 +2658,22 @@ O teu navegador não suporta este vídeo.
 
     </section>
 
+    <section class="home-photo-area" aria-label="Espaço para fotos depois do vídeo">
+        <div class="home-photo-grid">
+            <figure class="home-photo-slot home-photo-slot--feature">
+                <img src="foto1.png" alt="Campanha de verão FRAN7">
+                <div class="home-photo-overlay">
+                    <p class="home-photo-eyebrow">FRAN7 · VERÃO 2026</p>
+                    <h2>O verão tem outra presença.</h2>
+                    <p>Descobre peças feitas para acompanhar cada momento da estação.</p>
+                    <a class="home-photo-button" href="catalogo.html">
+                        Ver catálogo de verão <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </figure>
+        </div>
+    </section>
+
     <!-- =====================================================
          PRODUTOS
     ===================================================== -->
@@ -2583,8 +2699,8 @@ O teu navegador não suporta este vídeo.
                 class="produto"
                 data-protegido="true"
                 data-product-name="Modelo FRAN7 01"
-                data-product-price="11.000 Kz"
-                data-ai-model="Modelo FRAN7 01"
+                data-product-price="14.000 Kz"
+                data-ai-model="Modelo culture"
                 data-product-reserve="true"
                 data-gallery-images="assets/images/TRIBE.CASTANHA.jpeg|assets/images/TRIBLE.BEIGE.jpeg|assets/images/TIBLE.CINZA.jpeg"
                 data-gallery-views="Frente|Castanho|Bege|Cinza"
@@ -2736,6 +2852,22 @@ O teu navegador não suporta este vídeo.
 
     </section>
 
+    <section class="home-photo-area" aria-label="Coleção BASKET BALL FLOWERS">
+        <div class="home-photo-grid">
+            <figure class="home-photo-slot home-photo-slot--feature">
+                <img src="foto2.png" alt="Coleção BASKET BALL FLOWERS da FRAN7">
+                <div class="home-photo-overlay">
+                    <p class="home-photo-eyebrow">FRAN7 · COLEÇÃO</p>
+                    <h2>BASKET BALL FLOWERS</h2>
+                    <p>Atitude e identidade numa coleção feita para se destacar.</p>
+                    <a class="home-photo-button" href="catalogo.html">
+                        Ver coleção BASKET BALL FLOWERS <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </figure>
+        </div>
+    </section>
+
     <!-- =====================================================
          CATÁLOGO
     ===================================================== -->
@@ -2846,16 +2978,10 @@ O teu navegador não suporta este vídeo.
                 <span>YouTube</span>
             </a>
         </div>
-<!-- Secção de convite para a comunidade FLUX -->
-<section class="flux-community-card" style="width: calc(100% - 40px); max-width: 592px; margin: 0 auto; padding: 48px 24px; background: #111; color: #fff; text-align: center; border-radius: 12px;">
-  <h2 style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.2; margin-bottom: 14px;">
-    <img src="assets/images/flux-logo.png" alt="" width="42" height="42" style="flex: 0 0 42px; object-fit: contain; border-radius: 10px;">
-    Junta-te à Comunidade FLUX
-  </h2>
-  <p style="max-width: 460px; color: #aaa; line-height: 1.7; margin: 0 auto 26px;">Partilha os teus looks, conversa com outros criadores e descobre os novos lançamentos em primeira mão.</p>
-  <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" class="highlight-social" style="display: inline; background: transparent; color: #c5a0ff !important; font-size: 1.1rem; font-weight: 400; padding: 0; border-radius: 0; text-decoration: underline;">
-    Entrar no FLUX
-  </a>
+<section class="fran7-tribute-card" style="width: calc(100% - 40px); max-width: 592px; margin: 0 auto; padding: 48px 24px; background: #111; color: #fff; text-align: center; border-radius: 12px;">
+  <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: .8; margin-bottom: 10px;">HOMENAGEM</div>
+  <h2 style="font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.2; margin-bottom: 14px;">Eliseu Sabino</h2>
+  <p style="max-width: 460px; color: #aaa; line-height: 1.7; margin: 0 auto;"><em>Em memória de <strong>Eliseu Sabino</strong>, cuja visão e apoio financeiro tornaram possível a criação do FRAN7. A sua confiança inicial é a base sobre a qual construímos esta marca.</em></p>
 </section>
         </div>
        
@@ -2916,9 +3042,6 @@ O teu navegador não suporta este vídeo.
                         <rect x="2.5" y="5" width="19" height="14" rx="4"/>
                         <path d="m10 9 5 3-5 3z"/>
                     </svg>
-                </a>
-                <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" aria-label="Comunidade FLUX">
-                    <img src="assets/images/flux-logo.png" alt="" width="24" height="24" style="display: block; object-fit: cover; border-radius: 6px;">
                 </a>
             </div>
         </div>
@@ -3150,7 +3273,7 @@ O teu navegador não suporta este vídeo.
                     return;
                 }
 
-                if (localStorage.getItem("sessaoFRAN7") === "true") {
+                if (window.Fran7Session?.estaAutenticado()) {
                     window.location.href = elemento.getAttribute("href") === "catalogo.html"
                         ? "catalogo.html"
                         : "inicio.html";
@@ -3188,7 +3311,7 @@ O teu navegador não suporta este vídeo.
             "load",
             function() {
 
-                if (localStorage.getItem("sessaoFRAN7") === "true") {
+                if (window.Fran7Session?.estaAutenticado()) {
                     window.location.replace("inicio.html");
                     return;
                 }
@@ -3205,7 +3328,7 @@ O teu navegador não suporta este vídeo.
                             "saindo"
                         );
                     },
-                    4000
+                    1500
                 );
 
             }
@@ -3255,8 +3378,11 @@ O teu navegador não suporta este vídeo.
     <script src="assets/js/fran7-notificacoes.js"></script>
     <script src="assets/js/fran7-checkout-config.js"></script>
     <script src="assets/js/fran7-checkout.js"></script>
-    <script src="assets/js/carrinho-compartilhado.js"></script>
-    <script src="assets/js/detalhe-produto.js"></script>
+    <script src="assets/js/carrinho-compartilhado.js?v=20261026-3"></script>
+    <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
+    <script src="assets/js/pocketbase-auth.js"></script>
+    <script src="assets/js/classificacao-estrelas.js?v=20261026-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261026-3"></script>
     <script src="assets/js/informacoes-modal.js"></script>
     <script src="assets/js/assistente.js"></script>
 

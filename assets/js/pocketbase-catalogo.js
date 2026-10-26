@@ -4,7 +4,10 @@
     const POCKETBASE_URL = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
         window.FRAN7_POCKETBASE_URL || "http://127.0.0.1:8090";
     const COLLECTION = "produtos_loja";
+    const VARIANTS_COLLECTION = "variantes_produto";
     const PRICE_OVERRIDES = { "Boné FRAN7 Modelo 2": 7000 };
+    const PRODUCTS_PER_PAGE = 24;
+    const VARIANT_FILTER_BATCH_SIZE = 40;
     const grid = document.getElementById("modelosGrid");
 
     function mostrarEstado(mensagem) {
@@ -57,7 +60,27 @@
         return typeof value === "string" ? value.split("|").map(function(item) { return item.trim(); }) : [];
     }
 
-    function criarModelo(record, pb) {
+    async function carregarVariantes(pb, products) {
+        const batches = [];
+        for (let index = 0; index < products.length; index += VARIANT_FILTER_BATCH_SIZE) {
+            batches.push(products.slice(index, index + VARIANT_FILTER_BATCH_SIZE));
+        }
+
+        const results = await Promise.all(batches.map(function(batch) {
+            const filter = batch.map(function(product) {
+                return 'produto_id = "' + product.id + '"';
+            }).join(" || ");
+            return pb.collection(VARIANTS_COLLECTION).getFullList({
+                sort: "-created",
+                filter: filter
+            });
+        }));
+        return results.reduce(function(all, variants) {
+            return all.concat(variants);
+        }, []);
+    }
+
+    function criarModelo(record, pb, variants) {
         const nome = typeof record.texto === "string" ? record.texto.trim() : "";
         const nomeImagem = typeof record.imagem === "string" ? record.imagem.trim() : "";
         if (!nome || !nomeImagem) {
@@ -65,19 +88,47 @@
             return null;
         }
 
-        const imagem = pb.files.getURL(record, nomeImagem);
-        const valorPreco = PRICE_OVERRIDES[nome] || obterPrecoValido(record.preco);
+        const productImage = pb.files.getURL(record, nomeImagem);
+        const productVariants = variants.map(function(variant) {
+            const variantImageName = typeof variant.imagem === "string" ? variant.imagem.trim() : "";
+            return {
+                id: variant.id,
+                cor: typeof variant.cor === "string" ? variant.cor.trim() : "",
+                tamanho: typeof variant.tamanho === "string" ? variant.tamanho.trim() : "",
+                preco: variant.preco,
+                stock: variant.stock,
+                imagem: variantImageName ? pb.files.getURL(variant, variantImageName) : ""
+            };
+        }).filter(function(variant) {
+            if (!variant.cor || !variant.tamanho) {
+                console.error("Variante ignorada: preenche cor e tamanho no PocketBase.", variant.id);
+                return false;
+            }
+            return true;
+        });
+        const defaultVariant = productVariants.find(function(variant) {
+            return Number(variant.stock) > 0;
+        }) || productVariants[0];
+        const imagem = defaultVariant?.imagem || productImage;
+        const priceSource = defaultVariant ? defaultVariant.preco : record.preco;
+        const valorPreco = defaultVariant
+            ? obterPrecoValido(priceSource)
+            : (PRICE_OVERRIDES[nome] || obterPrecoValido(priceSource));
         const preco = valorPreco === null
             ? ""
             : valorPreco.toLocaleString("pt-AO") + " Kz";
-        const temStockDefinido = record.stock !== null &&
-            record.stock !== "" &&
-            Number.isFinite(Number(record.stock));
-        const semStock = temStockDefinido && Number(record.stock) <= 0;
+        const stock = defaultVariant ? defaultVariant.stock : record.stock;
+        const temStockDefinido = stock !== null &&
+            stock !== "" &&
+            Number.isFinite(Number(stock));
+        const semStock = temStockDefinido && Number(stock) <= 0;
         const artigo = document.createElement("article");
         artigo.className = "modelo";
         artigo.dataset.productName = nome;
+        artigo.dataset.productId = record.id;
         artigo.dataset.productPrice = preco;
+        artigo.dataset.productBaseImage = productImage;
+        artigo.dataset.productVariants = JSON.stringify(productVariants);
         artigo.dataset.productDescription =
             typeof record.descricao === "string" ? record.descricao : "";
         artigo.dataset.productReserve = "false";
@@ -105,7 +156,10 @@
         favorito.className = "botao-favorito";
         favorito.type = "button";
         favorito.dataset.favoriteName = nome;
+        favorito.dataset.favoriteProductId = record.id;
         favorito.dataset.favoriteImage = imagem;
+        favorito.dataset.favoriteBaseImage = productImage;
+        favorito.dataset.favoriteVariants = JSON.stringify(productVariants);
         favorito.dataset.favoritePrice = String(valorPreco || 0);
         favorito.dataset.favoriteReserve = "false";
         favorito.dataset.favoriteImages = artigo.dataset.galleryImages;
@@ -135,12 +189,14 @@
         adicionar.dataset.cartName = nome;
         adicionar.dataset.cartImage = imagem;
         adicionar.dataset.cartPrice = String(valorPreco || 0);
-        adicionar.textContent = semStock ? "SEM STOCK" : "ADICIONAR AO CARRINHO";
+        adicionar.textContent = productVariants.length
+            ? "ESCOLHER OPÇÕES"
+            : semStock ? "SEM STOCK" : "ADICIONAR AO CARRINHO";
         adicionar.setAttribute(
             "aria-label",
             semStock ? nome + " sem stock" : "Adicionar " + nome + " ao carrinho"
         );
-        adicionar.disabled = semStock;
+        adicionar.disabled = semStock && productVariants.length === 0;
 
         info.append(etiqueta, titulo);
         if (preco) {
@@ -157,31 +213,76 @@
         }
 
         const pb = new window.PocketBase(POCKETBASE_URL);
-        const produtos = await pb.collection(COLLECTION).getFullList({
-            sort: "-created"
-        });
+        let page = 1;
+        let totalPages = 1;
+        const artigos = [];
 
-        if (!produtos.length) {
-            mostrarEstado("Nenhum produto cadastrado no momento.");
-            return;
-        }
+        do {
+            const result = await pb.collection(COLLECTION).getList(page, PRODUCTS_PER_PAGE, {
+                sort: "-created"
+            });
+            const produtos = result.items;
 
-        const artigos = produtos
-            .map(function(record) {
-                return criarModelo(record, pb);
-            })
-            .filter(Boolean);
+            if (page === 1 && !produtos.length) {
+                mostrarEstado("Nenhum produto cadastrado no momento.");
+                return;
+            }
+
+            const variants = await carregarVariantes(pb, produtos);
+            const variantsByProduct = new Map();
+            variants.forEach(function(variant) {
+                if (!variantsByProduct.has(variant.produto_id)) {
+                    variantsByProduct.set(variant.produto_id, []);
+                }
+                variantsByProduct.get(variant.produto_id).push(variant);
+            });
+            const pageArticles = produtos.map(function(record) {
+                return criarModelo(
+                    record,
+                    pb,
+                    variantsByProduct.get(record.id) || []
+                );
+            }).filter(Boolean);
+
+            if (page === 1) {
+                grid.replaceChildren();
+            }
+            pageArticles.forEach(function(article, index) {
+                const image = article.querySelector("img");
+                const articleIndex = artigos.length + index;
+                image.decoding = "async";
+                if (articleIndex < 3) {
+                    image.loading = "eager";
+                    image.fetchPriority = "high";
+                }
+                grid.appendChild(article);
+            });
+            artigos.push.apply(artigos, pageArticles);
+            totalPages = result.totalPages;
+            page += 1;
+        } while (page <= totalPages);
 
         if (!artigos.length) {
             mostrarEstado("Nenhum produto cadastrado no momento.");
             return;
         }
 
-        grid.replaceChildren.apply(grid, artigos);
+        window.dispatchEvent(new CustomEvent("fran7-products-loaded", {
+            detail: { products: artigos }
+        }));
     }
 
     carregarProdutos().catch(function(error) {
         console.error("Não foi possível carregar produtos do PocketBase:", error);
-        mostrarEstado("Não foi possível carregar os produtos. Verifica a ligação ao PocketBase e tenta novamente.");
+        if (grid.querySelector(".modelo")) {
+            const status = document.createElement("p");
+            status.id = "pocketbaseStatus";
+            status.setAttribute("role", "status");
+            status.style.cssText = "grid-column: 1 / -1; text-align: center;";
+            status.textContent = "Alguns produtos não puderam ser carregados. Verifica a ligação ao PocketBase.";
+            grid.appendChild(status);
+        } else {
+            mostrarEstado("Não foi possível carregar os produtos. Verifica a ligação ao PocketBase e tenta novamente.");
+        }
     });
 })();

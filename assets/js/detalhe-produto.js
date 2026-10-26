@@ -17,8 +17,9 @@
                     <p class="fran7-product-eyebrow">FRAN7 COLLECTION</p>
                     <p class="fran7-product-availability">Disponibilidade a confirmar</p>
                     <h2 class="fran7-product-name" id="fran7ProductName"></h2>
-                    <p class="fran7-product-price"></p>
+                    <div class="fran7-product-rating"></div>
                     <p class="fran7-product-color" hidden></p>
+                    <div class="fran7-product-color-options" role="group" aria-label="Escolher cor"></div>
                     <p class="fran7-product-description"></p>
                     <p class="fran7-product-note">Coleção Conceito — Detalhes em alta gramatura com assinatura interior "Grief &amp; Glory".</p>
                     <button class="fran7-product-add" type="button">ADICIONAR À SACOLA</button>
@@ -35,9 +36,12 @@
     const closeButton = overlay.querySelector(".fran7-product-close");
     const addButton = overlay.querySelector(".fran7-product-add");
     const colorLabel = overlay.querySelector(".fran7-product-color");
+    const colorOptions = overlay.querySelector(".fran7-product-color-options");
+    const availability = overlay.querySelector(".fran7-product-availability");
     let currentProduct = null;
     let selectedImage = "";
     let selectedColor = "";
+    let selectedVariant = null;
     let previousFocus = null;
 
     function obterPreco(valor) {
@@ -52,6 +56,31 @@
         return Number.isFinite(preco) && preco > 0 ? preco : 0;
     }
 
+    function formatarPreco(valor) {
+        const preco = obterPreco(valor);
+        return preco ? preco.toLocaleString("pt-AO") + " Kz" : "Consultar preço";
+    }
+
+    function lerVariantes(article) {
+        const raw = article.dataset.productVariants;
+        if (!raw) {
+            return [];
+        }
+        try {
+            const variants = JSON.parse(raw);
+            if (!Array.isArray(variants)) {
+                throw new TypeError("As variantes do produto não são uma lista.");
+            }
+            return variants.filter(function(variant) {
+                return variant && typeof variant.cor === "string" &&
+                    typeof variant.tamanho === "string";
+            });
+        } catch (error) {
+            console.error("Não foi possível ler as variantes deste produto.", error);
+            return [];
+        }
+    }
+
     function getProduct(article) {
         const image = article.querySelector(".produto-imagem img, .modelo-imagem img, .favorito-card > img");
         const name = article.dataset.productName ||
@@ -64,8 +93,8 @@
         const description = article.dataset.productDescription ||
             article.querySelector(".produto-info > p:not(.produto-etiqueta):not(.produto-preco), .modelo-info > p:not(.modelo-etiqueta):not(.modelo-preco)")?.textContent.trim() ||
             "Uma peça da coleção FRAN7. Confirma os detalhes e a disponibilidade connosco.";
-        const imageSources = [
-            image?.getAttribute("src") || "",
+        const variants = lerVariantes(article);
+        const gallerySources = [
             ...(article.dataset.galleryImages || image?.dataset.galleryImages || "")
                 .split("|")
                 .map(function(src) { return src.trim(); })
@@ -77,7 +106,7 @@
         const colors = (article.dataset.galleryColors || image?.dataset.galleryColors || "")
             .split("|")
             .map(function(color) { return color.trim(); });
-        const views = imageSources.map(function(src, index) {
+        const views = gallerySources.map(function(src, index) {
             return {
                 type: "image",
                 src: src,
@@ -101,16 +130,44 @@
         }
         const model = (article.dataset.productModel || "").trim();
         if (model) views.push({ type: "model", src: model, label: "3D", color: "" });
+        const variantColor = (article.dataset.productColor || "").trim();
+        const variantSize = (article.dataset.productSize || "").trim();
+        const mainImage = article.dataset.productBaseImage ||
+            image?.getAttribute("src") ||
+            "";
+        if (variants.length) {
+            views.unshift({
+                type: "image",
+                src: mainImage,
+                label: "Frente",
+                color: "",
+                side: "front"
+            });
+        } else {
+            views.unshift({
+                type: "image",
+                src: mainImage,
+                label: viewLabels[0] || "Frente",
+                color: colors[0] || "",
+                side: "front"
+            });
+        }
+        const usableViews = variants.length
+            ? views.filter(function(view, index) { return index === 0 || !view.color; })
+            : views;
 
         return {
             article: article,
             name: name,
             price: price,
             description: description,
-            views: views,
-            modelFallback: image?.getAttribute("src") || "",
+            views: usableViews.slice(0, IMAGE_LIMIT),
+            modelFallback: mainImage,
             reservar: article.dataset.productReserve === "true",
-            id: article.dataset.productId || (name + "|" + (image?.getAttribute("src") || ""))
+            id: article.dataset.productId || "",
+            variantColor: variantColor,
+            variantSize: variantSize,
+            variants: variants
         };
     }
 
@@ -197,23 +254,171 @@
         atualizarCorSelecionada(0);
     }
 
+    function normalizarOpcao(value) {
+        return String(value || "").trim().toLocaleLowerCase("pt")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function definirCorPonto(dot, color) {
+        const colors = {
+            preto: "#111111",
+            branco: "#ffffff",
+            vermelho: "#d22f27",
+            azul: "#2463eb",
+            verde: "#21834a",
+            amarelo: "#e3bd25",
+            laranja: "#e67e22",
+            rosa: "#e58ca8",
+            roxo: "#7544a5",
+            castanho: "#75452b",
+            marrom: "#75452b",
+            bege: "#d8c3a5",
+            cinza: "#858585",
+            cinzento: "#858585"
+        };
+        dot.style.backgroundColor = colors[normalizarOpcao(color)] || "#858585";
+        if (normalizarOpcao(color) === "branco" || normalizarOpcao(color) === "bege") {
+            dot.classList.add("is-light");
+        }
+    }
+
+    function variantesDaCor(color) {
+        return currentProduct.variants.filter(function(variant) {
+            return normalizarOpcao(variant.cor) === normalizarOpcao(color);
+        });
+    }
+
+    function selecionarVariante(variant) {
+        if (!variant) {
+            selectedVariant = null;
+            return;
+        }
+
+        selectedVariant = variant;
+        selectedColor = variant.cor;
+        colorLabel.textContent = "Cor selecionada: " + variant.cor;
+        colorLabel.hidden = false;
+        availability.textContent = Number(variant.stock) > 0
+            ? "Disponível"
+            : "Sem stock nesta cor.";
+
+        if (variant.imagem) {
+            selectedImage = variant.imagem;
+            showView({
+                type: "image",
+                src: variant.imagem,
+                label: variant.cor,
+                color: variant.cor,
+                side: "front"
+            }, currentProduct);
+            thumbnails.querySelectorAll(".fran7-product-thumbnail").forEach(function(button) {
+                button.setAttribute("aria-pressed", "false");
+            });
+        } else {
+            selectedImage = currentProduct.modelFallback;
+            showView({
+                type: "image",
+                src: selectedImage,
+                label: "Frente",
+                color: "",
+                side: "front"
+            }, currentProduct);
+            thumbnails.querySelectorAll(".fran7-product-thumbnail").forEach(function(button) {
+                button.setAttribute("aria-pressed", "false");
+            });
+        }
+
+        colorOptions.querySelectorAll(".fran7-product-color-swatch").forEach(function(button) {
+            button.setAttribute(
+                "aria-pressed",
+                String(normalizarOpcao(button.dataset.color) === normalizarOpcao(variant.cor))
+            );
+        });
+        addButton.disabled = !(Number(variant.stock) > 0);
+        addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
+    }
+
+    function renderizarVariantes(product) {
+        colorOptions.replaceChildren();
+        colorOptions.hidden = product.variants.length === 0;
+        colorLabel.hidden = product.variants.length > 0;
+        availability.textContent = "Disponibilidade a confirmar";
+        addButton.disabled = false;
+
+        if (!product.variants.length) {
+            return;
+        }
+
+        const colors = Array.from(new Map(product.variants.map(function(variant) {
+            return [normalizarOpcao(variant.cor), variant.cor.trim()];
+        })).values());
+        colors.forEach(function(color) {
+            const availableVariant = variantesDaCor(color).find(function(variant) {
+                return Number(variant.stock) > 0;
+            });
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "fran7-product-color-swatch";
+            button.dataset.color = color;
+            button.setAttribute("aria-label", "Escolher cor " + color);
+            button.setAttribute("aria-pressed", "false");
+            button.disabled = !availableVariant;
+            const dot = document.createElement("span");
+            dot.className = "fran7-product-color-dot";
+            dot.setAttribute("aria-hidden", "true");
+            definirCorPonto(dot, color);
+            const label = document.createElement("span");
+            label.textContent = color;
+            button.append(dot, label);
+            button.addEventListener("click", function() {
+                selecionarVariante(availableVariant);
+            });
+            colorOptions.appendChild(button);
+        });
+
+        const firstVariant = product.variants.find(function(variant) {
+            return Number(variant.stock) > 0;
+        }) || product.variants[0];
+        selecionarVariante(firstVariant);
+    }
+
     function atualizarCorSelecionada(index) {
+        if (currentProduct.variants.length) {
+            return;
+        }
         const galleryColor = currentProduct.views[index]?.color || "";
         if (galleryColor) selectedColor = galleryColor;
-        colorLabel.textContent = selectedColor ? "Cor: " + selectedColor : "";
-        colorLabel.hidden = !selectedColor;
+        colorLabel.textContent = [
+            selectedColor && "Cor: " + selectedColor,
+            currentProduct.variantSize && "Tamanho: " + currentProduct.variantSize
+        ].filter(Boolean).join(" · ");
+        colorLabel.hidden = !selectedColor && !currentProduct.variantSize;
     }
 
     function openProduct(article) {
         currentProduct = getProduct(article);
         previousFocus = document.activeElement;
         overlay.querySelector(".fran7-product-name").textContent = currentProduct.name;
-        overlay.querySelector(".fran7-product-price").textContent = currentProduct.price;
         overlay.querySelector(".fran7-product-description").textContent = currentProduct.description;
+        if (window.Fran7Ratings) {
+            window.Fran7Ratings.mount(
+                overlay.querySelector(".fran7-product-rating"),
+                currentProduct.id,
+                currentProduct.name
+            );
+        }
         addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
-        selectedColor = "";
+        selectedVariant = null;
+        selectedColor = currentProduct.variantColor;
+        colorLabel.textContent = [
+            selectedColor && "Cor: " + selectedColor,
+            currentProduct.variantSize && "Tamanho: " + currentProduct.variantSize
+        ].filter(Boolean).join(" · ");
+        colorLabel.hidden = !selectedColor && !currentProduct.variantSize;
         renderGallery(currentProduct);
         selectedImage = currentProduct.views[0]?.src || "";
+        renderizarVariantes(currentProduct);
         overlay.hidden = false;
         document.body.style.overflow = "hidden";
         closeButton.focus();
@@ -260,18 +465,31 @@
     });
 
     addButton.addEventListener("click", function() {
+        if (currentProduct.variants.length && !selectedVariant) {
+            window.Fran7Notify.alert("Escolhe a cor e o tamanho do produto.", { title: "Escolhe uma opção" });
+            return;
+        }
         if (currentProduct.views.some(function(view) { return view.color; }) && !selectedColor) {
             window.Fran7Notify.alert("Seleciona a fotografia da cor que pretendes.", { title: "Escolhe uma cor" });
             return;
         }
 
         const source = currentProduct.article.querySelector(".botao-produto");
-        const price = obterPreco(currentProduct.price);
+        const colorVariants = currentProduct.variants.length
+            ? variantesDaCor(selectedColor)
+            : [];
+        const price = colorVariants.length
+            ? 0
+            : obterPreco(currentProduct.price);
         const item = {
             nome: currentProduct.name,
             imagem: selectedImage || currentProduct.modelFallback || "",
+            imagemBase: currentProduct.modelFallback || "",
+            productId: currentProduct.id,
             preco: price,
-            cor: selectedColor
+            cor: selectedColor,
+            tamanho: colorVariants.length ? "" : currentProduct.variantSize,
+            variantes: colorVariants
         };
         closeProduct();
         if (window.Fran7Cart && typeof window.Fran7Cart.add === "function") {
@@ -284,7 +502,11 @@
                 currentProduct.name,
                 price,
                 item.imagem || source?.dataset.cartImage,
-                selectedColor
+                selectedColor,
+                item.tamanho,
+                colorVariants,
+                currentProduct.id,
+                item.imagemBase
             );
         }
     });

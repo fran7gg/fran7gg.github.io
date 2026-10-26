@@ -20,10 +20,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css">
-    <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css">
+    <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css?v=20261026-2">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
-    <link rel="stylesheet" href="assets/css/detalhe-produto.css">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261026-2">
     <style>
         :root {
             color-scheme: light dark;
@@ -170,6 +170,13 @@
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 22px;
+        }
+
+        .estado-colecao {
+            grid-column: 1 / -1;
+            margin: 24px 0;
+            text-align: center;
+            line-height: 1.6;
         }
 
         .produto {
@@ -367,6 +374,8 @@
         }
         </style>
         <link rel="stylesheet" href="assets/css/tema-automatico.css">
+        <link rel="stylesheet" href="assets/css/botoes-outline.css">
+        <link rel="stylesheet" href="assets/css/classificacao-estrelas.css?v=20261026-1">
         <script src="assets/js/configuracoes.js"></script>
     </head>
     <body class="fran7-subpage">
@@ -395,42 +404,19 @@
                 titulo: "HOMENS",
                 etiqueta: "FRAN7 PERFORMANCE",
                 descricao: "Descobre os modelos FRAN7 e consulta connosco os tamanhos e a disponibilidade antes de fazer o teu pedido.",
-                capa: "assets/images/a3.jpeg",
-                produtos: [
-                    { nome: "T-shirt FRAN7 Tribal", imagem: "assets/images/1.png", preco: "11.000 Kz", imagensExtra: ["assets/images/TRIBE.CASTANHA.jpeg", "assets/images/TRIBLE.BEIGE.jpeg", "assets/images/TIBLE.CINZA.jpeg"], vistas: ["Frente", "Castanho", "Bege", "Cinza"], cores: ["Preto", "Castanho", "Bege", "Cinza"], reservar: true },
-                    { nome: "T-shirt FRAN7", imagem: "assets/images/3.png", preco: "7.000 Kz", imagensExtra: [], cores: [] },
-                    { nome: "Boné FRAN7 Modelo 2", imagem: "assets/images/CASTANHO.MODELO2.jpeg", preco: "7.000 Kz", imagensExtra: ["assets/images/CINZA.MODELO2.jpeg"], cores: ["Castanho", "Cinza"] },
-                    { nome: "Boné FRAN7", imagem: "assets/images/4.png", preco: "Consultar preço", imagensExtra: [], cores: [] },
-                    { nome: "FRAN7 Performance", imagem: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.22%20PM.jpeg", preco: "Consultar preço", imagensExtra: [], cores: [] },
-                    { nome: "Meias FRAN7", imagem: "assets/images/meias.jpg", preco: "Consultar preço", imagensExtra: [], cores: [] }
-                ]
+                capa: "assets/images/a3.jpeg"
             },
             mulheres: {
                 titulo: "MULHERES",
                 etiqueta: "FRAN7 COLLECTION",
                 descricao: "Explora os modelos FRAN7. Fala connosco para confirmar os tamanhos, o corte e a disponibilidade de cada peça.",
-                capa: "assets/images/mulheres.jpeg",
-                produtos: [
-                    { nome: "T-shirt FRAN7 Tribal", imagem: "assets/images/1.png", preco: "11.000 Kz", imagensExtra: ["assets/images/TRIBE.CASTANHA.jpeg", "assets/images/TRIBLE.BEIGE.jpeg", "assets/images/TIBLE.CINZA.jpeg"], vistas: ["Frente", "Castanho", "Bege", "Cinza"], cores: ["Preto", "Castanho", "Bege", "Cinza"], reservar: true },
-                    { nome: "T-shirt FRAN7", imagem: "assets/images/3.png", preco: "7.000 Kz", imagensExtra: [], cores: [] },
-                    { nome: "Boné FRAN7 Modelo 2", imagem: "assets/images/CASTANHO.MODELO2.jpeg", preco: "7.000 Kz", imagensExtra: ["assets/images/CINZA.MODELO2.jpeg"], vistas: ["Castanho", "Cinza"], cores: ["Castanho", "Cinza"] },
-                    { nome: "Boné FRAN7", imagem: "assets/images/2.png", preco: "7.000 Kz", imagensExtra: [], cores: [] },
-                    { nome: "Boné FRAN7", imagem: "assets/images/4.png", preco: "Consultar preço", imagensExtra: [], cores: [] },
-                    { nome: "Conjunto Feminino FRAN7", imagem: "assets/images/mulheres,%20conjunto.jpg", preco: "Consultar preço", imagensExtra: [], cores: [] },
-                    { nome: "Meias FRAN7", imagem: "assets/images/meias.jpg", preco: "Consultar preço", imagensExtra: [], cores: [] }
-                ]
+                capa: "assets/images/mulheres.jpeg"
             },
             criancas: {
                 titulo: "CRIANÇAS",
                 etiqueta: "FRAN7 JUNIOR",
                 descricao: "Uma coleção para os pequenos atletas. Consulta connosco os tamanhos infantis e a disponibilidade antes de fazer o pedido.",
-                capa: "assets/images/a1.jpeg",
-                produtos: [
-                    { nome: "T-shirt FRAN7", imagem: "assets/images/1.png", preco: "Consultar tamanho e preço", imagensExtra: [], cores: [] },
-                    { nome: "T-shirt FRAN7", imagem: "assets/images/3.png", preco: "Consultar tamanho e preço", imagensExtra: [], cores: [] },
-                    { nome: "Boné FRAN7", imagem: "assets/images/2.png", preco: "Consultar tamanho e preço", imagensExtra: [], cores: [] },
-                    { nome: "Boné FRAN7", imagem: "assets/images/4.png", preco: "Consultar tamanho e preço", imagensExtra: [], cores: [] }
-                ]
+                capa: "assets/images/a1.jpeg"
             }
         };
 
@@ -453,44 +439,7 @@
             document.querySelector(`[data-categoria-link="${categoria}"]`)
                 .setAttribute("aria-current", "page");
 
-            const produtos = colecao.produtos.map(function(produto) {
-                return `
-                    <article class="produto" data-product-name="${produto.nome}" data-product-price="${produto.preco}" data-product-reserve="${produto.reservar || false}" data-gallery-images="${(produto.imagensExtra || []).join("|")}" data-gallery-colors="${(produto.cores || []).join("|")}" data-gallery-views="${(produto.vistas || []).join("|")}" data-product-back-image="${produto.imagemCostas || ""}" data-product-model="${produto.modelo3D || ""}">
-                        <div class="produto-imagem">
-                            <img src="${produto.imagem}" alt="${produto.nome}" loading="lazy">
-                            <button
-                                class="botao-favorito"
-                                type="button"
-                                data-favorite-name="${produto.nome}"
-                                data-favorite-image="${produto.imagem}"
-                                data-favorite-price="${Number(produto.preco.replace(/[^0-9]/g, "")) || 0}"
-                                data-favorite-reserve="${produto.reservar || false}"
-                                data-favorite-images="${(produto.imagensExtra || []).join("|")}"
-                                data-favorite-colors="${(produto.cores || []).join("|")}"
-                                data-favorite-views="${(produto.vistas || []).join("|")}"
-                                data-favorite-back-image="${produto.imagemCostas || ""}"
-                                data-favorite-model="${produto.modelo3D || ""}"
-                                aria-label="Adicionar aos favoritos"
-                                aria-pressed="false"
-                            ><span class="coracao" aria-hidden="true">♡</span></button>
-                        </div>
-                        <div class="produto-info">
-                            <p class="produto-etiqueta">${colecao.etiqueta}</p>
-                            <h2>${produto.nome}</h2>
-                            <p class="produto-preco">${produto.preco}</p>
-                            <button
-                                class="fran7-cart-add"
-                                type="button"
-                                data-cart-name="${produto.nome}"
-                                data-cart-image="${produto.imagem}"
-                                data-cart-price="${Number(produto.preco.replace(/[^0-9]/g, "")) || 0}"
-                                aria-label="${produto.reservar ? "Reservar" : "Adicionar"} ${produto.nome} ${produto.reservar ? "" : "ao carrinho"}"
-                            >${produto.reservar ? "RESERVAR" : "ADICIONAR AO CARRINHO"}</button>
-                        </div>
-                    </article>
-                `;
-            }).join("");
-
+            window.FRAN7_COLLECTION_PAGE = colecao;
             conteudo.innerHTML = `
                 <section class="introducao" aria-labelledby="tituloColecao">
                     <div class="introducao-texto">
@@ -502,18 +451,23 @@
                 </section>
                 <p class="aviso-disponibilidade">Os tamanhos e a disponibilidade podem variar. Confirma os detalhes connosco antes do pedido.</p>
                 <section class="produtos-grid" aria-label="Modelos da coleção ${colecao.titulo}">
-                    ${produtos}
+                    <p class="estado-colecao" role="status">A carregar produtos...</p>
                 </section>
             `;
         }
     </script>
-    <script src="assets/js/fran7-notificacoes.js"></script>
+    <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
     <script src="assets/js/fran7-checkout-config.js"></script>
+    <script src="assets/js/pocketbase-colecao.js?v=20261026-2"></script>
+    <script src="assets/js/fran7-notificacoes.js"></script>
     <script src="assets/js/fran7-checkout.js"></script>
     <script src="assets/js/favoritos.js"></script>
-    <script src="assets/js/carrinho-compartilhado.js"></script>
-    <script src="assets/js/detalhe-produto.js"></script>
+    <script src="assets/js/carrinho-compartilhado.js?v=20261026-3"></script>
+    <script src="assets/js/pocketbase-auth.js"></script>
+    <script src="assets/js/classificacao-estrelas.js?v=20261026-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261026-3"></script>
     <script src="assets/js/assistente-widget.js"></script>
+    <script src="assets/js/fran7-sessao.js"></script>
     <script src="assets/js/assistente.js"></script>
 </body>
 </html>

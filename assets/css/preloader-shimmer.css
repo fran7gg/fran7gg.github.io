@@ -1,0 +1,46 @@
+﻿#loading-screen {
+    background: #000000 !important;
+}
+
+html body #loading-screen .loading-logo {
+    display: block;
+    filter: brightness(0) invert(1) !important;
+    opacity: 0.3;
+}
+
+.fr7-preloader-logo {
+  position: relative;
+  display: inline-block;
+}
+
+/* Aplica o brilho apenas onde o logo tem preenchimento/traço branco */
+.fr7-preloader-logo img, 
+.fr7-preloader-logo svg {
+  display: block;
+}
+
+.fr7-preloader-logo::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.9) 43%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0.9) 57%,
+    transparent 75%
+  );
+  transform: skewX(-20deg);
+  animation: fr7ShimmerEffect 3s ease-in-out infinite;
+  /* Essencial para mascarar a luz dentro da forma do logo */
+  mix-blend-mode: overlay;
+}
+
+@keyframes fr7ShimmerEffect {
+  0% { left: -150%; }
+  100% { left: 150%; }
+}

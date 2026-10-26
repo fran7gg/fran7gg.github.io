@@ -205,7 +205,7 @@ body:not(.fran7-subpage) .produto-imagem img,
 .fran7-subpage .modelo-imagem img,
 .fran7-subpage .produto-imagem img,
 .fran7-subpage .favorito-card > img {
-    object-fit: contain;
+    object-fit: cover;
 }
 
 body:not(.fran7-subpage) .produto-imagem .botao-favorito {

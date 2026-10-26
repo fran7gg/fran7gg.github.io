@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Animação Shimmer - FRAN7</title>
+    <style>
+        /* Reset e fundo idêntico ao site da FRAN7 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        /* Contentor do Preloader */
+        .preloader-demo {
+            text-align: center;
+        }
+
+        /* O Logo com o Efeito de Luz Fluida (Shimmer) */
+        .fran7-shimmer-logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: rgba(255, 255, 255, 0.15); /* Cor de base da marca */
+            
+            /* Gradiente da luz que simula a varredura */
+            background: linear-gradient(
+                90deg, 
+                rgba(255, 255, 255, 0.15) 0%, 
+                rgba(255, 255, 255, 1) 50%, 
+                rgba(255, 255, 255, 0.15) 100%
+            );
+            background-size: 200% 100%;
+            
+            /* Aplica o brilho estritamente por dentro das letras/forma */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            
+            /* Animação contínua da luz a mover-se */
+            animation: adidasStyleShimmer 1.5s infinite linear;
+        }
+
+        /* Subtítulo discreto opcional */
+        .loading-text {
+            color: #777777;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            margin-top: 15px;
+            text-transform: uppercase;
+        }
+
+        /* Keyframes do movimento fluido */
+        @keyframes adidasStyleShimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="preloader-demo">
+        <!-- Logótipo da FRAN7 com o efeito aplicado -->
+        <div class="fran7-shimmer-logo">FRAN7</div>
+        <div class="loading-text">A carregar coleção...</div>
+    </div>
+
+</body>
+</html>

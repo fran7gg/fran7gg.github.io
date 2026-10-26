@@ -1,0 +1,131 @@
+.fran7-rating {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+    margin: 0 0 14px;
+}
+
+.fran7-rating-summary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 18px;
+}
+
+.fran7-rating-summary-stars {
+    display: inline-flex;
+    gap: 1px;
+    color: #b6b6b6;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.fran7-rating-summary-star.is-filled {
+    color: #c39b52;
+}
+
+.fran7-rating-summary-star.is-half {
+    background: linear-gradient(90deg, #c39b52 50%, #b6b6b6 50%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.fran7-rating-summary-text {
+    color: inherit;
+    font-size: 10px;
+    opacity: .7;
+}
+
+.fran7-rating-label {
+    color: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.fran7-rating-stars {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.fran7-rating-star {
+    display: grid;
+    width: 28px;
+    height: 30px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #000;
+    font-size: 23px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .15s ease, transform .15s ease;
+}
+
+.fran7-rating-star.is-selected {
+    opacity: 1;
+}
+
+.fran7-rating-star:not(.is-selected) {
+    opacity: .28;
+}
+
+.fran7-rating-star:disabled {
+    cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+    .fran7-rating-star {
+        color: #fff;
+    }
+}
+
+.fran7-rating-star:hover {
+    transform: translateY(-1px) scale(1.08);
+}
+
+.fran7-rating-star:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+}
+
+.fran7-rating-note,
+.fran7-rating-status {
+    margin: 0;
+    color: inherit;
+    font-size: 10px;
+    line-height: 1.4;
+    opacity: .65;
+}
+
+.fran7-rating-note a {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.fran7-rating-status:empty {
+    display: none;
+}
+
+@media (max-width: 680px) {
+    .fran7-rating {
+        gap: 2px;
+        margin-bottom: 10px;
+    }
+
+    .fran7-rating-star {
+        width: 26px;
+        height: 28px;
+        font-size: 21px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fran7-rating-star {
+        transition: none;
+    }
+}

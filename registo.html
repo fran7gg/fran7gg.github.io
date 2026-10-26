@@ -925,6 +925,7 @@
 
     </style>
     <link rel="stylesheet" href="assets/css/tema-automatico.css">
+    <link rel="stylesheet" href="assets/css/botoes-outline.css">
     <script src="assets/js/configuracoes.js"></script>
 
 </head>
@@ -1344,6 +1345,8 @@
          JAVASCRIPT
     ========================= -->
 
+         <script src="assets/js/fran7-checkout-config.js"></script>
+         <script src="assets/js/fran7-sessao.js"></script>
          <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
          <script src="assets/js/pocketbase-auth.js"></script>
          <script>
@@ -2174,10 +2177,7 @@
 
         function atualizarMenu() {
 
-            const sessao =
-                localStorage.getItem(
-                    "sessaoFRAN7"
-                ) === "true";
+            const sessao = window.Fran7Session?.estaAutenticado() === true;
 
 
             const botaoSair =
@@ -2238,10 +2238,7 @@
 
             event.preventDefault();
 
-            const sessao =
-                localStorage.getItem(
-                    "sessaoFRAN7"
-                ) === "true";
+            const sessao = window.Fran7Session?.estaAutenticado() === true;
 
 
             if (!sessao) {
@@ -2278,10 +2275,7 @@
 
             event.preventDefault();
 
-            const sessao =
-                localStorage.getItem(
-                    "sessaoFRAN7"
-                ) === "true";
+            const sessao = window.Fran7Session?.estaAutenticado() === true;
 
 
             if (!sessao) {
@@ -2318,10 +2312,7 @@
 
             event.preventDefault();
 
-            const sessao =
-                localStorage.getItem(
-                    "sessaoFRAN7"
-                ) === "true";
+            const sessao = window.Fran7Session?.estaAutenticado() === true;
 
 
             if (!sessao) {

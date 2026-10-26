@@ -262,7 +262,8 @@
     text-transform: uppercase;
 }
 
-.fran7-cart-field input {
+.fran7-cart-field input,
+.fran7-cart-field select {
     width: 100%;
     min-width: 0;
     height: 38px;
@@ -289,7 +290,8 @@
     font-size: 12px;
 }
 
-.fran7-cart-field input:disabled {
+.fran7-cart-field input:disabled,
+.fran7-cart-field select:disabled {
     opacity: .65;
 }
 

@@ -11,6 +11,25 @@
         return preservarVazios ? valores : valores.filter(Boolean);
     }
 
+    function lerVariantes(value) {
+        if (!value) {
+            return [];
+        }
+        try {
+            const variants = JSON.parse(value);
+            if (!Array.isArray(variants)) {
+                throw new TypeError("As variantes favoritas não são uma lista.");
+            }
+            return variants.filter(function(variant) {
+                return variant && typeof variant.cor === "string" &&
+                    typeof variant.tamanho === "string";
+            });
+        } catch (error) {
+            console.error("Não foi possível ler as variantes guardadas nos favoritos:", error);
+            return [];
+        }
+    }
+
     function carregarFavoritos() {
         try {
             const favoritos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -69,7 +88,14 @@
         const article = button.closest(".produto, .modelo");
         const item = {
             nome: button.dataset.favoriteName,
+            productId: button.dataset.favoriteProductId || article?.dataset.productId || "",
             imagem: button.dataset.favoriteImage,
+            imagemBase: button.dataset.favoriteBaseImage ||
+                article?.dataset.productBaseImage ||
+                button.dataset.favoriteImage,
+            variantes: lerVariantes(
+                button.dataset.favoriteVariants || article?.dataset.productVariants || ""
+            ),
             preco: Number(button.dataset.favoritePrice) || 0,
             reservar: button.dataset.favoriteReserve === "true" || article?.dataset.productReserve === "true",
             imagensExtra: lerListaPipe(

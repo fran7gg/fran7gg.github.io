@@ -102,7 +102,7 @@
         article.dataset.productDescription = "Modelo apresentado no catálogo FRAN7. Confirma cor, tamanho e disponibilidade com a equipa.";
         article.dataset.galleryImages = (product.images || []).join("|");
         article.dataset.galleryColors = (product.colors || []).join("|");
-        if (localStorage.getItem("sessaoFRAN7") !== "true") {
+        if (!window.Fran7Session?.estaAutenticado()) {
             article.dataset.protegido = "true";
         }
         const imageContainer = document.createElement("div");
@@ -147,7 +147,7 @@
             open.className = "fran7-ai-product-open";
             open.textContent = "Ver modelo";
             open.addEventListener("click", function() {
-                if (localStorage.getItem("sessaoFRAN7") !== "true") {
+                if (!window.Fran7Session?.estaAutenticado()) {
                     if (typeof window.mostrarAviso === "function") {
                         window.mostrarAviso();
                         return;

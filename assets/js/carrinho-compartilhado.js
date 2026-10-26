@@ -26,6 +26,25 @@
         return /\b(bon[eé]|chap[eé]u|meias?|socks?)\b/i.test(nome);
     }
 
+    function normalizarCor(valor) {
+        return String(valor || "").trim().toLocaleLowerCase("pt")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function encontrarVariante(item, tamanho) {
+        const size = String(tamanho || "").trim().toLocaleLowerCase("pt");
+        return (item.variantes || []).find(function(variant) {
+            return variant.tamanho.trim().toLocaleLowerCase("pt") === size &&
+                (!item.cor || normalizarCor(variant.cor) === normalizarCor(item.cor)) &&
+                Number(variant.stock) > 0;
+        });
+    }
+
+    function chaveItem(item) {
+        return [item.productId || item.nome, item.cor, item.tamanho].join("|");
+    }
+
     function carregarCarrinho() {
         const raw = localStorage.getItem(STORAGE_KEY);
 
@@ -51,12 +70,20 @@
                 return {
                     nome: item.nome,
                     imagem: item.imagem,
+                    imagemBase: typeof item.imagemBase === "string" ? item.imagemBase : "",
+                    productId: typeof item.productId === "string" ? item.productId : "",
                     preco: obterPreco(item.preco),
                     quantidade: Number(item.quantidade),
                     cor: typeof item.cor === "string" ? item.cor : "",
                     tamanho: tamanhoAutomatico(item.nome)
                         ? "X"
-                        : (typeof item.tamanho === "string" ? item.tamanho : "")
+                        : (typeof item.tamanho === "string" ? item.tamanho : ""),
+                    variantes: Array.isArray(item.variantes)
+                        ? item.variantes.filter(function(variant) {
+                            return variant && typeof variant.cor === "string" &&
+                                typeof variant.tamanho === "string";
+                        })
+                        : []
                 };
             });
         } catch (error) {
@@ -71,6 +98,101 @@
         window.dispatchEvent(new CustomEvent("fran7-cart-updated", {
             detail: { items: items }
         }));
+    }
+
+    function enriquecerCarrinhoComVariantes(products) {
+        const cards = Array.isArray(products)
+            ? products
+            : Array.from(document.querySelectorAll(
+                ".produto[data-product-variants], .modelo[data-product-variants], .favorito-card[data-product-variants]"
+            ));
+        let changed = false;
+
+        items.forEach(function(item) {
+            if (Array.isArray(item.variantes) && item.variantes.length) {
+                return;
+            }
+            const candidates = cards.map(function(card) {
+                let variants = [];
+                try {
+                    variants = JSON.parse(card.dataset.productVariants || "[]");
+                } catch (error) {
+                    console.error("Não foi possível recuperar as variantes do produto.", error);
+                }
+                return { card: card, variants: variants };
+            }).filter(function(candidate) {
+                const name = candidate.card.dataset.productName ||
+                    candidate.card.querySelector("h2, h3")?.textContent.trim();
+                return candidate.variants.length &&
+                    (!item.productId || candidate.card.dataset.productId === item.productId) &&
+                    name === item.nome;
+            });
+            const exact = candidates.filter(function(candidate) {
+                const cardImage = candidate.card.querySelector("img")?.src || "";
+                const baseImage = candidate.card.dataset.productBaseImage || "";
+                return candidate.variants.some(function(variant) {
+                    return variant.imagem && variant.imagem === item.imagem;
+                }) || cardImage === item.imagem || baseImage === item.imagem;
+            });
+            const match = exact.length === 1
+                ? exact[0]
+                : (item.productId && candidates.length === 1 ? candidates[0] : null);
+            if (!match) {
+                return;
+            }
+
+            const variants = match.variants.filter(function(variant) {
+                return variant && typeof variant.cor === "string" &&
+                    typeof variant.tamanho === "string";
+            });
+            if (!variants.length) {
+                return;
+            }
+            item.productId = match.card.dataset.productId || "";
+            item.imagemBase = match.card.dataset.productBaseImage ||
+                match.card.querySelector("img")?.src ||
+                item.imagem;
+            item.variantes = variants;
+
+            const selected = variants.find(function(variant) {
+                return item.tamanho &&
+                    variant.tamanho === item.tamanho &&
+                    (!item.cor || normalizarCor(variant.cor) === normalizarCor(item.cor));
+            });
+            if (selected) {
+                item.cor = selected.cor;
+                item.tamanho = selected.tamanho;
+                item.preco = obterPreco(selected.preco);
+                item.imagem = selected.imagem || item.imagemBase;
+            } else {
+                const imageVariant = variants.find(function(variant) {
+                    return variant.imagem && variant.imagem === item.imagem;
+                });
+                const colors = Array.from(new Set(variants.map(function(variant) {
+                    return normalizarCor(variant.cor);
+                })));
+                if (!item.cor && imageVariant) {
+                    item.cor = imageVariant.cor;
+                } else if (!item.cor && colors.length === 1) {
+                    item.cor = variants[0].cor;
+                }
+                const colorVariants = item.cor
+                    ? variants.filter(function(variant) {
+                        return normalizarCor(variant.cor) === normalizarCor(item.cor);
+                    })
+                    : [];
+                item.tamanho = "";
+                item.preco = 0;
+                item.imagem = colorVariants.find(function(variant) {
+                    return variant.imagem;
+                })?.imagem || imageVariant?.imagem || item.imagemBase;
+            }
+            changed = true;
+        });
+
+        if (changed) {
+            guardarCarrinho();
+        }
     }
 
     function formatarPreco(valor) {
@@ -118,13 +240,14 @@
 
     function focarCampoEmFalta() {
         const itemEmFalta = items.find(function(item) {
-            return !item.cor || !item.tamanho;
+            return !item.cor ||
+                (!item.tamanho || (item.variantes.length && !encontrarVariante(item, item.tamanho)));
         });
 
         if (itemEmFalta) {
             const itemElement = [...document.querySelectorAll(".fran7-cart-item")]
                 .find(function(element) {
-                    return element.dataset.itemKey === itemEmFalta.nome + "|" + itemEmFalta.imagem;
+                    return element.dataset.itemKey === chaveItem(itemEmFalta);
                 });
 
             if (itemElement) {
@@ -150,8 +273,6 @@
     function renderizar() {
         const count = document.getElementById("fran7CartCount");
         const list = document.getElementById("fran7CartItems");
-        const subtotalElement = document.getElementById("fran7CartSubtotal");
-        const discountBadge = document.getElementById("fran7CartDiscountBadge");
         const totalElement = document.getElementById("fran7CartTotal");
         const location = document.getElementById("fran7CartLocation");
         const city = document.getElementById("fran7CartCity");
@@ -161,19 +282,6 @@
             return;
         }
 
-        const totalQuantidade = items.reduce(function(total, item) {
-            return total + item.quantidade;
-        }, 0);
-        const totalPendente = items.some(function(item) { return !item.preco; });
-        const subtotal = items.reduce(function(sum, item) {
-            return sum + item.preco * item.quantidade;
-        }, 0);
-        const desconto = window.Fran7Checkout
-            ? window.Fran7Checkout.calculateDiscount(totalQuantidade)
-            : (totalQuantidade >= 3 ? 2000 : totalQuantidade === 2 ? 1500 : 0);
-        const total = Math.max(0, subtotal - desconto);
-
-        count.textContent = String(totalQuantidade);
         list.replaceChildren();
 
         if (items.length === 0) {
@@ -185,7 +293,7 @@
             items.forEach(function(item, index) {
                 const card = document.createElement("article");
                 card.className = "fran7-cart-item";
-                card.dataset.itemKey = item.nome + "|" + item.imagem;
+                card.dataset.itemKey = chaveItem(item);
 
                 let image;
                 if (item.imagem) {
@@ -193,6 +301,14 @@
                     image.className = "fran7-cart-item-image";
                     image.src = item.imagem;
                     image.alt = item.nome;
+                    image.addEventListener("error", function() {
+                        const placeholder = document.createElement("div");
+                        placeholder.className = "fran7-cart-item-image fran7-cart-item-placeholder";
+                        placeholder.textContent = "Imagem indisponível";
+                        placeholder.setAttribute("aria-label", "Imagem indisponível para " + item.nome);
+                        image.replaceWith(placeholder);
+                        console.error("Não foi possível carregar a imagem do produto na sacola:", item.imagem);
+                    }, { once: true });
                 } else {
                     image = document.createElement("div");
                     image.className = "fran7-cart-item-image fran7-cart-item-placeholder";
@@ -257,14 +373,107 @@
 
                 const options = document.createElement("div");
                 options.className = "fran7-cart-item-options";
-                options.appendChild(criarCampo("Cor", "Ex.: Preto, branco...", item.cor, function(value) {
-                    items[index].cor = value;
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-                }));
-                options.appendChild(criarCampo("Tamanho", "Ex.: M, L, XL...", item.tamanho, function(value) {
-                    items[index].tamanho = value;
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-                }));
+                if (Array.isArray(item.variantes) && item.variantes.length) {
+                    const colors = Array.from(new Map(item.variantes.map(function(variant) {
+                        return [normalizarCor(variant.cor), variant.cor];
+                    })).values());
+                    if (colors.length > 1) {
+                        const colorLabel = document.createElement("label");
+                        colorLabel.className = "fran7-cart-field";
+                        colorLabel.textContent = "Cor";
+                        const colorSelect = document.createElement("select");
+                        colorSelect.dataset.cartOption = "cor";
+                        const colorPlaceholder = document.createElement("option");
+                        colorPlaceholder.value = "";
+                        colorPlaceholder.textContent = "Escolhe a cor";
+                        colorSelect.appendChild(colorPlaceholder);
+                        colors.forEach(function(color) {
+                            const option = document.createElement("option");
+                            option.value = color;
+                            option.textContent = color;
+                            option.selected = normalizarCor(item.cor) === normalizarCor(color);
+                            colorSelect.appendChild(option);
+                        });
+                        colorSelect.addEventListener("change", function() {
+                            item.cor = colorSelect.value;
+                            item.tamanho = "";
+                            item.preco = 0;
+                            item.imagem = item.imagemBase || item.imagem;
+                            guardarCarrinho();
+                        });
+                        colorLabel.appendChild(colorSelect);
+                        options.appendChild(colorLabel);
+                    } else {
+                        const color = document.createElement("p");
+                        color.className = "fran7-cart-item-color";
+                        color.textContent = "Cor: " + (item.cor || colors[0] || "—");
+                        options.appendChild(color);
+                    }
+                    const sizeLabel = document.createElement("div");
+                    sizeLabel.className = "fran7-cart-field";
+                    const sizeCaption = document.createElement("label");
+                    sizeCaption.textContent = "Tamanho";
+                    const input = document.createElement("input");
+                    const sizeList = document.createElement("datalist");
+                    sizeList.id = "fran7-cart-sizes-" + index;
+                    input.type = "text";
+                    input.dataset.cartOption = "tamanho";
+                    input.placeholder = "Escreve o teu tamanho";
+                    input.autocomplete = "off";
+                    input.value = item.tamanho || "";
+                    input.setAttribute("list", sizeList.id);
+                    sizeCaption.htmlFor = sizeList.id + "-input";
+                    input.id = sizeCaption.htmlFor;
+                    const colorVariants = item.variantes.filter(function(variant) {
+                        return !item.cor || normalizarCor(variant.cor) === normalizarCor(item.cor);
+                    });
+                    const sizes = Array.from(new Map(colorVariants.map(function(variant) {
+                        return [variant.tamanho, variant];
+                    })).values());
+                    sizes.forEach(function(variant) {
+                        const option = document.createElement("option");
+                        option.value = variant.tamanho;
+                        option.label = Number(variant.stock) > 0
+                            ? variant.tamanho + " · " + Number(variant.stock) + " disponíveis"
+                            : variant.tamanho + " · Sem stock";
+                        if (Number(variant.stock) > 0) {
+                            sizeList.appendChild(option);
+                        }
+                    });
+                    input.disabled = colors.length > 1 && !item.cor;
+                    input.addEventListener("input", function() {
+                        const typedSize = input.value.trim();
+                        const variant = colorVariants.find(function(entry) {
+                            return entry.tamanho.trim().toLocaleLowerCase("pt") ===
+                                typedSize.toLocaleLowerCase("pt") &&
+                                Number(entry.stock) > 0;
+                        });
+                        item.tamanho = variant?.tamanho || typedSize;
+                        item.preco = variant ? obterPreco(variant.preco) : 0;
+                        item.imagem = variant?.imagem || item.imagemBase || item.imagem;
+                        price.textContent = variant
+                            ? formatarPreco(item.preco * item.quantidade)
+                            : (typedSize ? "Tamanho indisponível" : "Preço a confirmar");
+                        const itemImage = card.querySelector(".fran7-cart-item-image");
+                        if (itemImage && itemImage.tagName === "IMG" && item.imagem) {
+                            itemImage.src = item.imagem;
+                        }
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+                        atualizarResumo();
+                    });
+                    input.addEventListener("change", guardarCarrinho);
+                    sizeLabel.append(sizeCaption, input, sizeList);
+                    options.appendChild(sizeLabel);
+                } else {
+                    options.appendChild(criarCampo("Cor", "Ex.: Preto, branco...", item.cor, function(value) {
+                        items[index].cor = value;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+                    }));
+                    options.appendChild(criarCampo("Tamanho", "Ex.: M, L, XL...", item.tamanho, function(value) {
+                        items[index].tamanho = value;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+                    }));
+                }
                 details.appendChild(options);
 
                 card.append(image, details, remove);
@@ -272,18 +481,7 @@
             });
         }
 
-        if (subtotalElement) {
-            subtotalElement.textContent = totalPendente
-                ? formatarPreco(subtotal) + " + itens a confirmar"
-                : formatarPreco(subtotal);
-        }
-        if (discountBadge) {
-            discountBadge.hidden = desconto === 0;
-            discountBadge.textContent = totalQuantidade >= 3
-                ? "Desconto máximo de quantidade aplicado!"
-                : "Desconto por volume aplicado!";
-        }
-        totalElement.textContent = totalPendente ? "A confirmar" : formatarPreco(total);
+        atualizarResumo();
         if (location) {
             location.value = localStorage.getItem(LOCATION_KEY) || "";
         }
@@ -292,6 +490,41 @@
         }
         if (note) {
             note.value = localStorage.getItem(NOTE_KEY) || "";
+        }
+    }
+
+    function atualizarResumo() {
+        const count = document.getElementById("fran7CartCount");
+        const subtotalElement = document.getElementById("fran7CartSubtotal");
+        const discountBadge = document.getElementById("fran7CartDiscountBadge");
+        const totalElement = document.getElementById("fran7CartTotal");
+        const totalQuantity = items.reduce(function(total, item) {
+            return total + item.quantidade;
+        }, 0);
+        const subtotal = items.reduce(function(total, item) {
+            return total + item.preco * item.quantidade;
+        }, 0);
+        const totalPending = items.some(function(item) { return !item.preco; });
+        const discount = window.Fran7Checkout
+            ? window.Fran7Checkout.calculateDiscount(totalQuantity)
+            : (totalQuantity >= 3 ? 2000 : totalQuantity === 2 ? 1500 : 0);
+
+        if (count) count.textContent = String(totalQuantity);
+        if (subtotalElement) {
+            subtotalElement.textContent = totalPending
+                ? formatarPreco(subtotal) + " + itens a confirmar"
+                : formatarPreco(subtotal);
+        }
+        if (discountBadge) {
+            discountBadge.hidden = discount === 0;
+            discountBadge.textContent = totalQuantity >= 3
+                ? "Desconto máximo de quantidade aplicado!"
+                : "Desconto por volume aplicado!";
+        }
+        if (totalElement) {
+            totalElement.textContent = totalPending
+                ? "A confirmar"
+                : formatarPreco(Math.max(0, subtotal - discount));
         }
     }
 
@@ -318,26 +551,40 @@
     function adicionar(item) {
         const nome = String(item.nome || "Produto FRAN7").trim();
         const imagem = String(item.imagem || "");
+        const imagemBase = String(item.imagemBase || imagem);
+        const productId = String(item.productId || "");
         const preco = obterPreco(item.preco);
         const cor = String(item.cor || "").trim();
         const tamanho = tamanhoAutomatico(nome)
             ? "X"
             : String(item.tamanho || "").trim();
+        const variantes = Array.isArray(item.variantes) ? item.variantes : [];
         const existing = items.find(function(current) {
-            return current.nome === nome && current.imagem === imagem &&
-                current.preco === preco && current.cor === cor && current.tamanho === tamanho;
+            return (current.productId || current.nome) === (productId || nome) &&
+                current.cor === cor &&
+                current.tamanho === tamanho;
         });
 
         if (existing) {
             existing.quantidade += 1;
+            if (variantes.length) {
+                existing.preco = preco;
+                existing.imagem = imagem;
+                existing.imagemBase = imagemBase;
+                existing.variantes = variantes;
+                existing.productId = productId || existing.productId || "";
+            }
         } else {
             items.push({
                 nome: nome,
                 imagem: imagem,
+                imagemBase: imagemBase,
+                productId: productId,
                 preco: preco,
                 quantidade: 1,
                 cor: cor,
-                tamanho: tamanho
+                tamanho: tamanho,
+                variantes: variantes
             });
         }
 
@@ -353,6 +600,12 @@
         const itemEmFalta = items.find(function(item) {
             return !item.cor || (!tamanhoAutomatico(item.nome) && !item.tamanho);
         });
+        const tamanhoIndisponivel = items.find(function(item) {
+            return item.variantes.length &&
+                !tamanhoAutomatico(item.nome) &&
+                item.tamanho &&
+                !encontrarVariante(item, item.tamanho);
+        });
 
         if (items.length === 0) {
             mostrarAviso("Adiciona pelo menos um produto ao carrinho antes de enviar o pedido.");
@@ -363,6 +616,11 @@
             mostrarAviso(itemEmFalta
                 ? "Preenche a cor e o tamanho de cada produto. Chapéus e meias usam tamanho X."
                 : (!city ? "Preenche a cidade de entrega." : "Preenche a localização de entrega."));
+            return;
+        }
+        if (tamanhoIndisponivel) {
+            mostrarAviso("O tamanho indicado não está disponível para este produto/cor. Escreve ou escolhe um tamanho disponível.");
+            focarCampoEmFalta();
             return;
         }
 
@@ -498,7 +756,8 @@
                 nome: addButton.dataset.cartName,
                 imagem: addButton.dataset.cartImage,
                 preco: addButton.dataset.cartPrice,
-                cor: addButton.dataset.cartColor
+                cor: addButton.dataset.cartColor,
+                tamanho: addButton.dataset.cartSize
             });
         });
 
@@ -506,6 +765,9 @@
     }
 
     items = carregarCarrinho();
+    window.addEventListener("fran7-products-loaded", function(event) {
+        enriquecerCarrinhoComVariantes(event.detail?.products);
+    });
 
     window.Fran7Cart = {
         add: adicionar,
