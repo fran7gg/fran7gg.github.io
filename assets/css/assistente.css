@@ -169,8 +169,31 @@
 }
 
 @keyframes fran7-ai-blink {
-    0%, 44%, 48%, 100% { transform: scaleY(1); }
-    46% { transform: scaleY(.12); }
+    0%, 44%, 48%, 100% { transform: translate(var(--eye-x, 0), var(--eye-y, 0)) scaleY(1); }
+    46% { transform: translate(var(--eye-x, 0), var(--eye-y, 0)) scaleY(.12); }
+}
+
+.fran7-ai-window.is-thinking .fran7-ai-avatar-face {
+    animation: fran7-ai-think 1.1s ease-in-out infinite;
+}
+
+.fran7-ai-window.is-listening .fran7-ai-avatar-face span,
+.fran7-ai-window.is-speaking .fran7-ai-avatar-face span {
+    animation: fran7-ai-talk 480ms ease-in-out infinite alternate;
+}
+
+.fran7-ai-window.is-listening .fran7-ai-avatar-hand,
+.fran7-ai-window.is-speaking .fran7-ai-avatar-hand {
+    animation: fran7-ai-wave 700ms ease-in-out infinite;
+}
+
+@keyframes fran7-ai-think {
+    50% { transform: translateY(-2px) rotate(3deg); }
+}
+
+@keyframes fran7-ai-talk {
+    0% { height: 5px; }
+    100% { height: 8px; }
 }
 
 @keyframes fran7-ai-wave {
@@ -355,6 +378,7 @@
     font-size: 12px;
 }
 
+.fran7-ai-voice,
 .fran7-ai-send {
     width: 42px;
     height: 42px;
@@ -365,6 +389,18 @@
     color: var(--ai-bg);
     font-size: 18px;
     cursor: pointer;
+}
+
+.fran7-ai-voice {
+    background: var(--ai-soft);
+    color: var(--ai-text);
+    border: 1px solid var(--ai-border);
+}
+
+.fran7-ai-voice.is-listening {
+    background: #d7ff4f;
+    color: #101010;
+    box-shadow: 0 0 0 5px rgba(215, 255, 79, .18);
 }
 
 @media (prefers-color-scheme: dark) {
