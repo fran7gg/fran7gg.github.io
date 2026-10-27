@@ -344,7 +344,6 @@
 }
 
 .fran7-ai-input-area {
-    position: relative;
     display: flex;
     gap: 8px;
     padding: 11px;
@@ -365,7 +364,6 @@
     font-size: 12px;
 }
 
-.fran7-ai-voice,
 .fran7-ai-send {
     display: grid;
     width: 42px;
@@ -374,58 +372,10 @@
     place-items: center;
     border: 0;
     border-radius: 50%;
-    cursor: pointer;
-}
-
-.fran7-ai-voice {
-    border: 1px solid var(--ai-border);
-    background: var(--ai-bg);
-    color: var(--ai-text);
-}
-
-.fran7-ai-voice svg {
-    width: 21px;
-    height: 21px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
-}
-
-.fran7-ai-voice.is-listening {
-    background: #c62828;
-    color: #fff;
-    box-shadow: 0 0 0 5px rgba(198, 40, 40, .15);
-    animation: fran7-ai-mic-pulse 1.2s ease-in-out infinite;
-}
-
-.fran7-ai-send {
     background: var(--ai-text);
     color: var(--ai-bg);
     font-size: 18px;
-}
-
-.fran7-ai-voice-status {
-    position: absolute;
-    right: 11px;
-    bottom: calc(100% + 5px);
-    max-width: calc(100% - 22px);
-    padding: 5px 9px;
-    border: 1px solid var(--ai-border);
-    border-radius: 10px;
-    background: var(--ai-bg);
-    color: var(--ai-text);
-    font-size: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
-}
-
-.fran7-ai-voice-status:empty {
-    display: none;
-}
-
-@keyframes fran7-ai-mic-pulse {
-    50% { box-shadow: 0 0 0 9px rgba(198, 40, 40, .08); }
+    cursor: pointer;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -464,8 +414,7 @@
     .fran7-ai-button,
     .fran7-ai-button::before,
     .fran7-ai-avatar-face span,
-    .fran7-ai-avatar-hand,
-    .fran7-ai-voice.is-listening {
+    .fran7-ai-avatar-hand {
         transition-duration: .01ms;
         animation: none;
     }

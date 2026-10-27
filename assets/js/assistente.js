@@ -32,73 +32,11 @@
     const chatWindow = document.getElementById("fran7AiWindow");
     const input = document.getElementById("fran7AiInput");
     const sendButton = document.getElementById("fran7AiSend");
-    const voiceButton = document.getElementById("fran7AiVoice");
-    const voiceStatus = document.getElementById("fran7AiVoiceStatus");
     const messages = document.getElementById("fran7AiMessages");
     const form = document.getElementById("fran7AiForm");
 
-    if (!openButton || !closeButton || !chatWindow || !input || !sendButton || !voiceButton || !voiceStatus || !messages || !form) {
+    if (!openButton || !closeButton || !chatWindow || !input || !sendButton || !messages || !form) {
         throw new Error("Não foi possível iniciar o assistente FRAN7: faltam elementos da interface.");
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let listening = false;
-
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.lang = "pt-AO";
-        recognition.interimResults = true;
-        recognition.continuous = false;
-
-        recognition.addEventListener("start", function() {
-            listening = true;
-            voiceButton.classList.add("is-listening");
-            voiceButton.setAttribute("aria-pressed", "true");
-            voiceButton.setAttribute("aria-label", "Parar gravação de voz");
-            voiceStatus.textContent = "A ouvir…";
-            atualizarEstadoAvatar("listening");
-        });
-
-        recognition.addEventListener("result", function(event) {
-            let finalText = "";
-            let interimText = "";
-            for (let index = event.resultIndex; index < event.results.length; index += 1) {
-                const phrase = event.results[index][0].transcript.trim();
-                if (event.results[index].isFinal) finalText += phrase;
-                else interimText += phrase;
-            }
-            input.value = (finalText || interimText).trim();
-            if (finalText) {
-                listening = false;
-                voiceStatus.textContent = "Mensagem reconhecida";
-                form.requestSubmit();
-            }
-        });
-
-        recognition.addEventListener("end", function() {
-            listening = false;
-            voiceButton.classList.remove("is-listening");
-            voiceButton.setAttribute("aria-pressed", "false");
-            voiceButton.setAttribute("aria-label", "Ditar mensagem pelo microfone");
-            atualizarEstadoAvatar("");
-            if (!input.value.trim()) voiceStatus.textContent = "";
-        });
-
-        recognition.addEventListener("error", function(event) {
-            listening = false;
-            const messagesByError = {
-                "not-allowed": "Permita o microfone nas opções do navegador.",
-                "service-not-allowed": "Este navegador bloqueou o reconhecimento de voz.",
-                "audio-capture": "Nenhum microfone foi encontrado.",
-                "no-speech": "Não ouvi nenhuma fala. Tente novamente.",
-                network: "O reconhecimento de voz não conseguiu ligar à internet."
-            };
-            voiceStatus.textContent = messagesByError[event.error] || "Não foi possível reconhecer a fala.";
-        });
-    } else {
-        voiceButton.hidden = true;
-        voiceStatus.textContent = "";
     }
 
     function adicionarMensagem(texto, tipo) {
@@ -346,27 +284,12 @@
     });
 
     closeButton.addEventListener("click", function() {
-        if (listening && recognition) recognition.stop();
         atualizarEstadoAvatar("");
         chatWindow.hidden = true;
         openButton.setAttribute("aria-expanded", "false");
         openButton.focus();
     });
 
-    voiceButton.addEventListener("click", function() {
-        if (!recognition) return;
-        if (listening) {
-            recognition.stop();
-            return;
-        }
-        try {
-            input.value = "";
-            voiceStatus.textContent = "A iniciar o microfone…";
-            recognition.start();
-        } catch (error) {
-            voiceStatus.textContent = "O microfone já está ativo. Tente novamente em breve.";
-        }
-    });
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
@@ -403,7 +326,6 @@
 
     document.addEventListener("keydown", function(event) {
         if (event.key === "Escape" && !chatWindow.hidden) {
-            if (listening && recognition) recognition.stop();
             chatWindow.hidden = true;
             openButton.setAttribute("aria-expanded", "false");
             openButton.focus();
