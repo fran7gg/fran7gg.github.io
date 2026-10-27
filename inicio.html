@@ -1617,7 +1617,16 @@
             margin-bottom: 35px;
         }
 
+        .redes-conteudo {
+            grid-column: 1 / -1;
+            width: min(100%, 633px);
+            display: flex;
+            flex-direction: column;
+            gap: 56px;
+        }
+
         .redes-grid {
+            width: 100%;
             max-width: 850px;
 
             margin: auto;
@@ -3173,6 +3182,7 @@
         <!-- CARRINHO -->
 
         <button
+            type="button"
             class="botao-carrinho"
             onclick="abrirCarrinho()"
             aria-label="Abrir sacola"
@@ -3225,6 +3235,7 @@
         <!-- PERFIL -->
 
         <button
+            type="button"
             class="botao-perfil"
             onclick="abrirPerfil()"
             aria-label="Abrir perfil"
@@ -3281,6 +3292,7 @@
         <!-- MENU -->
 
         <button
+            type="button"
             class="menu-btn"
             onclick="abrirMenu()"
             aria-label="Abrir menu"
@@ -3292,6 +3304,7 @@
         <nav
             class="menu"
             id="menu"
+            aria-label="Menu principal"
         >
 
             <a
@@ -3348,23 +3361,15 @@
             </h1>
 
      <video
-class="imagem-colecao"
-autoplay
-muted
-loop
-playsinline
-preload="auto"
-style="width:100%; height:auto; display:block; object-fit:cover;"
-
->
-
-```
-<source src="./VIDEOS%201.mp4" type="video/mp4">
-```
-
-```
-O teu navegador não suporta este vídeo.
-```
+            class="imagem-colecao"
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            controls
+        >
+            <source src="./VIDEOS%201.mp4" type="video/mp4">
+            O teu navegador não suporta este vídeo.
 
 </video>
 
@@ -3406,231 +3411,7 @@ O teu navegador não suporta este vídeo.
             Peças selecionadas da FRAN7.
         </p>
 
-        <div class="produtos-grid">
-
-            <!-- PRODUTO 1 -->
-
-            <div class="produto" data-product-name="Modelo FRAN7 01" data-product-price="11.000 Kz" data-ai-model="Modelo FRAN7 01" data-product-reserve="true" data-gallery-images="assets/images/TRIBE.CASTANHA.jpeg|assets/images/TRIBLE.BEIGE.jpeg|assets/images/TIBLE.CINZA.jpeg" data-gallery-views="Frente|Castanho|Bege|Cinza" data-gallery-colors="Preto|Castanho|Bege|Cinza">
-
-                <div class="produto-imagem">
-
-                    <img
-                        src="assets/images/1.jpg.jpeg"
-                        alt="T-shirt FRAN7"
-                    >
-
-                    <div class="favorito-produto">
-                        <button
-                            class="botao-favorito"
-                            type="button"
-                            aria-label="Adicionar aos favoritos"
-                            aria-pressed="false"
-                            data-favorite-name="Modelo FRAN7 01"
-                            data-favorite-price="11000"
-                            data-favorite-image="assets/images/1.jpg.jpeg"
-                            data-favorite-reserve="true"
-                            data-favorite-images="assets/images/TRIBE.CASTANHA.jpeg|assets/images/TRIBLE.BEIGE.jpeg|assets/images/TIBLE.CINZA.jpeg"
-                            data-favorite-views="Frente|Castanho|Bege|Cinza"
-                            data-favorite-colors="Preto|Castanho|Bege|Cinza"
-                        >
-                            <span class="coracao" aria-hidden="true">♡</span>
-                        </button>
-                    </div>
-
-                </div>
-
-                <div class="produto-info">
-
-                    <div class="produto-tag">
-                        FRAN7 COLLECTION
-                    </div>
-
-                    <h3>
-                        MODELO FRAN7 01
-                    </h3>
-
-                    <p>
-                        Nova coleção
-                    </p>
-
-                    <div class="preco">
-                        11.000 Kz
-                    </div>
-
-                    <a
-                        href="#"
-                        class="botao-produto"
-                        onclick="adicionarAoCarrinho(event,'Modelo FRAN7 01',11000,'assets/images/1.jpg.jpeg')"
-                    >
-                        RESERVAR
-                    </a>
-
-                    <div class="comentarios-produto">
-                        <button class="comentarios-toggle" type="button" aria-controls="comentariosConteudo1" aria-expanded="false" onclick="alternarComentarios(1)">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.2A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg>
-                            <span>Comentários</span>
-                            <span id="comentariosContagem1">0</span>
-                        </button>
-                        <div class="comentarios-conteudo" id="comentariosConteudo1" hidden>
-                            <form class="comentario-form" onsubmit="adicionarComentario(event, 1); return false;">
-                                <input id="comentarioInput1" type="text" maxlength="180" placeholder="O que achaste deste produto?" required>
-                                <button type="submit">PUBLICAR</button>
-                            </form>
-                            <div class="lista-comentarios" id="listaComentarios1"></div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- PRODUTO 2 -->
-
-            <div class="produto" data-product-name="Modelo FRAN7 02" data-product-price="7.000 Kz" data-ai-model="Modelo FRAN7 02" data-gallery-images="" data-gallery-colors="">
-
-                <div class="produto-imagem">
-
-                    <img
-                        src="assets/images/2.JPG.jpeg"
-                        alt="T-shirt FRAN7"
-                    >
-
-                    <div class="favorito-produto">
-                        <button
-                            class="botao-favorito"
-                            type="button"
-                            aria-label="Adicionar aos favoritos"
-                            aria-pressed="false"
-                            data-favorite-name="PRODUTO FRAN7 2"
-                            data-favorite-price="7000"
-                            data-favorite-image="assets/images/2.JPG.jpeg"
-                        >
-                            <span class="coracao" aria-hidden="true">♡</span>
-                        </button>
-                    </div>
-
-                </div>
-
-                <div class="produto-info">
-
-                    <div class="produto-tag">
-                        FRAN7 COLLECTION
-                    </div>
-
-                    <h3>
-                        PRODUTO FRAN7
-                    </h3>
-
-                    <p>
-                        Nova coleção
-                    </p>
-
-                    <div class="preco">
-                        7.000 Kz
-                    </div>
-
-                    <a
-                        href="#"
-                        class="botao-produto"
-                        onclick="adicionarAoCarrinho(event,'PRODUTO FRAN7 2',7000,'assets/images/2.JPG.jpeg')"
-                    >
-                        COMPRAR
-                    </a>
-
-                    <div class="comentarios-produto">
-                        <button class="comentarios-toggle" type="button" aria-controls="comentariosConteudo2" aria-expanded="false" onclick="alternarComentarios(2)">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.2A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg>
-                            <span>Comentários</span>
-                            <span id="comentariosContagem2">0</span>
-                        </button>
-                        <div class="comentarios-conteudo" id="comentariosConteudo2" hidden>
-                            <form class="comentario-form" onsubmit="adicionarComentario(event, 2); return false;">
-                                <input id="comentarioInput2" type="text" maxlength="180" placeholder="O que achaste deste produto?" required>
-                                <button type="submit">PUBLICAR</button>
-                            </form>
-                            <div class="lista-comentarios" id="listaComentarios2"></div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- PRODUTO 3 -->
-
-            <div class="produto" data-product-name="Modelo FRAN7 03" data-product-price="7.000 Kz" data-ai-model="Modelo FRAN7 03" data-gallery-images="" data-gallery-colors="">
-
-                <div class="produto-imagem">
-
-                    <img
-                        src="assets/images/3.jpg.jpeg"
-                        alt="T-shirt FRAN7"
-                    >
-
-                    <div class="favorito-produto">
-                        <button
-                            class="botao-favorito"
-                            type="button"
-                            aria-label="Adicionar aos favoritos"
-                            aria-pressed="false"
-                            data-favorite-name="PRODUTO FRAN7 3"
-                            data-favorite-price="7000"
-                            data-favorite-image="assets/images/3.jpg.jpeg"
-                        >
-                            <span class="coracao" aria-hidden="true">♡</span>
-                        </button>
-                    </div>
-
-                </div>
-
-                <div class="produto-info">
-
-                    <div class="produto-tag">
-                        FRAN7 COLLECTION
-                    </div>
-
-                    <h3>
-                        PRODUTO FRAN7
-                    </h3>
-
-                    <p>
-                        Nova coleção
-                    </p>
-
-                    <div class="preco">
-                        7.000 Kz
-                    </div>
-
-                    <a
-                        href="#"
-                        class="botao-produto"
-                        onclick="adicionarAoCarrinho(event,'PRODUTO FRAN7 3',7000,'')"
-                    >
-                        COMPRAR
-                    </a>
-
-                    <div class="comentarios-produto">
-                        <button class="comentarios-toggle" type="button" aria-controls="comentariosConteudo3" aria-expanded="false" onclick="alternarComentarios(3)">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.2A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg>
-                            <span>Comentários</span>
-                            <span id="comentariosContagem3">0</span>
-                        </button>
-                        <div class="comentarios-conteudo" id="comentariosConteudo3" hidden>
-                            <form class="comentario-form" onsubmit="adicionarComentario(event, 3); return false;">
-                                <input id="comentarioInput3" type="text" maxlength="180" placeholder="O que achaste deste produto?" required>
-                                <button type="submit">PUBLICAR</button>
-                            </form>
-                            <div class="lista-comentarios" id="listaComentarios3"></div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
+        <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques do PocketBase...</p></div>
 
     </section>
 
@@ -3697,8 +3478,8 @@ O teu navegador não suporta este vídeo.
             Encontra-nos nas nossas plataformas.
         </p>
 
-        <div style="grid-column: 1 / -1; width: min(100%, 633px); display: flex; flex-direction: column; gap: 56px;">
-        <div class="redes-grid" style="width: 100%; max-width: 633px;">
+        <div class="redes-conteudo">
+        <div class="redes-grid">
 
             <a
                 href="https://instagram.com/fran7.official"
@@ -3791,6 +3572,8 @@ O teu navegador não suporta este vídeo.
 </section>
         </div>
 
+    </section>
+
 
     <!-- =====================================================
          RODAPÉ
@@ -3827,7 +3610,7 @@ O teu navegador não suporta este vídeo.
             <h2>Fala connosco</h2>
             <a href="mailto:fran7officiall@gmail.com">fran7officiall@gmail.com</a>
             <a href="https://wa.me/244973560521" target="_blank" rel="noopener noreferrer">+244 973 560 521</a>
-            <div class="footer-social-links" aria-label="Redes sociais">
+            <div class="footer-social-links" role="group" aria-label="Redes sociais">
                 <a href="https://instagram.com/fran7.official" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <rect x="3" y="3" width="18" height="18" rx="5"/>
@@ -3879,6 +3662,7 @@ O teu navegador não suporta este vídeo.
                 </h2>
 
                 <button
+                    type="button"
                     class="carrinho-fechar"
                     onclick="fecharCarrinho()"
                     aria-label="Fechar carrinho"
@@ -3937,7 +3721,7 @@ O teu navegador não suporta este vídeo.
                         <input id="carrinhoCidade" type="text" placeholder="Ex.: Luanda" autocomplete="address-level2" required>
 
                         <label for="carrinhoLocalizacao">Bairro / localização <span aria-hidden="true">*</span></label>
-                        <input id="carrinhoLocalizacao" type="text" placeholder="Ex.: Benfica, Maianga..." autocomplete="street-address" required>
+                        <input id="carrinhoLocalizacao" type="text" placeholder="Ex.: Benfica, Maianga..." required>
 
                         <label for="carrinhoComentario">Comentário <span>(opcional)</span></label>
                         <textarea id="carrinhoComentario" rows="2" maxlength="300" placeholder="Alguma indicação para o teu pedido?"></textarea>
@@ -3945,6 +3729,7 @@ O teu navegador não suporta este vídeo.
                 </details>
 
                 <button
+                    type="button"
                     class="botao-finalizar"
                     onclick="finalizarCompra()"
                 >
@@ -4004,7 +3789,7 @@ O teu navegador não suporta este vídeo.
                 <div class="fran7-ai-message bot">Olá! Sou o assistente automático da FRAN7. Posso ajudar com produtos, tamanhos, favoritos e pedidos.</div>
             </div>
 
-            <div class="fran7-ai-quick" aria-label="Perguntas rápidas">
+            <div class="fran7-ai-quick" role="group" aria-label="Perguntas rápidas">
                 <button type="button" data-assistant-prompt="Quero ver os produtos">Produtos</button>
                 <button type="button" data-assistant-prompt="Apresenta todos os produtos do catálogo FRAN7">Catálogo completo</button>
                 <button type="button" data-assistant-prompt="Quais são os tamanhos?">Tamanhos</button>
@@ -4037,6 +3822,7 @@ O teu navegador não suporta este vídeo.
         <div class="perfil-painel">
 
             <button
+                type="button"
                 onclick="fecharPerfil()"
                 aria-label="Fechar perfil"
             >
@@ -5573,7 +5359,7 @@ O teu navegador não suporta este vídeo.
     <script src="assets/js/classificacao-estrelas.js?v=20261027-1"></script>
     <script src="assets/js/detalhe-produto.js?v=20261027-7"></script>
     <script src="assets/js/informacoes-modal.js"></script>
-    <script src="assets/js/assistente.js?v=20261027-2"></script>
+    <script src="assets/js/assistente.js?v=20261027-7"></script>
 
 </body>
 </html>

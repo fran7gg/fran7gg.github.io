@@ -5,7 +5,8 @@
 
     function verificarAcesso() {
         if (!window.Fran7Session || !window.Fran7Session.estaAutenticado()) {
-            window.location.replace("index.html");
+            const estaNaEntrada = /(^|\/)index\.html$/.test(window.location.pathname);
+            window.location.replace(estaNaEntrada ? "registo.html?modo=login" : "index.html");
         }
     }
 

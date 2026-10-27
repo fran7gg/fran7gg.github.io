@@ -1,29 +1,6 @@
 (function() {
     "use strict";
 
-    const PRODUTOS_FRAN7 = [
-        {name: "Modelo FRAN7 01", price: "11.000 Kz", image: "assets/images/1.png", aliases: ["modelo 01", "modelo 1", "modelo fran7 01"]},
-        {name: "Modelo FRAN7 02", price: "7.000 Kz", image: "assets/images/2.png", aliases: ["modelo 02", "modelo 2", "modelo fran7 02"]},
-        {name: "Modelo FRAN7 03", price: "7.000 Kz", image: "assets/images/3.png", aliases: ["modelo 03", "modelo 3", "modelo fran7 03"]},
-        {name: "Modelo FRAN7 04", price: "8.500 Kz", image: "assets/images/4.png", aliases: ["modelo 04", "modelo 4", "modelo fran7 04"]},
-        {name: "Modelo FRAN7 05", price: "Consultar preço", image: "assets/images/mulheres,%20conjunto.jpg", aliases: ["modelo 05", "modelo 5", "modelo fran7 05"]},
-        {name: "Meias FRAN7", price: "Consultar preço", image: "assets/images/meias.jpg", aliases: ["meias", "meias fran7"]},
-        {name: "Modelo FRAN7 07", price: "Consultar preço", image: "assets/images/a1.jpeg", aliases: ["modelo 07", "modelo 7", "modelo fran7 07"]},
-        {name: "Modelo FRAN7 08", price: "Consultar preço", image: "assets/images/a2.jpeg", aliases: ["modelo 08", "modelo 8", "modelo fran7 08"]},
-        {name: "Modelo FRAN7 09", price: "Consultar preço", image: "assets/images/a3.jpeg", aliases: ["modelo 09", "modelo 9", "modelo fran7 09"]},
-        {name: "Modelo FRAN7 10", price: "Consultar preço", image: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.22%20PM.jpeg", aliases: ["modelo 10", "modelo fran7 10"]},
-        {name: "Modelo FRAN7 11", price: "Consultar preço", image: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.23%20PM.jpeg", aliases: ["modelo 11", "modelo fran7 11"]},
-        {name: "Modelo FRAN7 12", price: "Consultar preço", image: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.24%20PM.jpeg", aliases: ["modelo 12", "modelo fran7 12"]},
-        {name: "T-shirt FRAN7 Tribal", price: "11.000 Kz", image: "assets/images/1.png", aliases: ["t shirt fran7 tribal", "camisola tribal"]},
-        {name: "T-shirt FRAN7", price: "7.000 Kz", image: "assets/images/3.png", aliases: ["t shirt fran7"]},
-        {name: "Boné FRAN7 Modelo 2", price: "7.000 Kz", image: "assets/images/CASTANHO.MODELO2.jpeg", images: ["assets/images/CINZA.MODELO2.jpeg"], colors: ["Castanho", "Cinza"], aliases: ["bone modelo 2", "bone modelo 02", "chapeu modelo 2", "chapeu modelo 02", "bone fran7 modelo 2"]},
-        {name: "Boné FRAN7", price: "7.000 Kz", image: "assets/images/2.png", aliases: ["bone fran7"]},
-        {name: "Boné FRAN7", price: "Consultar preço", image: "assets/images/4.png", aliases: ["bone fran7"]},
-        {name: "FRAN7 Performance", price: "Consultar preço", image: "assets/images/WhatsApp%20Image%202026-10-04%20at%202.24.22%20PM.jpeg", aliases: ["fran7 performance"]},
-        {name: "Conjunto Feminino FRAN7", price: "Consultar preço", image: "assets/images/mulheres,%20conjunto.jpg", aliases: ["conjunto feminino", "conjunto feminino fran7"]},
-        {name: "T-shirt FRAN7 Crianças", price: "Consultar tamanho e preço", image: "assets/images/1.png", aliases: ["t shirt fran7 criancas", "camisola infantil"]},
-        {name: "Boné FRAN7 Crianças", price: "Consultar tamanho e preço", image: "assets/images/2.png", aliases: ["bone fran7 criancas", "bone infantil"]}
-    ];
     const MAX_HISTORICO = 6;
     const AI_FUNCTION_URL = "https://pqvnqloukcwwtavdyjry.supabase.co/functions/v1/fran7-ia";
     const historico = [];
@@ -61,59 +38,33 @@
         return /\b(catalogo|todos|todas|lista completa|quais produtos|que produtos|que modelos|quais modelos|o que vende|o que tem na fran7|produtos da fran7|tudo que sabes|tudo o que sabes|tudo do site|apresenta tudo|tudo sobre a fran7)\b/.test(normalizar(texto));
     }
 
+    function obterCatalogoReal() {
+        return Array.from(document.querySelectorAll(".produto[data-product-id][data-product-name]"))
+            .map(function(article) {
+                const name = (article.dataset.productName || "").trim();
+                const price = (article.dataset.productPrice || "").trim();
+                const image = article.querySelector(".produto-imagem img")?.getAttribute("src") || "";
+                if (!name) return null;
+                return {
+                    article: article,
+                    name: name,
+                    image: image,
+                    price: price || "Consultar preço",
+                    aliases: [normalizar(name)]
+                };
+            }).filter(Boolean);
+    }
+
     function obterSugestoes(resposta) {
         const texto = normalizar(resposta);
         const pedeTodos = pedeTodosOsProdutos(resposta);
-        const pageProducts = Array.from(document.querySelectorAll(".produto, .modelo, .favorito-card"));
+        const catalogo = obterCatalogoReal();
 
-        return PRODUTOS_FRAN7.map(function(product) {
-            const article = pageProducts.find(function(candidate) {
-                const candidateName = normalizar(candidate.dataset.productName ||
-                    candidate.querySelector("h2, h3")?.textContent.trim() ||
-                    candidate.querySelector("img")?.alt ||
-                    "");
-                const candidateImage = candidate.querySelector(
-                    ".produto-imagem img, .modelo-imagem img, .favorito-card > img"
-                )?.getAttribute("src");
-                return candidateName === normalizar(product.name) &&
-                    (!candidateImage || candidateImage === product.image);
-            });
-            const aliases = [product.name].concat(product.aliases || []).map(normalizar);
-            const matched = aliases.some(function(alias) {
+        return catalogo.filter(function(product) {
+            return pedeTodos || product.aliases.some(function(alias) {
                 return alias.length > 4 && texto.includes(alias);
             });
-            return {
-                article: article || criarArtigoProduto(product),
-                name: product.name,
-                image: product.image,
-                price: product.price,
-                aliases: aliases,
-                matched: matched
-            };
-        }).filter(function(product) {
-            return pedeTodos || product.matched;
-        }).slice(0, pedeTodos ? PRODUTOS_FRAN7.length : 4);
-    }
-
-    function criarArtigoProduto(product) {
-        const article = document.createElement("article");
-        article.className = "produto";
-        article.dataset.productName = product.name;
-        article.dataset.productPrice = product.price;
-        article.dataset.productDescription = "Modelo apresentado no catálogo FRAN7. Confirma cor, tamanho e disponibilidade com a equipa.";
-        article.dataset.galleryImages = (product.images || []).join("|");
-        article.dataset.galleryColors = (product.colors || []).join("|");
-        if (!window.Fran7Session?.estaAutenticado()) {
-            article.dataset.protegido = "true";
-        }
-        const imageContainer = document.createElement("div");
-        imageContainer.className = "produto-imagem";
-        const image = document.createElement("img");
-        image.src = product.image;
-        image.alt = product.name;
-        imageContainer.appendChild(image);
-        article.appendChild(imageContainer);
-        return article;
+        }).slice(0, pedeTodos ? catalogo.length : 4);
     }
 
     function mostrarSugestoes(message, resposta) {
