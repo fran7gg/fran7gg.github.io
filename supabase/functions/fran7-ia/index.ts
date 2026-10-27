@@ -216,15 +216,28 @@ Deno.serve(async (request: Request) => {
             const retryAfter = Number.isFinite(retryAfterValue) && retryAfterValue > 0
                 ? Math.ceil(retryAfterValue)
                 : 60;
+            const upstreamError = await upstream.clone().json().catch(() => null) as
+                | { error?: { code?: unknown } }
+                | null;
+            const fornecedorCodigo = typeof upstreamError?.error?.code === "string"
+                ? upstreamError.error.code
+                : undefined;
             return jsonResponse(
                 request,
-                { error: "A IA está temporariamente limitada. Tenta novamente mais tarde." },
+                {
+                    error: "A IA está temporariamente limitada. Tenta novamente mais tarde.",
+                    fornecedorStatus: upstream.status,
+                    ...(fornecedorCodigo ? { fornecedorCodigo } : {}),
+                },
                 429,
                 { "Retry-After": String(retryAfter) },
             );
         }
         console.error("FRAN7 AI: o fornecedor de IA respondeu com HTTP", upstream.status);
-        return jsonResponse(request, { error: "A IA está temporariamente indisponível. Tenta novamente." }, 502);
+        return jsonResponse(request, {
+            error: "A IA está temporariamente indisponível. Tenta novamente.",
+            fornecedorStatus: upstream.status,
+        }, 502);
     }
 
     let result: {
