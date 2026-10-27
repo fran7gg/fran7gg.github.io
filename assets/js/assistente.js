@@ -32,11 +32,10 @@
     const chatWindow = document.getElementById("fran7AiWindow");
     const input = document.getElementById("fran7AiInput");
     const sendButton = document.getElementById("fran7AiSend");
-    const voiceButton = document.getElementById("fran7AiVoice");
     const messages = document.getElementById("fran7AiMessages");
     const form = document.getElementById("fran7AiForm");
 
-    if (!openButton || !closeButton || !chatWindow || !input || !sendButton || !voiceButton || !messages || !form) {
+    if (!openButton || !closeButton || !chatWindow || !input || !sendButton || !messages || !form) {
         throw new Error("Não foi possível iniciar o assistente FRAN7: faltam elementos da interface.");
     }
 
@@ -190,87 +189,9 @@
         messages.scrollTop = messages.scrollHeight;
     }
 
-    let reconhecimento = null;
-
     function atualizarEstadoAvatar(estado) {
-        chatWindow.classList.remove("is-thinking", "is-listening", "is-speaking");
+        chatWindow.classList.remove("is-thinking");
         if (estado) chatWindow.classList.add("is-" + estado);
-    }
-
-    function falar(texto) {
-        if (!("speechSynthesis" in window)) return;
-        window.speechSynthesis.cancel();
-        const fala = new SpeechSynthesisUtterance(texto);
-        fala.lang = "pt-AO";
-        fala.rate = 0.95;
-        fala.pitch = 1;
-        fala.onstart = function() { atualizarEstadoAvatar("speaking"); };
-        fala.onend = function() { atualizarEstadoAvatar(""); };
-        fala.onerror = function() { atualizarEstadoAvatar(""); };
-        window.speechSynthesis.speak(fala);
-    }
-
-    function iniciarOuPararEscuta() {
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Recognition) {
-            adicionarMensagem("O reconhecimento de voz não é suportado neste navegador. Pode escrever a mensagem normalmente.", "bot");
-            return;
-        }
-
-        if (reconhecimento) {
-            reconhecimento.stop();
-            return;
-        }
-
-        reconhecimento = new Recognition();
-        reconhecimento.lang = "pt-AO";
-        reconhecimento.interimResults = true;
-        reconhecimento.continuous = false;
-
-        reconhecimento.onstart = function() {
-            voiceButton.classList.add("is-listening");
-            voiceButton.setAttribute("aria-label", "Parar reconhecimento de voz");
-            atualizarEstadoAvatar("listening");
-            input.placeholder = "A ouvir...";
-        };
-
-        reconhecimento.onresult = function(event) {
-            let finalText = "";
-            let interimText = "";
-            for (let index = event.resultIndex; index < event.results.length; index++) {
-                const transcript = event.results[index][0].transcript;
-                if (event.results[index].isFinal) finalText += transcript;
-                else interimText += transcript;
-            }
-            input.value = (finalText || interimText).trim();
-            if (finalText.trim()) {
-                reconhecimento.stop();
-                enviar(finalText.trim());
-            }
-        };
-
-        reconhecimento.onerror = function(event) {
-            const motivo = event.error === "not-allowed"
-                ? "Autorize o microfone para falar com a FRAN7 AI."
-                : "Não consegui ouvir a mensagem. Tenta novamente ou escreve.";
-            adicionarMensagem(motivo, "bot");
-        };
-
-        reconhecimento.onend = function() {
-            reconhecimento = null;
-            voiceButton.classList.remove("is-listening");
-            voiceButton.setAttribute("aria-label", "Falar com o assistente");
-            input.placeholder = "Escreve ou fala...";
-            atualizarEstadoAvatar("");
-        };
-
-        try {
-            reconhecimento.start();
-        } catch (error) {
-            reconhecimento = null;
-            adicionarMensagem("O microfone já está em uso. Feche outros aplicativos de voz e tente novamente.", "bot");
-            atualizarEstadoAvatar("");
-        }
     }
 
     async function consultarIA(question) {
@@ -333,7 +254,6 @@
             typing.remove();
             const replyMessage = adicionarMensagem(reply, "bot");
             mostrarSugestoes(replyMessage, pedeTodos ? "todos os produtos da FRAN7" : reply);
-            falar(reply);
             historico.push(
                 {tipo: "user", texto: question},
                 {tipo: "assistant", texto: reply}
@@ -364,15 +284,11 @@
     });
 
     closeButton.addEventListener("click", function() {
-        if (reconhecimento) reconhecimento.stop();
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
         atualizarEstadoAvatar("");
         chatWindow.hidden = true;
         openButton.setAttribute("aria-expanded", "false");
         openButton.focus();
     });
-
-    voiceButton.addEventListener("click", iniciarOuPararEscuta);
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();

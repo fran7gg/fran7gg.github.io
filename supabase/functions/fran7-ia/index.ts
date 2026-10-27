@@ -27,61 +27,101 @@ function normalizarTexto(texto: string) {
 function responderLocalmente(mensagem: string, history: Array<{ role: string; content: string }>) {
     const texto = normalizarTexto(mensagem);
     const contexto = history.map((item) => normalizarTexto(item.content)).join(" ") + " " + texto;
+    const ultimo = history.at(-1)?.content || "";
+    const falouProduto = /\b(modelo|camisola|t shirt|roupa|bone|blusa|conjunto|meias)\b/.test(contexto);
 
-    if (/\b(oi|ola|bom dia|boa tarde|boa noite|hello|hey)\b/.test(texto)) {
-        return "Olá! Sou a assistente da FRAN7. Posso ajudar a escolher um modelo, confirmar preços e orientar o pedido. O que procura hoje?";
+    if (/^(oi|ola|ola tudo bem|hey|hello)[!?., ]*$/.test(texto)) {
+        return /tudo bem/.test(texto)
+            ? "Estou bem, obrigado! Posso ajudar a escolher uma peça, confirmar preços ou orientar o seu pedido. Como está a correr o seu dia?"
+            : "Olá! É um prazer falar consigo. Posso ajudar a escolher um modelo, comparar peças, entender tamanhos ou concluir uma encomenda. Como posso ajudar?";
+    }
+    if (/\b(estou bem|tudo bem|bem tambem|como vais|como estas)\b/.test(texto)) {
+        return "Fico feliz em saber! Se quiser, podemos usar este momento para escolher uma peça que combine com o seu estilo ou para resolver uma dúvida sobre o pedido.";
     }
     if (/\b(contato|contacto|whatsapp|email|instagram|telefone|falar com)\b/.test(texto)) {
-        return "Pode falar diretamente com a equipa pelo WhatsApp +244 973 560 521, pelo e-mail fran7officiall@gmail.com ou no Instagram @fran7.official.";
+        return "Pode falar diretamente com a equipa pelo WhatsApp +244 973 560 521, pelo e-mail fran7officiall@gmail.com ou no Instagram @fran7.official. Mencione a página ou modelo em que está interessado para receber ajuda mais rápida.";
     }
-    if (/\b(catalogo|catalogo completo|todos os produtos|todos produtos|quais produtos|que produtos|o que vende|o que tem)\b/.test(texto)) {
-        return "Na FRAN7 encontra T-shirts, bonés, conjunto feminino, peças infantis e FRAN7 Performance. Os modelos confirmados são Modelo 01 a 11.000 Kz, Modelo 02 a 7.000 Kz, Modelo 03 a 7.000 Kz e Modelo 04 a 8.500 Kz. Outros modelos e meias estão disponíveis para consulta de preço.";
+    if (/\b(catalogo|todos os produtos|todos produtos|quais produtos|que produtos|o que vende|o que tem)\b/.test(texto)) {
+        return "Na FRAN7 encontra T-shirts, bonés, conjuntos femininos, peças infantis e FRAN7 Performance. Preços confirmados: Modelo 01 — 11.000 Kz; Modelo 02 — 7.000 Kz; Modelo 03 — 7.000 Kz; Modelo 04 — 8.500 Kz. Quer ver opções casuais, desportivas ou conhecer um modelo específico?";
     }
-    if (/\b(modelo|produto|roupa|camisola|t shirt|blusa|bone|chapeu|meias|conjunto|infantil|crianca)\b/.test(texto) &&
-        /\b(recomenda|aconselha|escolhe|ideia|gostaria|procura|procuro|qual|melhor)\b/.test(texto)) {
-        return "Posso ajudar pela ocasião e pelo estilo. Para um visual simples e versátil, o Modelo FRAN7 02 ou 03 são boas opções. Se preferir a peça mais premium do catálogo confirmado, o Modelo 01 está a 11.000 Kz. Quer algo casual, desportivo ou formal?";
+    if (/\b(recomend(?:a|arias|aria|ar|ado|ada|amos|am)?|aconselha|escolhe|ideia|presente|melhor|sugere|combin)\b/.test(texto) && falouProduto) {
+        const ocasiao = /\b(desportivo|treino|ginastica|performance)\b/.test(texto) ? "Para treino ou uso desportivo" : /\b(formal|trabalho|evento)\b/.test(texto) ? "Para uma ocasião mais formal" : "Para uso diário";
+        return `${ocasiao}, eu começaria pelo Modelo 02 ou 03, ambos a 7.000 Kz: são versáteis e fáceis de combinar. Se procura um destaque premium, o Modelo 01 custa 11.000 Kz. Prefere algo discreto ou chamativo?`;
     }
     const modelo = contexto.match(/\b(?:modelo\s*(?:fran7\s*)?|t shirt fran7)\s*(0?[1-9]|1[0-2])\b/);
     if (modelo) {
         const numero = String(Number(modelo[1]));
-        const precoConfirmado: Record<string, string> = {
-            "1": "11.000 Kz",
-            "2": "7.000 Kz",
-            "3": "7.000 Kz",
-            "4": "8.500 Kz",
-        };
+        const precoConfirmado: Record<string, string> = { "1": "11.000 Kz", "2": "7.000 Kz", "3": "7.000 Kz", "4": "8.500 Kz" };
         const preco = precoConfirmado[numero];
-        if (preco) {
-            return `O Modelo FRAN7 ${numero.padStart(2, "0")} custa ${preco}. Confirme a disponibilidade de cor e tamanho antes de finalizar, pois o stock pode variar.`;
-        }
-        return `O Modelo FRAN7 ${numero.padStart(2, "0")} está no catálogo, mas o preço não está confirmado aqui. Consulte a página do produto ou fale conosco para confirmar preço, tamanho e disponibilidade.`;
+        return preco
+            ? `O Modelo FRAN7 ${numero.padStart(2, "0")} custa ${preco}. Confirme cor e tamanho na página antes de adicionar à sacola, porque o stock pode variar. O que gostaria de saber: cores, tamanho ou como comprar?`
+            : `O Modelo FRAN7 ${numero.padStart(2, "0")} aparece no catálogo, mas o preço não está confirmado aqui. Confirme comigo a página atual: prefere saber o preço, tamanhos ou disponibilidade desta peça?`;
     }
-    if (/\b(preco|quanto custa|valor|barato|caro|custam)\b/.test(texto)) {
-        return "Os preços confirmados são: Modelo 01 — 11.000 Kz; Modelo 02 — 7.000 Kz; Modelo 03 — 7.000 Kz; Modelo 04 — 8.500 Kz. Para outros modelos, meias e peças infantis, o preço ou tamanho deve ser confirmado pela equipa.";
+    if (/\b(preco|quanto custa|valor|barato|caro|custam|orcamento)\b/.test(texto)) {
+        return /\b(outro|modelo|tudo|catalogo)\b/.test(texto)
+            ? "Os preços confirmados são Modelo 01 — 11.000 Kz; Modelo 02 — 7.000 Kz; Modelo 03 — 7.000 Kz; Modelo 04 — 8.500 Kz. Para os outros modelos, meias e infantis, consulte o número da peça ou peça à equipa o preço atual."
+            : "Qual modelo lhe interessa? Diga o número — por exemplo “Modelo 02” — e eu informo o preço confirmado e explico as próximas opções.";
     }
     if (/\b(tamanho|size|medida|serve|vestir|xic|xl|meias|bone)\b/.test(texto)) {
-        return "Use a tabela de tamanho da página do produto e confirme as medidas antes de adicionar à sacola. Meias e chapéus podem usar tamanho X no pedido. O stock real pode variar por cor e tamanho.";
+        return /\b(peq|p | pequeno|s )/.test(texto)
+            ? "Para confirmar o tamanho pequeno, use a tabela da página e compare o peito e o comprimento em centímetros. Se indicar sexo, altura e peso aproximados, posso sugerir o tamanho habitual — sem substituir a tabela da peça."
+            : "Use a tabela de tamanho da página e compare o peito e o comprimento em centímetros. Meias e chapéus podem usar tamanho X no pedido. Qual a sua altura e peso aproximados para eu dar uma sugestão inicial?";
     }
-    if (/\b(cor|cores|preto|castanho|bege|cinza)\b/.test(texto)) {
-        return "O Modelo 01 pode estar disponível nas cores preto, castanho, bege e cinza; o Boné Modelo 2 aparece em castanho e cinza. A cor e o stock final devem ser confirmados na variante escolhida.";
+    if (/\b(cor|cores|preto|castanho|bege|cinza|azul|branco|verde)\b/.test(texto)) {
+        const anterior = /modelo 0?1|modelo 01/.test(contexto);
+        return anterior
+            ? "No Modelo 01 são apresentados preto, castanho, bege e cinza. Escolha a variante e confirme o stock da cor pretendida. Prefere combinar com peças claras ou escuras?"
+            : "Posso ajudar a combinar cores. A disponibilidade real depende da variante; escolha o modelo primeiro e eu indico as opções publicadas e formas de combinação. Qual modelo pretende?";
     }
     if (/\b(stock|disponivel|disponibilidade|tem em|existencias|esgotado)\b/.test(texto)) {
-        return "A disponibilidade depende da cor e do tamanho. Escolha a variante no produto e confirme o indicador de stock antes de adicionar à sacola. Se não tiver certeza, a equipa pode confirmar pelo WhatsApp.";
+        return "A disponibilidade é confirmada pela cor e pelo tamanho na página do produto. Se o botão não permitir a quantidade desejada, a variante está limitada ou esgotada. Diga-me o modelo para indicar o que pode verificar antes de comprar.";
     }
-    if (/\b(sacola|carrinho|adicionar|adiciono|comprar|compra)\b/.test(texto)) {
-        return "Abra o produto, escolha cor e tamanho e selecione “Adicionar à sacola”. Confirme a quantidade antes de continuar. Para concluir, a encomenda é enviada pela sacola ou pelo WhatsApp com cidade e localização.";
+    if (/\b(sacola|carrinho|adicionar|adiciono|comprar|como compro|checkout)\b/.test(texto)) {
+        return "Para comprar: abra o produto, escolha cor e tamanho, confirme a quantidade e adicione à sacola. Depois, finalize com cidade e localização. A confirmação final e o pagamento devem ser confirmados pela equipa. Diga o modelo que pretende para acompanhar o processo.";
     }
     if (/\b(pedido|encomenda|finalizar|pagamento|pagar|envio|entrega|prazo|cidade|localizacao)\b/.test(texto)) {
-        return "No pedido são solicitados produto, quantidade, cor, tamanho, cidade e localização. A encomenda é confirmada pelo WhatsApp. Como o prazo e a entrega dependem da localização e do método disponível, confirme esses detalhes com a equipa antes de pagar.";
+        return "O pedido reúne produto, quantidade, cor, tamanho, cidade e localização; a confirmação é feita pelo WhatsApp. Prazos e formas de entrega variam com o destino, por isso não invento valores. Qual cidade pretende e em que modelo está interessado?";
     }
     if (/\b(negocio|empreendedor|venda|publicidade|marketing|cliente|atendimento|desconto|promocao)\b/.test(texto)) {
-        return "Uma boa resposta de vendas deve ser clara, mostrar benefício e terminar com uma pergunta simples. Exemplo: destaque a qualidade da peça, confirme tamanho e cor, apresente o preço e pergunte: “Prefere receber via Instagram ou WhatsApp?”";
+        const publico = /\b(nas redes|instagram|facebook|whatsapp|loja)\b/.test(texto);
+        return publico
+            ? "Comece por uma imagem clara, uma frase de benefício e uma chamada para ação. Exemplo: “Vista identidade. Novo Modelo FRAN7 02 por 7.000 Kz — escolha cor e tamanho e fale connosco.” Depois faça apenas uma pergunta, como “Prefere preto ou castanho?”."
+            : "Uma boa conversa de vendas segue quatro passos: acolher, entender a necessidade, recomendar uma opção concreta e pedir a próxima ação. Como está a ser o atendimento agora: apresentação de produtos, objeções de preço ou acompanhamento depois da compra?";
+    }
+    if (/\b(calcula|calculo|soma|multiplica|percentagem|quanto faz|times|mais)\b/.test(texto)) {
+        const expressao = texto.match(/(\d+(?:\.\d+)?)\s*[x*+]\s*(\d+(?:\.\d+)?)/);
+        if (expressao) {
+            const operador = expressao[0].includes("+") ? "+" : "×";
+            const a = Number(expressao[1]);
+            const b = Number(expressao[2]);
+            return `O resultado é ${operador === "+" ? a + b : a * b}. Se usar valores da compra, quero confirmar apenas se é quantidade, preço ou desconto.`;
+        }
+    }
+    if (/\b(como escrever|redige|escreve|texto|mensagem|resposta|traduz)\b/.test(texto)) {
+        return "Envie-me a mensagem ou a situação em poucas frases e diga o tom pretendido — formal, breve, amigável ou persuasivo. Posso então criar uma versão pronta para enviar ao cliente.";
+    }
+    if (/\b(triste|deprimido|ansioso|problema|preciso de ajuda|ajuda me)\b/.test(texto)) {
+        return "Sinto que isto é importante para si. Posso falar consigo com calma e ajudar a organizar o próximo passo, mas não substituo apoio profissional. Quer contar o que aconteceu ou prefere começar por uma solução pequena para hoje?";
     }
     if (/\b(obrigado|obrigada|valeu|ajuda muito)\b/.test(texto)) {
-        return "De nada! Posso continuar a ajudar com produtos, tamanhos, cores, sacola ou encomendas.";
+        return "De nada — foi um prazer ajudar. Posso continuar a conversar sobre produtos, vendas, compras ou outro assunto em que queira ajuda.";
+    }
+    if (/\b(nao percebi|explica melhor|exemplo|exemplos|como assim|o que quer dizer)\b/.test(texto) && ultimo) {
+        return `Posso simplificar. Diga-me o ponto específico que ficou confuso e eu explico passo a passo com um exemplo curto. A ideia anterior era: ${ultimo.slice(0, 180)}.`;
+    }
+    if (/\b(tudo bem\?|como estas\?|como vai|como voce esta)\b/.test(texto)) {
+        return "Estou pronto para ajudar! Preferia falar sobre moda, a sua encomenda ou ajudar em outro assunto?";
+    }
+    if (/\b(nome|quem e|o que e fran7|quem criou|inventou)\b/.test(texto)) {
+        return "Sou a assistente de conversação da FRAN7. Ajudo a explicar o catálogo, escolher peças, acompanhar o pedido e conversar sobre vendas. A minha identidade e respostas são simples e gratuitas; não invento stock, prazos ou pagamentos que não estejam confirmados.";
     }
 
-    return "Posso ajudar com o catálogo da FRAN7, modelos, preços, tamanhos, cores, sacola e encomendas. Diz-me o que procura e eu indico o próximo passo. Para entrega, pagamento ou disponibilidade especial, confirme esses detalhes com a equipa.";
+    const breve = texto.length < 18;
+    if (breve && /\b(sim|claro|ok|perfeito|exato|certamente|pode ser)\b/.test(texto)) {
+        return "Ótimo. Prefere continuar com modelo, cor, tamanho, preço ou entrega?";
+    }
+
+    return "Entendi o seu assunto. Para responder com precisão, diga-me em uma frase o objetivo e a escolha disponível: por exemplo, modelo e orçamento; tamanho e altura; ou o tipo de encomenda que pretende. Posso ajudar com catálogo, compras, vendas e dúvidas gerais.";
 }
 
 function jsonResponse(
