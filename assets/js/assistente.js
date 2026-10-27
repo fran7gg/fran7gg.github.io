@@ -25,6 +25,7 @@
         {name: "Boné FRAN7 Crianças", price: "Consultar tamanho e preço", image: "assets/images/2.png", aliases: ["bone fran7 criancas", "bone infantil"]}
     ];
     const MAX_HISTORICO = 6;
+    const AI_FUNCTION_URL = "https://pqvnqloukcwwtavdyjry.supabase.co/functions/v1/fran7-ia";
     const historico = [];
     const openButton = document.getElementById("fran7AiOpen");
     const closeButton = document.getElementById("fran7AiClose");
@@ -188,70 +189,42 @@
         messages.scrollTop = messages.scrollHeight;
     }
 
-    function responderLocalmente(question) {
-        const texto = normalizar(question);
-        const cumprimento = /^(ola|oi|bom dia|boa tarde|boa noite|tudo bem|como estas|como esta|ola como estas|ola como esta|oi tudo bem|ola tudo bem)$/.test(texto);
-
-        if (cumprimento) {
-            return "Olá! Estou bem, obrigada por perguntares. Como posso ajudar-te hoje com a FRAN7?";
-        }
-
-        if (/^(obrigad[oa]s?|muito obrigad[oa])$/.test(texto)) {
-            return "De nada! Se precisares de ajuda com um produto ou com o site, estou por aqui.";
-        }
-
-        if (pedeTodosOsProdutos(question)) {
-            return "Claro! Estes são os artigos registados no catálogo FRAN7. Os preços indicados para consulta, cores, tamanhos e disponibilidade devem ser confirmados com a equipa.";
-        }
-
-        const productMatches = PRODUTOS_FRAN7.filter(function(product) {
-            return [product.name].concat(product.aliases || []).some(function(alias) {
-                const normalizedAlias = normalizar(alias);
-                return normalizedAlias.length > 3 && texto.includes(normalizedAlias);
-            });
+    async function consultarIA(question) {
+        const response = await fetch(AI_FUNCTION_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                mensagem: question,
+                historico: historico.map(function(message) {
+                    return {
+                        role: message.tipo === "assistant" ? "assistant" : "user",
+                        content: message.texto
+                    };
+                })
+            })
         });
+        let result;
+        try {
+            result = await response.json();
+        } catch (error) {
+            throw new Error("O serviço de IA devolveu uma resposta inválida.");
+        }
 
-        if (productMatches.length) {
-            const selected = productMatches[0];
-            const duplicateName = productMatches.filter(function(product) {
-                return product.name === selected.name;
-            });
-            if (duplicateName.length > 1) {
-                return "Temos modelos de " + selected.name + " com preços diferentes ou por confirmar. Diz-me qual imagem ou modelo procuras, ou confirma com a equipa pelo WhatsApp: https://wa.me/244973560521.";
+        if (!response.ok) {
+            const message = typeof result.error === "string"
+                ? result.error
+                : "Não foi possível obter uma resposta da IA.";
+            const retryAfter = response.headers.get("Retry-After") ||
+                (Number.isFinite(Number(result.retryAfter)) ? String(result.retryAfter) : "");
+            if (response.status === 429 && retryAfter) {
+                throw new Error(message + " Tenta novamente dentro de " + retryAfter + " segundos.");
             }
-            return selected.name + ": " + selected.price + ". Não consigo confirmar o stock, as cores ou os tamanhos deste modelo pelo site. Posso mostrar-te o modelo para veres a imagem.";
+            throw new Error(message);
         }
-
-        if (/\b(tem|tens|vende|vendem|existe|ha|disponivel|stock|estoque|preco|custa|procuro|quero comprar|queria comprar)\b/.test(texto) &&
-            /\b(roupa|camisola|camisa|t shirt|tshirt|moletom|sweatshirt|calca|calcas|vestido|saia|casaco|tenis|sapato|cor|tamanho)\b/.test(texto)) {
-            return "Não consigo confirmar esse artigo ou a disponibilidade pelo catálogo. A FRAN7 pode ter opções que não estão listadas no site. Diz-me o modelo, a cor ou o tamanho que procuras e confirma com a equipa pelo WhatsApp: https://wa.me/244973560521.";
+        if (typeof result.reply !== "string" || !result.reply.trim()) {
+            throw new Error("A IA não devolveu uma resposta.");
         }
-
-        if (/\b(sacola|carrinho|pedido|pedidos|comprar|compra)\b/.test(texto)) {
-            return "Na FRAN7, podes adicionar o artigo à sacola, escolher as opções disponíveis e preencher os dados pedidos. O envio do pedido abre o WhatsApp para confirmação com a equipa.";
-        }
-
-        if (/\b(favoritos|favorito|coracao)\b/.test(texto)) {
-            return "O botão de favoritos guarda os modelos que queres consultar mais tarde. Podes abrir a página de favoritos pelo ícone de coração no topo.";
-        }
-
-        if (/\b(registo|registar|cadastro|cadastrar|conta|login|entrar|perfil)\b/.test(texto)) {
-            return "Podes criar uma conta ou iniciar sessão na página Registo. Depois, os dados da tua conta ficam disponíveis no perfil.";
-        }
-
-        if (/\b(entrega|entregas|envio|encomenda|pagamento|pagar)\b/.test(texto)) {
-            return "O site não confirma prazos, zonas de entrega ou formas de pagamento. A equipa confirma esses detalhes quando enviares o pedido pelo WhatsApp: https://wa.me/244973560521.";
-        }
-
-        if (/\b(empreendedorismo|empreender|negocio|negocios|vendas|vender|clientes|cliente|marketing|divulgacao)\b/.test(texto)) {
-            return "Uma forma simples de começar é: identifica quem precisa do que vendes, apresenta claramente o benefício e facilita o próximo passo para comprar. Regista as dúvidas dos clientes e usa-as para melhorar a oferta. Se me disseres o que vendes, posso sugerir ideias mais específicas.";
-        }
-
-        if (/\b(ajuda|site|loja|fran7|catalogo|modelos|produtos)\b/.test(texto)) {
-            return "Posso ajudar com o catálogo, preços publicados, sacola, favoritos, registo e informações sobre a FRAN7. Também posso dar orientações básicas sobre vendas e atendimento. O que gostarias de saber?";
-        }
-
-        return "Ainda sou uma assistente básica e não percebi bem a pergunta. Posso ajudar com produtos FRAN7, preços publicados, sacola, favoritos, registo, entregas ou ideias básicas de vendas. Podes explicar de outra forma?";
+        return result.reply.trim();
     }
 
     async function enviar(texto) {
@@ -270,10 +243,7 @@
         messages.scrollTop = messages.scrollHeight;
 
         try {
-            await new Promise(function(resolve) {
-                window.setTimeout(resolve, 250);
-            });
-            let reply = responderLocalmente(question);
+            const reply = await consultarIA(question);
             const pedeTodos = pedeTodosOsProdutos(question);
             typing.remove();
             const replyMessage = adicionarMensagem(reply, "bot");
@@ -289,7 +259,7 @@
             console.error("FRAN7 AI:", error);
             typing.remove();
             adicionarMensagem(
-                "Não foi possível obter uma resposta da FRAN7 AI. " +
+                "Não consegui contactar a FRAN7 AI neste momento. " +
                     (error instanceof Error ? error.message : "Tenta novamente mais tarde."),
                 "bot"
             );

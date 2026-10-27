@@ -1,10 +1,19 @@
-const corsHeaders = {
-    "Access-Control-Allow-Origin": "https://fran7gg.github.io",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Expose-Headers": "Retry-After",
-    "Vary": "Origin",
-};
+const allowedOrigins = new Set([
+    "https://fran7gg.github.io",
+]);
+
+function getCorsHeaders(request: Request) {
+    const origin = request.headers.get("Origin") || "";
+    const localOrigin = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    const allowedOrigin = allowedOrigins.has(origin) || localOrigin ? origin : "";
+    return {
+        ...(allowedOrigin ? { "Access-Control-Allow-Origin": allowedOrigin } : {}),
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Expose-Headers": "Retry-After",
+        "Vary": "Origin",
+    };
+}
 
 const systemPrompt = [
     "És a assistente virtual da FRAN7, uma marca de roupa. Responde em português natural, com simpatia, clareza e atenção ao contexto da conversa.",
@@ -17,6 +26,7 @@ const systemPrompt = [
 ].join(" ");
 
 function jsonResponse(
+    request: Request,
     body: Record<string, unknown>,
     status = 200,
     extraHeaders: Record<string, string> = {},
@@ -24,7 +34,7 @@ function jsonResponse(
     return new Response(JSON.stringify(body), {
         status,
         headers: {
-            ...corsHeaders,
+            ...getCorsHeaders(request),
             "Content-Type": "application/json; charset=utf-8",
             "Cache-Control": "no-store",
             ...extraHeaders,
@@ -110,19 +120,19 @@ async function verificarRateLimit(request: Request) {
 
 Deno.serve(async (request: Request) => {
     if (request.method === "OPTIONS") {
-        return new Response("ok", { headers: corsHeaders });
+        return new Response("ok", { headers: getCorsHeaders(request) });
     }
 
     if (request.method !== "POST") {
-        return jsonResponse({ error: "Método não permitido." }, 405);
+        return jsonResponse(request, { error: "Método não permitido." }, 405);
     }
 
     const rateLimit = await verificarRateLimit(request);
     if (rateLimit.unavailable) {
-        return jsonResponse({ error: "A proteção da IA está temporariamente indisponível. Tenta novamente mais tarde." }, 503);
+        return jsonResponse(request, { error: "A proteção da IA está temporariamente indisponível. Tenta novamente mais tarde." }, 503);
     }
     if (!rateLimit.allowed) {
-        return jsonResponse({
+        return jsonResponse(request, {
             error: "Atingiste o limite temporário de pedidos à FRAN7 AI.",
             retryAfter: rateLimit.retryAfter,
         }, 429, { "Retry-After": String(rateLimit.retryAfter) });
@@ -132,11 +142,11 @@ Deno.serve(async (request: Request) => {
     try {
         payload = await request.json();
     } catch {
-        return jsonResponse({ error: "O pedido não contém JSON válido." }, 400);
+        return jsonResponse(request, { error: "O pedido não contém JSON válido." }, 400);
     }
 
     if (!payload || typeof payload !== "object") {
-        return jsonResponse({ error: "O formato do pedido é inválido." }, 400);
+        return jsonResponse(request, { error: "O formato do pedido é inválido." }, 400);
     }
 
     const body = payload as {
@@ -146,25 +156,25 @@ Deno.serve(async (request: Request) => {
     const mensagem = typeof body.mensagem === "string" ? body.mensagem.trim() : "";
 
     if (!mensagem || mensagem.length > 2000) {
-        return jsonResponse({ error: "Escreve uma mensagem com até 2000 caracteres." }, 400);
+        return jsonResponse(request, { error: "Escreve uma mensagem com até 2000 caracteres." }, 400);
     }
 
     const rawHistory = Array.isArray(body.historico) ? body.historico : [];
     if (rawHistory.length > 6) {
-        return jsonResponse({ error: "O histórico da conversa é demasiado longo." }, 400);
+        return jsonResponse(request, { error: "O histórico da conversa é demasiado longo." }, 400);
     }
 
     const history = [];
     for (const item of rawHistory) {
         if (!item || typeof item !== "object") {
-            return jsonResponse({ error: "Uma mensagem do histórico é inválida." }, 400);
+            return jsonResponse(request, { error: "Uma mensagem do histórico é inválida." }, 400);
         }
         const entry = item as { role?: unknown; content?: unknown };
         if ((entry.role !== "user" && entry.role !== "assistant") ||
             typeof entry.content !== "string" ||
             !entry.content.trim() ||
             entry.content.length > 1200) {
-            return jsonResponse({ error: "Uma mensagem do histórico é inválida." }, 400);
+            return jsonResponse(request, { error: "Uma mensagem do histórico é inválida." }, 400);
         }
         history.push({ role: entry.role, content: entry.content.trim() });
     }
@@ -172,7 +182,7 @@ Deno.serve(async (request: Request) => {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) {
         console.error("FRAN7 AI: o segredo OPENAI_API_KEY não está configurado.");
-        return jsonResponse({ error: "A IA ainda não está configurada no servidor." }, 503);
+        return jsonResponse(request, { error: "A IA ainda não está configurada no servidor." }, 503);
     }
 
     const model = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
@@ -197,7 +207,7 @@ Deno.serve(async (request: Request) => {
         });
     } catch (error) {
         console.error("FRAN7 AI: não foi possível contactar o fornecedor de IA.", error);
-        return jsonResponse({ error: "Não foi possível contactar a IA. Tenta novamente." }, 502);
+        return jsonResponse(request, { error: "Não foi possível contactar a IA. Tenta novamente." }, 502);
     }
 
     if (!upstream.ok) {
@@ -207,13 +217,14 @@ Deno.serve(async (request: Request) => {
                 ? Math.ceil(retryAfterValue)
                 : 60;
             return jsonResponse(
+                request,
                 { error: "A IA está temporariamente limitada. Tenta novamente mais tarde." },
                 429,
                 { "Retry-After": String(retryAfter) },
             );
         }
         console.error("FRAN7 AI: o fornecedor de IA respondeu com HTTP", upstream.status);
-        return jsonResponse({ error: "A IA está temporariamente indisponível. Tenta novamente." }, 502);
+        return jsonResponse(request, { error: "A IA está temporariamente indisponível. Tenta novamente." }, 502);
     }
 
     let result: {
@@ -223,14 +234,14 @@ Deno.serve(async (request: Request) => {
         result = await upstream.json();
     } catch {
         console.error("FRAN7 AI: a resposta do fornecedor não é JSON válido.");
-        return jsonResponse({ error: "A IA devolveu uma resposta inválida. Tenta novamente." }, 502);
+        return jsonResponse(request, { error: "A IA devolveu uma resposta inválida. Tenta novamente." }, 502);
     }
 
     const reply = result.choices?.[0]?.message?.content;
     if (typeof reply !== "string" || !reply.trim()) {
         console.error("FRAN7 AI: a resposta do fornecedor não contém texto.");
-        return jsonResponse({ error: "A IA não devolveu uma resposta. Tenta novamente." }, 502);
+        return jsonResponse(request, { error: "A IA não devolveu uma resposta. Tenta novamente." }, 502);
     }
 
-    return jsonResponse({ reply: reply.trim() });
+    return jsonResponse(request, { reply: reply.trim() });
 });

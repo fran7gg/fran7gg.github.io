@@ -6,7 +6,7 @@
 
 The storefront is static, so client-side throttling can improve user experience but cannot enforce limits: callers can invoke public APIs directly. Server-side enforcement belongs in the API service or a trusted gateway.
 
-The Supabase AI function now checks persistent limits through the database migration in `supabase/migrations/20261027080000_fran7_ai_rate_limits.sql`. The migration and function must both be deployed before these limits are active. PocketBase deployment settings and collection rules are managed outside this repository and could not be verified. The published frontend currently has no PocketBase cloud URL configured by default.
+The storefront assistant is now wired in source to call the Supabase `fran7-ia` Edge Function, while PocketBase remains the store API. The function checks persistent limits through the database migration in `supabase/migrations/20261027080000_fran7_ai_rate_limits.sql`. The migration must be applied and the current function source deployed before those limits are active. Deployment state could not be verified from this environment. PocketBase deployment settings and collection rules are managed outside this repository and could not be verified. The published frontend currently has no PocketBase cloud URL configured by default.
 
 ## Findings
 
@@ -33,6 +33,7 @@ Tune the applied limits using traffic and false-positive monitoring. PocketBase 
 
 - Apply limits at Supabase Edge Functions, PocketBase hosting, or a trusted gateway. A client-side timer or `localStorage` counter is bypassable and is not a security control.
 - For the AI function, `verify_jwt = false` is configured in `supabase/config.toml`. If anonymous use is intentional, enforce abuse controls in the function/gateway and add an aggregate cost guard. CORS `*` is not authentication or rate limiting.
-- Deploy the rate-limit migration (`supabase db push`) and then the `fran7-ia` function (`supabase functions deploy fran7-ia`). The current storefront assistant in `assets/js/assistente.js` responds locally and does not call this Edge Function.
+- The storefront assistant in `assets/js/assistente.js` sends the current message and recent conversation history to `fran7-ia`; it does not send PocketBase credentials or OpenAI secrets. Publish the frontend change for website visitors to use it.
+- Apply the rate-limit migration (`supabase db push`) and deploy the current `fran7-ia` source (`supabase functions deploy fran7-ia`) before relying on server-side limits. The function source allows the GitHub Pages origin and local development origins; redeploy after changing it.
 - Confirm PocketBase collection rules and hosting-level protections for `usuarios_loja`, `encomendas`, and `avaliacao`; those settings are not included here.
 - A `429` response should include a numeric `Retry-After` value in seconds. Clients should preserve and surface that retry interval rather than retrying immediately.
