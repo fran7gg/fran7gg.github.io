@@ -47,7 +47,7 @@
     <link rel="stylesheet" href="assets/css/assistente.css">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
-    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261026-2">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261027-5">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
 
     <style>
@@ -654,20 +654,38 @@
 
             z-index: 1002;
 
-            border: 1px solid rgba(220, 90, 110, .45);
-            border-radius: 50%;
-            background: rgba(220, 90, 110, .12);
-            color: #e36a7f;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: inherit;
         }
 
         .icone-amigos {
-            font-size: 27px;
+            display: flex;
+            width: 22px;
+            height: 22px;
+            align-items: center;
+            justify-content: center;
+            transition: transform .2s ease;
+        }
 
-            animation:
-                movimentoAmigos
-                1.5s
-                ease-in-out
-                infinite;
+        .icone-amigos svg {
+            display: block;
+            width: 22px;
+            height: 22px;
+        }
+
+        .icone-amigos.com-favoritos path {
+            fill: currentColor;
+        }
+
+        .botao-parceria:hover .icone-amigos {
+            transform: scale(1.08);
+        }
+
+        .botao-parceria:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 3px;
         }
 
         .notificacao-parceria {
@@ -697,17 +715,6 @@
 
         .notificacao-parceria.visivel {
             display: flex;
-        }
-
-        @keyframes movimentoAmigos {
-
-            0%,100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-5px);
-            }
         }
 
         /* =====================================================
@@ -1558,10 +1565,6 @@
             transition:
                 color .25s ease,
                 transform .25s ease;
-        }
-
-        .botao-parceria .icone-amigos {
-            color: #e94b6b;
         }
 
         .botao-favorito.ativo .coracao {
@@ -2447,11 +2450,6 @@
                 right: -1px;
             }
 
-            .header-tools .icone-amigos {
-                animation: none;
-                font-size: 25px;
-            }
-
             .header-tools .botao-perfil { order: 1; }
             .header-search { order: 2; }
             .header-tools .botao-parceria { order: 3; }
@@ -3089,12 +3087,6 @@
         }
 
         @media (max-width: 600px) {
-            .botao-parceria {
-                border-color: rgba(255, 115, 140, .5);
-                background: rgba(255, 115, 140, .14);
-                color: #ff8da1;
-            }
-
             .carrinho {
                 padding: 16px;
             }
@@ -3215,7 +3207,9 @@
                 class="icone-amigos"
                 id="iconeCoracaoTopo"
             >
-                ♡
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </span>
 
             <span
@@ -3792,7 +3786,7 @@ O teu navegador não suporta este vídeo.
   <div class="fran7-tribute-inner">
     <div class="fran7-tribute-badge">HOMENAGEM</div>
     <h2 id="fran7-tribute-title">Eliseu Sabino</h2>
-    <p><em>Em memória de <strong>Eliseu Sabino</strong>, cuja visão e apoio financeiro tornaram possível a criação do FRAN7. A sua confiança inicial é a base sobre a qual construímos esta marca.</em></p>
+    <p><em>Em memória de <strong>Eliseu Sabino</strong>, cuja visão e apoio financeiro tornaram possível a criação da FRAN7. A sua confiança inicial é a base sobre a qual construímos esta marca.</em></p>
   </div>
 </section>
         </div>
@@ -4379,6 +4373,19 @@ O teu navegador não suporta este vídeo.
             });
         }
 
+        function variantesDaCorCarrinho(item) {
+            return (item.variantes || []).filter(function(variant) {
+                return !item.cor ||
+                    normalizarCorCarrinho(variant.cor) === normalizarCorCarrinho(item.cor);
+            });
+        }
+
+        function temTamanhosCarrinho(item) {
+            return variantesDaCorCarrinho(item).some(function(variant) {
+                return variant.tamanho.trim() !== "";
+            });
+        }
+
         function chaveCarrinho(item) {
             return [
                 item.productId || item.nome,
@@ -4469,8 +4476,16 @@ O teu navegador não suporta este vídeo.
                             return normalizarCorCarrinho(variant.cor) === normalizarCorCarrinho(item.cor);
                         })
                         : [];
+                    const hasRegisteredSizes = colorVariants.some(function(variant) {
+                        return variant.tamanho.trim() !== "";
+                    });
+                    const stockedColorVariant = colorVariants.find(function(variant) {
+                        return Number(variant.stock) > 0;
+                    });
                     item.tamanho = "";
-                    item.preco = 0;
+                    item.preco = hasRegisteredSizes
+                        ? 0
+                        : (obterPrecoCarrinho(stockedColorVariant?.preco) || item.preco);
                     item.imagem = colorVariants.find(function(variant) {
                         return variant.imagem;
                     })?.imagem || imageVariant?.imagem || item.imagemBase;
@@ -4601,7 +4616,8 @@ O teu navegador não suporta este vídeo.
             const faltante = carrinho.find(function(item) {
                 return !item.cor ||
                     (!tamanhoAutomatico(item.nome) &&
-                        (!item.tamanho || (item.variantes.length && !encontrarVarianteCarrinho(item, item.tamanho))));
+                        (!item.tamanho ||
+                            (temTamanhosCarrinho(item) && !encontrarVarianteCarrinho(item, item.tamanho))));
             });
             if (faltante) {
                 const card = Array.from(
@@ -4806,8 +4822,14 @@ O teu navegador não suporta este vídeo.
                             colorSelect.addEventListener("change", function() {
                                 item.cor = colorSelect.value;
                                 item.tamanho = "";
-                                item.preco = 0;
-                                item.imagem = item.imagemBase || item.imagem;
+                                const selectedColorVariant = variantesDaCorCarrinho(item).find(function(variant) {
+                                    return Number(variant.stock) > 0;
+                                });
+                                item.preco = temTamanhosCarrinho(item)
+                                    ? 0
+                                    : (obterPrecoCarrinho(selectedColorVariant?.preco) || item.preco);
+                                item.imagem = selectedColorVariant?.imagem ||
+                                    item.imagemBase || item.imagem;
                                 guardarCarrinho();
                             });
                             colorLabel.appendChild(colorSelect);
@@ -4831,11 +4853,16 @@ O teu navegador não suporta este vídeo.
                         sizeInput.autocomplete = "off";
                         sizeInput.setAttribute("list", sizeList.id);
                         sizeInput.value = item.tamanho || "";
-                        const colorVariants = item.variantes.filter(function(variant) {
-                            return !item.cor ||
-                                normalizarCorCarrinho(variant.cor) === normalizarCorCarrinho(item.cor);
+                        const colorVariants = variantesDaCorCarrinho(item);
+                        const hasRegisteredSizes = colorVariants.some(function(variant) {
+                            return variant.tamanho.trim() !== "";
                         });
-                        const sizes = Array.from(new Map(colorVariants.map(function(variant) {
+                        const stockedColorVariant = colorVariants.find(function(variant) {
+                            return Number(variant.stock) > 0;
+                        });
+                        const sizes = Array.from(new Map(colorVariants
+                            .filter(function(variant) { return variant.tamanho.trim() !== ""; })
+                            .map(function(variant) {
                             return [variant.tamanho, variant];
                         })).values());
                         sizes.forEach(function(variant) {
@@ -4856,12 +4883,19 @@ O teu navegador não suporta este vídeo.
                                     tamanhoEscrito.toLocaleLowerCase("pt") &&
                                     Number(entry.stock) > 0;
                             });
+                            const selectedVariant = variant ||
+                                (!hasRegisteredSizes ? stockedColorVariant : null);
                             item.tamanho = variant?.tamanho || tamanhoEscrito;
-                            item.preco = variant ? obterPrecoCarrinho(variant.preco) : 0;
-                            item.imagem = variant?.imagem || item.imagemBase || item.imagem;
-                            preco.textContent = variant
+                            item.preco = selectedVariant
+                                ? (obterPrecoCarrinho(selectedVariant.preco) ||
+                                    (!hasRegisteredSizes ? item.preco : 0))
+                                : 0;
+                            item.imagem = selectedVariant?.imagem || item.imagemBase || item.imagem;
+                            preco.textContent = selectedVariant
                                 ? formatarPreco(item.preco * item.quantidade)
-                                : (tamanhoEscrito ? "Tamanho indisponível" : "Consultar preço");
+                                : (tamanhoEscrito && hasRegisteredSizes
+                                    ? "Tamanho indisponível"
+                                    : "Consultar preço");
                             const imagemProduto = caixaImagem.querySelector("img");
                             if (imagemProduto && item.imagem) {
                                 imagemProduto.src = item.imagem;
@@ -5091,7 +5125,7 @@ O teu navegador não suporta este vídeo.
                 return !item.cor || (!tamanhoAutomatico(item.nome) && !item.tamanho);
             });
             const tamanhoIndisponivel = carrinho.find(function(item) {
-                return item.variantes.length &&
+                return temTamanhosCarrinho(item) &&
                     !tamanhoAutomatico(item.nome) &&
                     item.tamanho &&
                     !encontrarVarianteCarrinho(item, item.tamanho);
@@ -5530,14 +5564,14 @@ O teu navegador não suporta este vídeo.
 
     </script>
     <script src="assets/js/fran7-notificacoes.js"></script>
-    <script src="assets/js/fran7-checkout-config.js"></script>
+    <script src="assets/js/fran7-checkout-config.js?v=20261027-1"></script>
     <script src="assets/js/fran7-checkout.js"></script>
-    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261026-2"></script>
-    <script src="assets/js/favoritos.js"></script>
+    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261027-3"></script>
+    <script src="assets/js/favoritos.js?v=20261027-1"></script>
     <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-    <script src="assets/js/pocketbase-auth.js"></script>
-    <script src="assets/js/classificacao-estrelas.js?v=20261026-1"></script>
-    <script src="assets/js/detalhe-produto.js?v=20261026-3"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261027-1"></script>
+    <script src="assets/js/classificacao-estrelas.js?v=20261027-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261027-7"></script>
     <script src="assets/js/informacoes-modal.js"></script>
     <script src="assets/js/assistente.js"></script>
 

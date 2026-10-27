@@ -63,7 +63,7 @@
             contador.classList.toggle("visivel", favoritos.length > 0);
         }
         if (icone) {
-            icone.textContent = favoritos.length > 0 ? "♥" : "♡";
+            icone.classList.toggle("com-favoritos", favoritos.length > 0);
         }
 
         document.querySelectorAll("[data-favorite-name]").forEach(function(button) {

@@ -8,8 +8,11 @@
     const VARIANT_FILTER_BATCH_SIZE = 40;
     const category = new URLSearchParams(window.location.search).get("categoria");
     const grid = document.querySelector(".produtos-grid");
-    const baseUrl = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-        window.FRAN7_POCKETBASE_URL || "http://127.0.0.1:8090";
+    const baseUrl = String(
+        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
+        window.FRAN7_POCKETBASE_URL ||
+        ""
+    ).replace(/\/+$/, "");
 
     function mostrarEstado(message) {
         const status = document.createElement("p");
@@ -104,16 +107,23 @@
                 imagem: variantImage
             };
         }).filter(function(variant) {
-            if (!variant.cor || !variant.tamanho) {
-                console.error("Variante ignorada: preenche cor e tamanho no PocketBase.", variant.id);
+            if (!variant.cor) {
+                console.error("Variante ignorada: preenche a cor no PocketBase.", variant.id);
                 return false;
             }
             return true;
         });
         const defaultVariant = productVariants.find(function(variant) {
-            return Number(variant.stock) > 0;
-        }) || productVariants[0];
-        const image = defaultVariant?.imagem || productImage;
+            return variant.tamanho && Number(variant.stock) > 0;
+        }) || productVariants.find(function(variant) {
+            return Boolean(variant.tamanho);
+        }) || null;
+        const imageVariant = productVariants.find(function(variant) {
+            return Number(variant.stock) > 0 && variant.imagem;
+        }) || productVariants.find(function(variant) {
+            return Boolean(variant.imagem);
+        }) || defaultVariant;
+        const image = imageVariant?.imagem || productImage;
         const images = obterFicheiros(record, "imagens_extra", pb);
         const colors = obterLista(record, "cores");
         const views = obterLista(record, "vistas");
@@ -211,6 +221,10 @@
         }
 
         mostrarEstado("A carregar produtos de " + category + "...");
+        if (!baseUrl) {
+            mostrarEstado("A ligação ao PocketBase cloud ainda não está configurada.");
+            return;
+        }
         if (typeof window.PocketBase !== "function") {
             throw new Error("A biblioteca PocketBase não foi carregada.");
         }

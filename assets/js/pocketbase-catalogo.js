@@ -1,8 +1,11 @@
 (function() {
     "use strict";
 
-    const POCKETBASE_URL = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-        window.FRAN7_POCKETBASE_URL || "http://127.0.0.1:8090";
+    const POCKETBASE_URL = String(
+        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
+        window.FRAN7_POCKETBASE_URL ||
+        ""
+    ).replace(/\/+$/, "");
     const COLLECTION = "produtos_loja";
     const VARIANTS_COLLECTION = "variantes_produto";
     const PRICE_OVERRIDES = { "Boné FRAN7 Modelo 2": 7000 };
@@ -100,16 +103,23 @@
                 imagem: variantImageName ? pb.files.getURL(variant, variantImageName) : ""
             };
         }).filter(function(variant) {
-            if (!variant.cor || !variant.tamanho) {
-                console.error("Variante ignorada: preenche cor e tamanho no PocketBase.", variant.id);
+            if (!variant.cor) {
+                console.error("Variante ignorada: preenche a cor no PocketBase.", variant.id);
                 return false;
             }
             return true;
         });
         const defaultVariant = productVariants.find(function(variant) {
-            return Number(variant.stock) > 0;
-        }) || productVariants[0];
-        const imagem = defaultVariant?.imagem || productImage;
+            return variant.tamanho && Number(variant.stock) > 0;
+        }) || productVariants.find(function(variant) {
+            return Boolean(variant.tamanho);
+        }) || null;
+        const imageVariant = productVariants.find(function(variant) {
+            return Number(variant.stock) > 0 && variant.imagem;
+        }) || productVariants.find(function(variant) {
+            return Boolean(variant.imagem);
+        }) || defaultVariant;
+        const imagem = imageVariant?.imagem || productImage;
         const priceSource = defaultVariant ? defaultVariant.preco : record.preco;
         const valorPreco = defaultVariant
             ? obterPrecoValido(priceSource)
@@ -208,7 +218,14 @@
     }
 
     async function carregarProdutos() {
-        if (!grid || typeof window.PocketBase !== "function") {
+        if (!grid) {
+            return;
+        }
+        if (!POCKETBASE_URL) {
+            mostrarEstado("A ligação ao PocketBase cloud ainda não está configurada.");
+            return;
+        }
+        if (typeof window.PocketBase !== "function") {
             throw new Error("A biblioteca PocketBase não foi carregada.");
         }
 

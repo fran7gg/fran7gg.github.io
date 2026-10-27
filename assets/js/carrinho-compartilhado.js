@@ -41,6 +41,18 @@
         });
     }
 
+    function variantesDaCor(item) {
+        return (item.variantes || []).filter(function(variant) {
+            return !item.cor || normalizarCor(variant.cor) === normalizarCor(item.cor);
+        });
+    }
+
+    function temTamanhosRegistados(item) {
+        return variantesDaCor(item).some(function(variant) {
+            return variant.tamanho.trim() !== "";
+        });
+    }
+
     function chaveItem(item) {
         return [item.productId || item.nome, item.cor, item.tamanho].join("|");
     }
@@ -181,8 +193,16 @@
                         return normalizarCor(variant.cor) === normalizarCor(item.cor);
                     })
                     : [];
+                const hasRegisteredSizes = colorVariants.some(function(variant) {
+                    return variant.tamanho.trim() !== "";
+                });
+                const stockedColorVariant = colorVariants.find(function(variant) {
+                    return Number(variant.stock) > 0;
+                });
                 item.tamanho = "";
-                item.preco = 0;
+                item.preco = hasRegisteredSizes
+                    ? 0
+                    : (obterPreco(stockedColorVariant?.preco) || item.preco);
                 item.imagem = colorVariants.find(function(variant) {
                     return variant.imagem;
                 })?.imagem || imageVariant?.imagem || item.imagemBase;
@@ -241,7 +261,8 @@
     function focarCampoEmFalta() {
         const itemEmFalta = items.find(function(item) {
             return !item.cor ||
-                (!item.tamanho || (item.variantes.length && !encontrarVariante(item, item.tamanho)));
+                (!item.tamanho ||
+                    (temTamanhosRegistados(item) && !encontrarVariante(item, item.tamanho)));
         });
 
         if (itemEmFalta) {
@@ -397,8 +418,14 @@
                         colorSelect.addEventListener("change", function() {
                             item.cor = colorSelect.value;
                             item.tamanho = "";
-                            item.preco = 0;
-                            item.imagem = item.imagemBase || item.imagem;
+                            const selectedColorVariant = variantesDaCor(item).find(function(variant) {
+                                return Number(variant.stock) > 0;
+                            });
+                            item.preco = temTamanhosRegistados(item)
+                                ? 0
+                                : (obterPreco(selectedColorVariant?.preco) || item.preco);
+                            item.imagem = selectedColorVariant?.imagem ||
+                                item.imagemBase || item.imagem;
                             guardarCarrinho();
                         });
                         colorLabel.appendChild(colorSelect);
@@ -424,10 +451,16 @@
                     input.setAttribute("list", sizeList.id);
                     sizeCaption.htmlFor = sizeList.id + "-input";
                     input.id = sizeCaption.htmlFor;
-                    const colorVariants = item.variantes.filter(function(variant) {
-                        return !item.cor || normalizarCor(variant.cor) === normalizarCor(item.cor);
+                    const colorVariants = variantesDaCor(item);
+                    const hasRegisteredSizes = colorVariants.some(function(variant) {
+                        return variant.tamanho.trim() !== "";
                     });
-                    const sizes = Array.from(new Map(colorVariants.map(function(variant) {
+                    const stockedColorVariant = colorVariants.find(function(variant) {
+                        return Number(variant.stock) > 0;
+                    });
+                    const sizes = Array.from(new Map(colorVariants
+                        .filter(function(variant) { return variant.tamanho.trim() !== ""; })
+                        .map(function(variant) {
                         return [variant.tamanho, variant];
                     })).values());
                     sizes.forEach(function(variant) {
@@ -448,12 +481,19 @@
                                 typedSize.toLocaleLowerCase("pt") &&
                                 Number(entry.stock) > 0;
                         });
+                        const selectedVariant = variant ||
+                            (!hasRegisteredSizes ? stockedColorVariant : null);
                         item.tamanho = variant?.tamanho || typedSize;
-                        item.preco = variant ? obterPreco(variant.preco) : 0;
-                        item.imagem = variant?.imagem || item.imagemBase || item.imagem;
-                        price.textContent = variant
+                        item.preco = selectedVariant
+                            ? (obterPreco(selectedVariant.preco) ||
+                                (!hasRegisteredSizes ? item.preco : 0))
+                            : 0;
+                        item.imagem = selectedVariant?.imagem || item.imagemBase || item.imagem;
+                        price.textContent = selectedVariant
                             ? formatarPreco(item.preco * item.quantidade)
-                            : (typedSize ? "Tamanho indisponível" : "Preço a confirmar");
+                            : (typedSize && hasRegisteredSizes
+                                ? "Tamanho indisponível"
+                                : "Preço a confirmar");
                         const itemImage = card.querySelector(".fran7-cart-item-image");
                         if (itemImage && itemImage.tagName === "IMG" && item.imagem) {
                             itemImage.src = item.imagem;
@@ -601,7 +641,7 @@
             return !item.cor || (!tamanhoAutomatico(item.nome) && !item.tamanho);
         });
         const tamanhoIndisponivel = items.find(function(item) {
-            return item.variantes.length &&
+            return temTamanhosRegistados(item) &&
                 !tamanhoAutomatico(item.nome) &&
                 item.tamanho &&
                 !encontrarVariante(item, item.tamanho);

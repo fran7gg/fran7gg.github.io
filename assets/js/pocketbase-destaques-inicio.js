@@ -7,7 +7,7 @@
     const baseUrl = String(
         window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
         window.FRAN7_POCKETBASE_URL ||
-        "http://127.0.0.1:8090"
+        ""
     ).replace(/\/+$/, "");
     const grid = document.querySelector("#produtos .produtos-grid");
 
@@ -93,16 +93,23 @@
                     : ""
             };
         }).filter(function(variant) {
-            if (!variant.cor || !variant.tamanho) {
-                console.error("Variante ignorada: preenche cor e tamanho no PocketBase.", variant.id);
+            if (!variant.cor) {
+                console.error("Variante ignorada: preenche a cor no PocketBase.", variant.id);
                 return false;
             }
             return true;
         });
         const defaultVariant = productVariants.find(function(variant) {
-            return Number(variant.stock) > 0;
-        }) || productVariants[0];
-        const imageUrl = defaultVariant?.imagem || productImage;
+            return variant.tamanho && Number(variant.stock) > 0;
+        }) || productVariants.find(function(variant) {
+            return Boolean(variant.tamanho);
+        }) || null;
+        const imageVariant = productVariants.find(function(variant) {
+            return Number(variant.stock) > 0 && variant.imagem;
+        }) || productVariants.find(function(variant) {
+            return Boolean(variant.imagem);
+        }) || defaultVariant;
+        const imageUrl = imageVariant?.imagem || productImage;
         const priceSource = defaultVariant ? defaultVariant.preco : record.preco;
         const price = formatarPreco(priceSource);
         const priceNumber = obterPrecoNumerico(priceSource);
@@ -191,6 +198,10 @@
 
     async function carregarDestaques() {
         if (!grid) {
+            return;
+        }
+        if (!baseUrl) {
+            mostrarEstado("A ligação ao PocketBase cloud ainda não está configurada.");
             return;
         }
         mostrarEstado("A carregar destaques...");

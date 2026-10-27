@@ -1,11 +1,16 @@
 (function() {
     "use strict";
 
-    const POCKETBASE_HOST = window.location.hostname || "127.0.0.1";
-    const POCKETBASE_PROTOCOL = window.location.protocol === "https:" ? "https:" : "http:";
-    const POCKETBASE_URL = window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
+    const POCKETBASE_URL = String(
+        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
         window.FRAN7_POCKETBASE_URL ||
-        POCKETBASE_PROTOCOL + "//" + POCKETBASE_HOST + ":8090";
+        ""
+    ).replace(/\/+$/, "");
+    const POCKETBASE_HOST = window.location.hostname || "";
+    const IS_GITHUB_PAGES = /(^|\.)github\.io$/i.test(POCKETBASE_HOST);
+    const CONFIGURATION_ERROR = IS_GITHUB_PAGES
+        ? "O PocketBase cloud ainda não está configurado. Define a URL pública em assets/js/fran7-checkout-config.js para ativar contas no site publicado."
+        : "O PocketBase não está configurado. Define a URL em assets/js/fran7-checkout-config.js.";
     const COLLECTION = "usuarios_loja";
     const AUTH_STORAGE_KEY = "fran7_loja_pocketbase_auth";
     const SESSION_KEYS = [
@@ -127,7 +132,16 @@
         };
     }
 
-    const pb = new window.PocketBase(POCKETBASE_URL, criarAuthStore());
+    const pb = POCKETBASE_URL
+        ? new window.PocketBase(POCKETBASE_URL, criarAuthStore())
+        : null;
+
+    function exigirPocketBase() {
+        if (!pb) {
+            throw new Error(CONFIGURATION_ERROR);
+        }
+        return pb;
+    }
 
     function guardarSessao(record) {
         const perfil = {
@@ -148,7 +162,9 @@
     }
 
     function limparSessao() {
-        pb.authStore.clear();
+        if (pb) {
+            pb.authStore.clear();
+        }
         SESSION_KEYS.forEach(function(key) {
             localStorage.removeItem(key);
         });
@@ -175,8 +191,9 @@
     }
 
     async function criarConta(dados) {
+        const client = exigirPocketBase();
         try {
-            await pb.collection(COLLECTION).create({
+            await client.collection(COLLECTION).create({
                 email: dados.email,
                 password: dados.senha,
                 passwordConfirm: dados.senha,
@@ -192,7 +209,7 @@
         }
 
         try {
-            const auth = await pb.collection(COLLECTION).authWithPassword(
+            const auth = await client.collection(COLLECTION).authWithPassword(
                 dados.email,
                 dados.senha
             );
@@ -206,8 +223,9 @@
     }
 
     async function entrar(email, senha) {
+        const client = exigirPocketBase();
         try {
-            const auth = await pb.collection(COLLECTION).authWithPassword(email, senha);
+            const auth = await client.collection(COLLECTION).authWithPassword(email, senha);
             return guardarSessao(auth.record);
         } catch (error) {
             console.error("PocketBase: não foi possível iniciar sessão FRAN7.", error);
@@ -219,9 +237,9 @@
         limparSessao();
     }
 
-    if (pb.authStore.isValid) {
+    if (pb && pb.authStore.isValid) {
         guardarSessao(pb.authStore.record);
-    } else {
+    } else if (pb) {
         pb.authStore.clear();
         SESSION_KEYS.forEach(function(key) {
             localStorage.removeItem(key);
@@ -234,10 +252,10 @@
         terminarSessao: terminarSessao,
         guardarSessao: guardarSessao,
         estaAutenticado: function() {
-            return pb.authStore.isValid;
+            return Boolean(pb && pb.authStore.isValid);
         },
         obterSessao: function() {
-            if (!pb.authStore.isValid || !pb.authStore.record?.id) {
+            if (!pb || !pb.authStore.isValid || !pb.authStore.record?.id) {
                 return null;
             }
             return {

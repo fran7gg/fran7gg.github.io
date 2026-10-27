@@ -41,8 +41,8 @@
     let currentProduct = null;
     let selectedImage = "";
     let selectedColor = "";
-    let selectedVariant = null;
     let previousFocus = null;
+    let productLoadSequence = 0;
 
     function obterPreco(valor) {
         if (window.Fran7Checkout) {
@@ -73,12 +73,52 @@
             }
             return variants.filter(function(variant) {
                 return variant && typeof variant.cor === "string" &&
-                    typeof variant.tamanho === "string";
+                    (variant.tamanho === undefined || typeof variant.tamanho === "string");
             });
         } catch (error) {
             console.error("Não foi possível ler as variantes deste produto.", error);
             return [];
         }
+    }
+
+    async function carregarVariantesProduto(product) {
+        if (!product.id) {
+            return product.variants;
+        }
+
+        const baseUrl = String(
+            window.FRAN7_POCKETBASE_URL ||
+            window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
+            ""
+        ).replace(/\/+$/, "");
+        if (!baseUrl) {
+            throw new Error("A URL do PocketBase não está configurada.");
+        }
+        if (typeof window.PocketBase !== "function") {
+            throw new Error("A biblioteca PocketBase não foi carregada.");
+        }
+
+        const pb = new window.PocketBase(baseUrl);
+        const escapedId = product.id.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+        const records = await pb.collection("variantes_produto").getFullList({
+            filter: `produto_id = "${escapedId}"`
+        });
+
+        return records.map(function(variant) {
+            if (typeof variant.cor !== "string" || !variant.cor.trim()) {
+                console.error("Variante PocketBase ignorada: falta uma cor válida.", variant.id);
+                return null;
+            }
+            const imageName = typeof variant.imagem === "string" ? variant.imagem.trim() : "";
+            return {
+                id: variant.id,
+                cor: variant.cor.trim(),
+                tamanho: typeof variant.tamanho === "string" ? variant.tamanho.trim() : "",
+                preco: variant.preco,
+                stock: variant.stock,
+                imagem: imageName ? pb.files.getURL(variant, imageName) : ""
+            };
+        }).filter(Boolean);
     }
 
     function getProduct(article) {
@@ -263,22 +303,59 @@
     function definirCorPonto(dot, color) {
         const colors = {
             preto: "#111111",
+            preta: "#111111",
+            negro: "#111111",
+            negra: "#111111",
             branco: "#ffffff",
+            branca: "#ffffff",
             vermelho: "#d22f27",
+            vermelha: "#d22f27",
             azul: "#2463eb",
+            azulclaro: "#8bb8f2",
+            azulmarinho: "#182b4d",
+            azulescuro: "#17345c",
+            azulroyal: "#2456a6",
             verde: "#21834a",
+            verdeescuro: "#24543b",
+            verdeoliva: "#737b35",
             amarelo: "#e3bd25",
+            amarela: "#e3bd25",
             laranja: "#e67e22",
             rosa: "#e58ca8",
             roxo: "#7544a5",
+            roxa: "#7544a5",
+            lilas: "#aa8cc5",
             castanho: "#75452b",
+            castanha: "#75452b",
             marrom: "#75452b",
             bege: "#d8c3a5",
             cinza: "#858585",
-            cinzento: "#858585"
+            cinzento: "#858585",
+            cinzenta: "#858585",
+            dourado: "#c5a13b",
+            dourada: "#c5a13b",
+            prateado: "#aeb4bb",
+            prateada: "#aeb4bb"
         };
-        dot.style.backgroundColor = colors[normalizarOpcao(color)] || "#858585";
-        if (normalizarOpcao(color) === "branco" || normalizarOpcao(color) === "bege") {
+        const normalizedColor = normalizarOpcao(color).replace(/[\s_-]+/g, "");
+        const mappedColor = colors[normalizedColor];
+        const directColor = window.CSS && window.CSS.supports("color", color) ? color : "";
+        const visibleColor = mappedColor || directColor || "#858585";
+        dot.style.backgroundColor = visibleColor;
+        const tag = dot.closest(".fran7-product-color-swatch");
+        tag?.style.setProperty("--tag-color", visibleColor);
+        const rgb = window.getComputedStyle(dot).backgroundColor.match(/[\d.]+/g);
+        if (rgb && rgb.length >= 3) {
+            const channels = rgb.slice(0, 3).map(function(channel) {
+                const normalized = Number(channel) / 255;
+                return normalized <= 0.04045
+                    ? normalized / 12.92
+                    : Math.pow((normalized + 0.055) / 1.055, 2.4);
+            });
+            const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+            tag?.style.setProperty("--tag-ink", luminance > 0.45 ? "#171717" : "#ffffff");
+        }
+        if (["branco", "branca", "bege", "dourado", "dourada"].includes(normalizedColor)) {
             dot.classList.add("is-light");
         }
     }
@@ -289,27 +366,43 @@
         });
     }
 
-    function selecionarVariante(variant) {
-        if (!variant) {
-            selectedVariant = null;
+    function variantesDisponiveisDaCor(color) {
+        return variantesDaCor(color).filter(function(variant) {
+            return Number(variant.stock) > 0;
+        });
+    }
+
+    function imagemDaCor(color) {
+        const variants = variantesDaCor(color);
+        return variants.find(function(variant) {
+            return Number(variant.stock) > 0 && variant.imagem;
+        }) || variants.find(function(variant) {
+            return Boolean(variant.imagem);
+        }) || null;
+    }
+
+    function selecionarCor(color) {
+        const colorVariants = variantesDaCor(color);
+        const availableVariants = variantesDisponiveisDaCor(color);
+        if (!colorVariants.length) {
             return;
         }
 
-        selectedVariant = variant;
-        selectedColor = variant.cor;
-        colorLabel.textContent = "Cor selecionada: " + variant.cor;
+        selectedColor = colorVariants[0].cor;
+        colorLabel.textContent = "Cor selecionada: " + selectedColor;
         colorLabel.hidden = false;
-        availability.textContent = Number(variant.stock) > 0
+        availability.textContent = availableVariants.length
             ? "Disponível"
             : "Sem stock nesta cor.";
 
-        if (variant.imagem) {
-            selectedImage = variant.imagem;
+        const imageVariant = imagemDaCor(selectedColor);
+        if (imageVariant?.imagem) {
+            selectedImage = imageVariant.imagem;
             showView({
                 type: "image",
-                src: variant.imagem,
-                label: variant.cor,
-                color: variant.cor,
+                src: imageVariant.imagem,
+                label: selectedColor,
+                color: selectedColor,
                 side: "front"
             }, currentProduct);
             thumbnails.querySelectorAll(".fran7-product-thumbnail").forEach(function(button) {
@@ -329,13 +422,23 @@
             });
         }
 
+        let selectedTag = null;
         colorOptions.querySelectorAll(".fran7-product-color-swatch").forEach(function(button) {
+            const isSelected =
+                normalizarOpcao(button.dataset.color) === normalizarOpcao(selectedColor);
             button.setAttribute(
                 "aria-pressed",
-                String(normalizarOpcao(button.dataset.color) === normalizarOpcao(variant.cor))
+                String(isSelected)
             );
+            button.classList.remove("is-dropping");
+            if (isSelected) selectedTag = button;
         });
-        addButton.disabled = !(Number(variant.stock) > 0);
+        colorOptions.classList.add("has-selection");
+        if (selectedTag) {
+            void selectedTag.offsetWidth;
+            selectedTag.classList.add("is-dropping");
+        }
+        addButton.disabled = availableVariants.length === 0;
         addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
     }
 
@@ -353,34 +456,36 @@
         const colors = Array.from(new Map(product.variants.map(function(variant) {
             return [normalizarOpcao(variant.cor), variant.cor.trim()];
         })).values());
-        colors.forEach(function(color) {
-            const availableVariant = variantesDaCor(color).find(function(variant) {
-                return Number(variant.stock) > 0;
-            });
+        colors.forEach(function(color, index) {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "fran7-product-color-swatch";
+            button.style.setProperty("--tag-index", String(index));
             button.dataset.color = color;
             button.setAttribute("aria-label", "Escolher cor " + color);
             button.setAttribute("aria-pressed", "false");
-            button.disabled = !availableVariant;
+            button.title = color;
             const dot = document.createElement("span");
             dot.className = "fran7-product-color-dot";
             dot.setAttribute("aria-hidden", "true");
-            definirCorPonto(dot, color);
             const label = document.createElement("span");
             label.textContent = color;
             button.append(dot, label);
+            definirCorPonto(dot, color);
             button.addEventListener("click", function() {
-                selecionarVariante(availableVariant);
+                selecionarCor(color);
             });
             colorOptions.appendChild(button);
         });
 
-        const firstVariant = product.variants.find(function(variant) {
-            return Number(variant.stock) > 0;
-        }) || product.variants[0];
-        selecionarVariante(firstVariant);
+        const firstAvailableColor = colors.find(function(color) {
+            return variantesDisponiveisDaCor(color).length > 0;
+        });
+        if (firstAvailableColor) {
+            selecionarCor(firstAvailableColor);
+        } else {
+            selecionarCor(colors[0]);
+        }
     }
 
     function atualizarCorSelecionada(index) {
@@ -396,7 +501,8 @@
         colorLabel.hidden = !selectedColor && !currentProduct.variantSize;
     }
 
-    function openProduct(article) {
+    async function openProduct(article) {
+        const loadSequence = ++productLoadSequence;
         currentProduct = getProduct(article);
         previousFocus = document.activeElement;
         overlay.querySelector(".fran7-product-name").textContent = currentProduct.name;
@@ -409,7 +515,6 @@
             );
         }
         addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
-        selectedVariant = null;
         selectedColor = currentProduct.variantColor;
         colorLabel.textContent = [
             selectedColor && "Cor: " + selectedColor,
@@ -418,13 +523,32 @@
         colorLabel.hidden = !selectedColor && !currentProduct.variantSize;
         renderGallery(currentProduct);
         selectedImage = currentProduct.views[0]?.src || "";
-        renderizarVariantes(currentProduct);
+        colorOptions.replaceChildren();
+        colorOptions.hidden = true;
+        availability.textContent = currentProduct.id ? "A carregar cores…" : "Disponibilidade a confirmar";
+        addButton.disabled = Boolean(currentProduct.id);
         overlay.hidden = false;
         document.body.style.overflow = "hidden";
         closeButton.focus();
+
+        try {
+            currentProduct.variants = await carregarVariantesProduto(currentProduct);
+            if (loadSequence !== productLoadSequence || overlay.hidden) return;
+            renderizarVariantes(currentProduct);
+        } catch (error) {
+            if (loadSequence !== productLoadSequence || overlay.hidden) return;
+            console.error("Não foi possível carregar as variantes do produto.", error);
+            colorOptions.replaceChildren();
+            colorOptions.hidden = true;
+            colorLabel.hidden = true;
+            availability.textContent = "Erro ao carregar cores: " +
+                (error instanceof Error ? error.message : String(error));
+            addButton.disabled = true;
+        }
     }
 
     function closeProduct() {
+        productLoadSequence += 1;
         overlay.hidden = true;
         document.body.style.overflow = "";
         if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
@@ -465,8 +589,11 @@
     });
 
     addButton.addEventListener("click", function() {
-        if (currentProduct.variants.length && !selectedVariant) {
-            window.Fran7Notify.alert("Escolhe a cor e o tamanho do produto.", { title: "Escolhe uma opção" });
+        if (addButton.disabled) {
+            return;
+        }
+        if (currentProduct.variants.length && !selectedColor) {
+            window.Fran7Notify.alert("Escolhe uma cor disponível.", { title: "Escolhe uma cor" });
             return;
         }
         if (currentProduct.views.some(function(view) { return view.color; }) && !selectedColor) {
@@ -478,9 +605,14 @@
         const colorVariants = currentProduct.variants.length
             ? variantesDaCor(selectedColor)
             : [];
-        const price = colorVariants.length
-            ? 0
-            : obterPreco(currentProduct.price);
+        const stockedVariant = colorVariants.find(function(variant) {
+            return Number(variant.stock) > 0 &&
+                variant.imagem === selectedImage;
+        }) || colorVariants.find(function(variant) {
+            return Number(variant.stock) > 0;
+        });
+        const variantPrice = obterPreco(stockedVariant?.preco);
+        const price = variantPrice || obterPreco(currentProduct.price);
         const item = {
             nome: currentProduct.name,
             imagem: selectedImage || currentProduct.modelFallback || "",
@@ -488,7 +620,7 @@
             productId: currentProduct.id,
             preco: price,
             cor: selectedColor,
-            tamanho: colorVariants.length ? "" : currentProduct.variantSize,
+            tamanho: "",
             variantes: colorVariants
         };
         closeProduct();

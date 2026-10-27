@@ -3,12 +3,10 @@
 
     const COLLECTION = "avaliacao";
     const AUTH_STORAGE_KEY = "fran7_loja_pocketbase_auth";
-    const HOSTNAME = window.location.hostname || "127.0.0.1";
-    const PROTOCOL = window.location.protocol === "https:" ? "https:" : "http:";
     const POCKETBASE_URL = String(
         window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
         window.FRAN7_POCKETBASE_URL ||
-        PROTOCOL + "//" + HOSTNAME + ":8090"
+        ""
     ).replace(/\/+$/, "");
     let productRecordsPromise = null;
 
@@ -344,6 +342,14 @@
 
     async function carregarAvaliacao(widget, productId) {
         if (!productId) {
+            return;
+        }
+        if (!POCKETBASE_URL) {
+            widget.querySelector(".fran7-rating-summary-text").textContent =
+                "Avaliações cloud indisponíveis";
+            widget.querySelector(".fran7-rating-note").textContent =
+                "A ligação ao PocketBase cloud ainda não está configurada.";
+            setDisabled(widget, true);
             return;
         }
         await carregarResumo(widget, productId);
