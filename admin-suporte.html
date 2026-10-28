@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRAN7 · Atendimento de suporte</title>
+    <style>
+        :root { color-scheme: dark; --fundo: #090909; --painel: #161616; --borda: #333; --texto: #f5f5f5; --sucesso: #25d366; --erro: #ff6b6b; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; padding: 24px; background: var(--fundo); color: var(--texto); font-family: Arial, sans-serif; }
+        main { width: min(850px, 100%); margin: 0 auto; }
+        h1 { margin: 0 0 8px; }
+        .descricao { margin: 0 0 24px; color: #aaa; }
+        #mensagens-suporte { display: grid; gap: 16px; }
+        .estado { padding: 18px; border: 1px solid var(--borda); border-radius: 12px; color: #aaa; }
+        .estado.erro { color: var(--erro); }
+        .card-msg { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--borda); border-radius: 12px; background: var(--painel); }
+        .header-msg { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .header-msg span { padding: 5px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+        .status-pendente { background: #b36b00; }
+        .status-respondido { background: #16783a; }
+        .status-falha { background: #8a2727; }
+        .card-msg p { margin: 0; line-height: 1.5; }
+        .resposta-atual { color: #aaa; font-size: 14px; }
+        input, textarea, button { width: 100%; border: 1px solid #454545; border-radius: 8px; background: #0d0d0d; color: var(--texto); font: inherit; }
+        input, textarea { padding: 12px; }
+        textarea { min-height: 100px; resize: vertical; }
+        button { padding: 12px 16px; border: 0; background: var(--sucesso); color: #07160d; font-weight: 700; cursor: pointer; }
+        button:disabled { cursor: wait; opacity: .65; }
+        .aviso { color: #aaa; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Mensagens de suporte</h1>
+        <p class="descricao">Responda às mensagens enviadas pela assistente FRAN7.</p>
+        <div id="mensagens-suporte">
+            <div class="estado">A carregar mensagens do PocketBase…</div>
+        </div>
+    </main>
+
+    <script src="assets/js/fran7-checkout-config.js?v=20261028-1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.26.2/dist/pocketbase.umd.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            const container = document.getElementById("mensagens-suporte");
+            const baseUrl = String(window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl || "").replace(/\/+$/, "");
+
+            function escaparHtml(value) {
+                const node = document.createElement("div");
+                node.textContent = value == null ? "" : String(value);
+                return node.innerHTML;
+            }
+
+            function mostrarEstado(texto, erro) {
+                container.innerHTML = "";
+                const estado = document.createElement("div");
+                estado.className = "estado" + (erro ? " erro" : "");
+                estado.textContent = texto;
+                container.appendChild(estado);
+            }
+
+            function criarCard(msg) {
+                const card = document.createElement("article");
+                card.className = "card-msg";
+
+                card.innerHTML = `
+                    <div class="header-msg">
+                        <strong>${escaparHtml(msg.cliente_nome || "Cliente")}</strong>
+                        <span class="status-${escaparHtml(msg.status || "pendente")}">${escaparHtml(String(msg.status || "pendente").toUpperCase())}</span>
+                    </div>
+                    <p><strong>Contacto:</strong> ${escaparHtml(msg.contacto || "Não informado")}</p>
+                    <p><strong>Mensagem:</strong> ${escaparHtml(msg.mensagem || "")}</p>
+                    <p class="resposta-atual"><strong>Resposta atual:</strong> ${msg.resposta ? `${escaparHtml(msg.resposta)} (por ${escaparHtml(msg.agente_nome || "Atendimento")})` : "Ainda sem resposta"}</p>
+                    <input type="text" id="agente-${escaparHtml(msg.id)}" placeholder="Nome do Agente (ex: Fredy)" value="${escaparHtml(msg.agente_nome || "Fredy")}">
+                    <textarea id="resp-${escaparHtml(msg.id)}" placeholder="Escreva aqui a sua resposta...">${escaparHtml(msg.resposta || "")}</textarea>
+                    <button type="button" data-responder="${escaparHtml(msg.id)}">Enviar Resposta Humana</button>
+                    <span class="aviso" aria-live="polite"></span>`;
+
+                card.querySelector("[data-responder]").addEventListener("click", function () {
+                    responderCliente(msg.id, card);
+                });
+                return card;
+            }
+
+            async function carregarMensagens() {
+                if (!baseUrl || typeof window.PocketBase !== "function") {
+                    mostrarEstado("A ligação ao PocketBase não está configurada.", true);
+                    return;
+                }
+
+                try {
+                    const pb = new window.PocketBase(baseUrl);
+                    const mensagens = await pb.collection("suporte_mensagens").getFullList({
+                        sort: "-created"
+                    });
+
+                    container.innerHTML = "";
+                    if (!mensagens.length) {
+                        mostrarEstado("Ainda não há mensagens de suporte.");
+                        return;
+                    }
+                    mensagens.forEach(function (msg) {
+                        container.appendChild(criarCard(msg));
+                    });
+                } catch (error) {
+                    console.error("Não foi possível carregar o suporte:", error);
+                    mostrarEstado("Não foi possível carregar as mensagens. Confirme as regras de leitura da coleção suporte_mensagens.", true);
+                }
+            }
+
+            async function responderCliente(id, card) {
+                const agenteInput = document.getElementById("agente-" + id);
+                const respostaInput = document.getElementById("resp-" + id);
+                const botao = card.querySelector("[data-responder]");
+                const aviso = card.querySelector(".aviso");
+                const agenteNome = agenteInput.value.trim();
+                const resposta = respostaInput.value.trim();
+
+                if (!agenteNome || !resposta) {
+                    aviso.textContent = "Preencha o nome do agente e a resposta.";
+                    return;
+                }
+
+                botao.disabled = true;
+                aviso.textContent = "Enviando resposta…";
+                try {
+                    const pb = new window.PocketBase(baseUrl);
+                    await pb.collection("suporte_mensagens").update(id, {
+                        resposta: resposta,
+                        agente_nome: agenteNome,
+                        status: "respondido"
+                    });
+                    aviso.textContent = "Resposta enviada e mensagem marcada como respondida.";
+                    card.querySelector(".header-msg span").className = "status-respondido";
+                    card.querySelector(".header-msg span").textContent = "RESPONDIDO";
+                    card.querySelector(".resposta-atual").innerHTML = `<strong>Resposta atual:</strong> ${escaparHtml(resposta)} (por ${escaparHtml(agenteNome)})`;
+                } catch (error) {
+                    console.error("Não foi possível responder:", error);
+                    aviso.textContent = "Não foi possível guardar a resposta. Confirme as regras de atualização do PocketBase.";
+                } finally {
+                    botao.disabled = false;
+                }
+            }
+
+            carregarMensagens();
+        })();
+    </script>
+</body>
+</html>
