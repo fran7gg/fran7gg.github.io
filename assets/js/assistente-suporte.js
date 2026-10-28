@@ -43,7 +43,7 @@
         "Escolha uma das opções abaixo e será direcionado imediatamente.";
 
     const CANAIS_SUPORTE = [
-        {nome: "Site", url: "https://fran7gg.github.io", classe: "site"},
+        {nome: "Site", url: "https://fran7gg.github.io/inicio.html", classe: "site"},
         {nome: "WhatsApp", url: "https://wa.me/244973560521", classe: "whatsapp"},
         {nome: "Instagram", url: "https://instagram.com/fran7.official", classe: "instagram"},
         {nome: "Email", url: "mailto:fran7officiall@gmail.com", classe: "email"},
