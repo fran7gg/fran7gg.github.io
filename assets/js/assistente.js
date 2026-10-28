@@ -4,7 +4,6 @@
     const MAX_HISTORICO = 6;
     const AI_FUNCTION_URL = "https://pqvnqloukcwwtavdyjry.supabase.co/functions/v1/fran7-ia";
     const historico = [];
-    let dadosSuporte = null;
     const openButton = document.getElementById("fran7AiOpen");
     const closeButton = document.getElementById("fran7AiClose");
     const chatWindow = document.getElementById("fran7AiWindow");
@@ -52,17 +51,6 @@
         return /\b(suporte|atendente|agente|ajuda humana|ajuda dos trabalhadores|trabalhador|trabalhadores|funcionario|funcionarios|falar com alguem|problema com|problema no|reclamacao|denuncia|contactar a loja|enviar mensagem ao suporte)\b/.test(normalizar(texto));
     }
 
-    function iniciarPedidoSuporte() {
-        const sessao = window.Fran7PocketBaseAuth?.obterSessao?.();
-        const nome = String(sessao?.record?.nome || sessao?.record?.name || "").trim();
-        const contacto = String(sessao?.record?.telefone || sessao?.record?.email || "").trim();
-        dadosSuporte = { nome: nome, contacto: contacto, etapa: nome ? (contacto ? "mensagem" : "contacto") : "nome" };
-        return nome
-            ? (contacto
-                ? "Já tenho os seus dados: " + nome + " (" + contacto + "). Escreva a mensagem que pretende enviar ao suporte."
-                : "Olá, " + nome + ". Qual é o seu telefone ou email para a resposta do suporte?")
-            : "Posso encaminhar a sua mensagem ao suporte. Primeiro, diga-me o seu nome.";
-    }
 
     async function enviarMensagemSuporte(nome, contacto, textoMensagem) {
         try {
@@ -96,31 +84,13 @@
     }
 
     async function processarPedidoSuporte(question) {
-        if (dadosSuporte) {
-            if (dadosSuporte.etapa === "nome") {
-                dadosSuporte.nome = question;
-                dadosSuporte.etapa = "contacto";
-                adicionarMensagem("Obrigado, " + question + ". Qual é o seu telefone ou email para o suporte responder?", "bot");
-                return true;
-            }
-            if (dadosSuporte.etapa === "contacto") {
-                dadosSuporte.contacto = question;
-                dadosSuporte.etapa = "mensagem";
-                adicionarMensagem("Perfeito. Agora escreva a mensagem que deseja enviar à equipa da FRAN7.", "bot");
-                return true;
-            }
-            if (dadosSuporte.etapa === "mensagem") {
-                const dados = dadosSuporte;
-                dadosSuporte = null;
-                await enviarMensagemSuporte(dados.nome, dados.contacto, question);
-                return true;
-            }
-        }
-        if (pedeSuporte(question)) {
-            adicionarMensagem(iniciarPedidoSuporte(), "bot");
-            return true;
-        }
-        return false;
+        if (!pedeSuporte(question)) return false;
+
+        const sessao = window.Fran7PocketBaseAuth?.obterSessao?.();
+        const nome = String(sessao?.record?.nome || sessao?.record?.name || "Visitante").trim() || "Visitante";
+        const contacto = String(sessao?.record?.telefone || sessao?.record?.email || "Não informado").trim() || "Não informado";
+        await enviarMensagemSuporte(nome, contacto, question);
+        return true;
     }
 
     function obterCatalogoReal() {
