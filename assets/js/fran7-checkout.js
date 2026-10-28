@@ -283,7 +283,7 @@
         const senderY = drawParty("Remetente", [
             CONFIG.brandName || "FRAN7",
             CONFIG.supportEmail || "fran7officiall@gmail.com",
-            "WhatsApp/Telefone: +" + (CONFIG.whatsappNumber || "244973560521")
+            "WhatsApp/Telefone: +" + (CONFIG.whatsappNumber || "+244973560521")
         ], left, 80);
         const recipientY = drawParty("Destinatário", [
             "De FRAN7 para " + (order.cidade || "cidade a confirmar"),
