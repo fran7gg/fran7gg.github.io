@@ -39,18 +39,40 @@
     }
 
     const MENSAGEM_SUPORTE_UNICA =
-        "Já consigo os seus dados e a mensagem. Vou chamar um agente humano da FRAN7 para acompanhar o seu pedido.\n\n" +
-        "Pode ainda falar connosco por estes 5 meios:\n" +
-        "• Site: https://fran7gg.github.io\n" +
-        "• WhatsApp: https://wa.me/244973560521\n" +
-        "• Instagram: https://instagram.com/fran7.official\n" +
-        "• Email: fran7officiall@gmail.com\n" +
-        "• Telefone: +244 973 560 521";
+        "Um agente humano da FRAN7 já pode acompanhar o seu pedido.\n" +
+        "Escolha uma das opções abaixo e será direcionado imediatamente.";
+
+    const CANAIS_SUPORTE = [
+        {nome: "Site", url: "https://fran7gg.github.io", classe: "site"},
+        {nome: "WhatsApp", url: "https://wa.me/244973560521", classe: "whatsapp"},
+        {nome: "Instagram", url: "https://instagram.com/fran7.official", classe: "instagram"},
+        {nome: "Email", url: "mailto:fran7officiall@gmail.com", classe: "email"},
+        {nome: "Telefone", url: "tel:+244973560521", classe: "telefone"}
+    ];
 
     function pedeSuporte(texto) {
         return /\b(suporte|atendente|agente|ajuda humana|ajuda dos trabalhadores|trabalhador|trabalhadores|funcionario|funcionarios|falar com alguem|problema com|problema no|reclamacao|denuncia|contactar a loja|enviar mensagem ao suporte)\b/.test(normalizar(texto));
     }
 
+
+    function mostrarCanaisSuporte(message) {
+        const links = document.createElement("div");
+        links.className = "fran7-ai-support-actions";
+        links.setAttribute("aria-label", "Meios de contacto com o suporte da FRAN7");
+
+        CANAIS_SUPORTE.forEach(function(canal) {
+            const link = document.createElement("a");
+            link.className = "fran7-ai-support-action fran7-ai-support-action--" + canal.classe;
+            link.href = canal.url;
+            link.textContent = canal.nome;
+            link.target = canal.url.startsWith("http") ? "_blank" : "_self";
+            link.rel = "noopener noreferrer";
+            links.appendChild(link);
+        });
+
+        message.appendChild(links);
+        messages.scrollTop = messages.scrollHeight;
+    }
 
     async function enviarMensagemSuporte(nome, contacto, textoMensagem) {
         try {
@@ -71,7 +93,8 @@
                 data.user = pb.authStore.record.id;
             }
             const record = await pb.collection("suporte_mensagens").create(data);
-            adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
+            const message = adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
+            mostrarCanaisSuporte(message);
             return record;
         } catch (error) {
             console.error("Erro ao enviar mensagem de suporte:", error);

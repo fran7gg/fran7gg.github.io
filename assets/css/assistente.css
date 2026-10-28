@@ -320,6 +320,41 @@
     cursor: pointer;
 }
 
+.fran7-ai-support-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.fran7-ai-support-action {
+    display: block;
+    min-height: 36px;
+    padding: 9px 10px;
+    border: 1px solid var(--ai-border);
+    border-radius: 18px;
+    background: var(--ai-bg);
+    color: var(--ai-text);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.fran7-ai-support-action:hover,
+.fran7-ai-support-action:focus-visible {
+    background: var(--ai-text);
+    color: var(--ai-bg);
+}
+
+.fran7-ai-support-action--whatsapp {
+    border-color: #25d366;
+}
+
+.fran7-ai-support-action--instagram {
+    border-color: #d62976;
+}
+
 .fran7-ai-quick {
     display: flex;
     gap: 7px;
