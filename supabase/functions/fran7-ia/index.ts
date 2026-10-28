@@ -38,8 +38,8 @@ function responderLocalmente(mensagem: string, history: Array<{ role: string; co
     if (/\b(estou bem|tudo bem|bem tambem|como vais|como estas)\b/.test(texto)) {
         return "Fico feliz em saber! Se quiser, podemos usar este momento para escolher uma peça que combine com o seu estilo ou para resolver uma dúvida sobre o pedido.";
     }
-    if (/\b(contato|contacto|whatsapp|email|instagram|telefone|falar com)\b/.test(texto)) {
-        return "Pode falar diretamente com a equipa pelo WhatsApp +244 973 560 521, pelo e-mail fran7officiall@gmail.com ou no Instagram @fran7.official. Mencione a página ou modelo em que está interessado para receber ajuda mais rápida.";
+    if (/\b(suporte|atendente|agente|ajuda humana|ajuda dos trabalhadores|trabalhador|trabalhadores|funcionario|funcionarios|contato|contacto|whatsapp|email|instagram|telefone|falar com)\b/.test(texto)) {
+        return "Já consigo os seus dados e a mensagem. Vou chamar um agente humano da FRAN7 para acompanhar o seu pedido.\n\nPode ainda falar connosco por estes 5 meios:\n• Site: https://fran7gg.github.io\n• WhatsApp: https://wa.me/244973560521\n• Instagram: https://instagram.com/fran7.official\n• Email: fran7officiall@gmail.com\n• Telefone: +244 973 560 521";
     }
     if (/\b(catalogo|todos os produtos|todos produtos|quais produtos|que produtos|o que vende|o que tem)\b/.test(texto)) {
         return "Na FRAN7 encontra T-shirts, bonés, conjuntos femininos, peças infantis e FRAN7 Performance. Preços confirmados: Modelo 01 — 11.000 Kz; Modelo 02 — 7.000 Kz; Modelo 03 — 7.000 Kz; Modelo 04 — 8.500 Kz. Quer ver opções casuais, desportivas ou conhecer um modelo específico?";

@@ -39,8 +39,17 @@
         return /\b(catalogo|todos|todas|lista completa|quais produtos|que produtos|que modelos|quais modelos|o que vende|o que tem na fran7|produtos da fran7|tudo que sabes|tudo o que sabes|tudo do site|apresenta tudo|tudo sobre a fran7)\b/.test(normalizar(texto));
     }
 
+    const MENSAGEM_SUPORTE_UNICA =
+        "Já consigo os seus dados e a mensagem. Vou chamar um agente humano da FRAN7 para acompanhar o seu pedido.\n\n" +
+        "Pode ainda falar connosco por estes 5 meios:\n" +
+        "• Site: https://fran7gg.github.io\n" +
+        "• WhatsApp: https://wa.me/244973560521\n" +
+        "• Instagram: https://instagram.com/fran7.official\n" +
+        "• Email: fran7officiall@gmail.com\n" +
+        "• Telefone: +244 973 560 521";
+
     function pedeSuporte(texto) {
-        return /\b(suporte|atendente|ajuda humana|falar com alguem|problema com|problema no|reclamacao|denuncia|contactar a loja|enviar mensagem ao suporte)\b/.test(normalizar(texto));
+        return /\b(suporte|atendente|agente|ajuda humana|ajuda dos trabalhadores|trabalhador|trabalhadores|funcionario|funcionarios|falar com alguem|problema com|problema no|reclamacao|denuncia|contactar a loja|enviar mensagem ao suporte)\b/.test(normalizar(texto));
     }
 
     function iniciarPedidoSuporte() {
@@ -74,15 +83,7 @@
                 data.user = pb.authStore.record.id;
             }
             const record = await pb.collection("suporte_mensagens").create(data);
-            adicionarMensagem(
-                "Já consigo os seus dados e a mensagem. Vou chamar um agente humano da FRAN7 para acompanhar o seu pedido.\n\n" +
-                "Também pode falar connosco por estas vias:\n" +
-                "• Site: https://fran7gg.github.io\n" +
-                "• WhatsApp: https://wa.me/244973560521\n" +
-                "• Instagram: https://instagram.com/fran7.official\n" +
-                "• Telefone: +244 973 560 521",
-                "bot"
-            );
+            adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
             return record;
         } catch (error) {
             console.error("Erro ao enviar mensagem de suporte:", error);
