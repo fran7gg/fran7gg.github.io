@@ -75,6 +75,9 @@
     }
 
     async function enviarMensagemSuporte(nome, contacto, textoMensagem) {
+        const message = adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
+        mostrarCanaisSuporte(message);
+
         try {
             if (!window.Fran7PocketBaseAuth?.obterCliente) {
                 throw new Error("O PocketBase da loja não está disponível.");
@@ -92,16 +95,9 @@
             if (pb.authStore.isValid && pb.authStore.record?.id) {
                 data.user = pb.authStore.record.id;
             }
-            const record = await pb.collection("suporte_mensagens").create(data);
-            const message = adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
-            mostrarCanaisSuporte(message);
-            return record;
+            return await pb.collection("suporte_mensagens").create(data);
         } catch (error) {
-            console.error("Erro ao enviar mensagem de suporte:", error);
-            adicionarMensagem(
-                "Não foi possível enviar a mensagem ao suporte neste momento. Tente novamente ou contacte-nos diretamente pelo WhatsApp.",
-                "bot"
-            );
+            console.warn("O pedido de suporte não pôde ser registado no PocketBase:", error);
             return null;
         }
     }
