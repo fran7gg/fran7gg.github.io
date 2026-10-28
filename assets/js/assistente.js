@@ -4,6 +4,7 @@
     const MAX_HISTORICO = 6;
     const AI_FUNCTION_URL = "https://pqvnqloukcwwtavdyjry.supabase.co/functions/v1/fran7-ia";
     const historico = [];
+    let dadosSuporte = null;
     const openButton = document.getElementById("fran7AiOpen");
     const closeButton = document.getElementById("fran7AiClose");
     const chatWindow = document.getElementById("fran7AiWindow");
@@ -36,6 +37,81 @@
 
     function pedeTodosOsProdutos(texto) {
         return /\b(catalogo|todos|todas|lista completa|quais produtos|que produtos|que modelos|quais modelos|o que vende|o que tem na fran7|produtos da fran7|tudo que sabes|tudo o que sabes|tudo do site|apresenta tudo|tudo sobre a fran7)\b/.test(normalizar(texto));
+    }
+
+    function pedeSuporte(texto) {
+        return /\b(suporte|atendente|ajuda humana|falar com alguem|problema com|problema no|reclamacao|denuncia|contactar a loja|enviar mensagem ao suporte)\b/.test(normalizar(texto));
+    }
+
+    function iniciarPedidoSuporte() {
+        const sessao = window.Fran7PocketBaseAuth?.obterSessao?.();
+        const nome = String(sessao?.record?.nome || sessao?.record?.name || "").trim();
+        const contacto = String(sessao?.record?.telefone || sessao?.record?.email || "").trim();
+        dadosSuporte = { nome: nome, contacto: contacto, etapa: nome ? (contacto ? "mensagem" : "contacto") : "nome" };
+        return nome
+            ? (contacto
+                ? "Já tenho os seus dados: " + nome + " (" + contacto + "). Escreva a mensagem que pretende enviar ao suporte."
+                : "Olá, " + nome + ". Qual é o seu telefone ou email para a resposta do suporte?")
+            : "Posso encaminhar a sua mensagem ao suporte. Primeiro, diga-me o seu nome.";
+    }
+
+    async function enviarMensagemSuporte(nome, contacto, textoMensagem) {
+        try {
+            if (!window.Fran7PocketBaseAuth?.obterCliente) {
+                throw new Error("O PocketBase da loja não está disponível.");
+            }
+            const pb = window.Fran7PocketBaseAuth.obterCliente();
+            const data = {
+                cliente_nome: String(nome || "Visitante").trim() || "Visitante",
+                contacto: String(contacto || "").trim(),
+                mensagem: String(textoMensagem || "").trim(),
+                status: "pendente"
+            };
+            if (!data.contacto || !data.mensagem) {
+                throw new Error("Contacto e mensagem são obrigatórios.");
+            }
+            if (pb.authStore.isValid && pb.authStore.record?.id) {
+                data.user = pb.authStore.record.id;
+            }
+            const record = await pb.collection("suporte_mensagens").create(data);
+            adicionarMensagem("A sua mensagem foi enviada ao suporte da FRAN7. O pedido ficou registado e responderemos em breve.", "bot");
+            return record;
+        } catch (error) {
+            console.error("Erro ao enviar mensagem de suporte:", error);
+            adicionarMensagem(
+                "Não foi possível enviar a mensagem ao suporte neste momento. Tente novamente ou contacte-nos diretamente pelo WhatsApp.",
+                "bot"
+            );
+            return null;
+        }
+    }
+
+    async function processarPedidoSuporte(question) {
+        if (dadosSuporte) {
+            if (dadosSuporte.etapa === "nome") {
+                dadosSuporte.nome = question;
+                dadosSuporte.etapa = "contacto";
+                adicionarMensagem("Obrigado, " + question + ". Qual é o seu telefone ou email para o suporte responder?", "bot");
+                return true;
+            }
+            if (dadosSuporte.etapa === "contacto") {
+                dadosSuporte.contacto = question;
+                dadosSuporte.etapa = "mensagem";
+                adicionarMensagem("Perfeito. Agora escreva a mensagem que deseja enviar à equipa da FRAN7.", "bot");
+                return true;
+            }
+            if (dadosSuporte.etapa === "mensagem") {
+                const dados = dadosSuporte;
+                dadosSuporte = null;
+                await enviarMensagemSuporte(dados.nome, dados.contacto, question);
+                return true;
+            }
+        }
+        if (pedeSuporte(question)) {
+            adicionarMensagem(iniciarPedidoSuporte(), "bot");
+            return true;
+        }
+        return false;
     }
 
     function obterCatalogoReal() {
@@ -191,6 +267,12 @@
         input.value = "";
         input.disabled = true;
         sendButton.disabled = true;
+        if (await processarPedidoSuporte(question)) {
+            input.disabled = false;
+            sendButton.disabled = false;
+            input.focus();
+            return;
+        }
         atualizarEstadoAvatar("thinking");
 
         const typing = document.createElement("div");

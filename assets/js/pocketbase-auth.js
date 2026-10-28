@@ -262,6 +262,9 @@
                 token: pb.authStore.token,
                 record: pb.authStore.record
             };
+        },
+        obterCliente: function() {
+            return exigirPocketBase();
         }
     };
 })();
