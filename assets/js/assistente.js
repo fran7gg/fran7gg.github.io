@@ -74,7 +74,15 @@
                 data.user = pb.authStore.record.id;
             }
             const record = await pb.collection("suporte_mensagens").create(data);
-            adicionarMensagem("A sua mensagem foi enviada ao suporte da FRAN7. O pedido ficou registado e responderemos em breve.", "bot");
+            adicionarMensagem(
+                "Já consigo os seus dados e a mensagem. Vou chamar um agente humano da FRAN7 para acompanhar o seu pedido.\n\n" +
+                "Também pode falar connosco por estas vias:\n" +
+                "• Site: https://fran7gg.github.io\n" +
+                "• WhatsApp: https://wa.me/244973560521\n" +
+                "• Instagram: https://instagram.com/fran7.official\n" +
+                "• Telefone: +244 973 560 521",
+                "bot"
+            );
             return record;
         } catch (error) {
             console.error("Erro ao enviar mensagem de suporte:", error);
