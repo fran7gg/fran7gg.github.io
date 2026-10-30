@@ -82,8 +82,11 @@
     }
 
     async function carregarVariantesProduto(product) {
-        if (!product.id) {
+        if (Array.isArray(product.variants) && product.variants.length) {
             return product.variants;
+        }
+        if (!product.id) {
+            return [];
         }
 
         const baseUrl = String(
