@@ -43,7 +43,7 @@
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css?v=20261031-2">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261031-2">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
-    <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261031-8">
+    <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261031-9">
     <script defer src="assets/js/hero-carousel.js?v=20261031-7"></script>
 
     <style>
@@ -938,6 +938,10 @@
 
         .menu a.menu-mobile-category {
             display: none;
+        }
+
+        .menu.aberto a.menu-mobile-category {
+            display: block;
         }
 
         /* =====================================================
@@ -2433,26 +2437,6 @@
                 object-fit: contain;
             }
 
-            .header-primary-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: clamp(16px, 2.5vw, 34px);
-                margin: 0 auto;
-            }
-
-            .header-primary-nav a {
-                color: #dedede;
-                font-size: 13px;
-                text-decoration: none;
-                white-space: nowrap;
-                transition: color .2s ease;
-            }
-
-            .header-primary-nav a:hover {
-                color: #fff;
-            }
-
             .header-tools {
                 display: flex;
                 flex: 0 0 auto;
@@ -2478,7 +2462,7 @@
             }
 
             .header-tools .menu-btn {
-                display: none;
+                display: flex;
             }
 
             .header-tools .botao-carrinho svg,
@@ -2763,14 +2747,6 @@
                     gap: 18px;
                 }
 
-                .header-primary-nav {
-                    gap: 14px;
-                }
-
-                .header-primary-nav a {
-                    font-size: 11px;
-                }
-
                 .header-tools {
                     gap: 2px;
                 }
@@ -2793,14 +2769,6 @@
                 .logo {
                     width: 112px;
                     max-height: 46px;
-                }
-
-                .header-primary-nav {
-                    display: none;
-                }
-
-                .menu.aberto a.menu-mobile-category {
-                    display: block;
                 }
 
                 .header-tools {
@@ -3333,15 +3301,6 @@
             class="logo"
         >
 
-        <nav class="header-primary-nav" aria-label="Navegação principal">
-            <a href="#produtos">Nova coleção</a>
-            <a href="colecao.html?categoria=mulheres">Mulheres</a>
-            <a href="colecao.html?categoria=homens">Homens</a>
-            <a href="colecao.html?categoria=criancas">Crianças</a>
-            <a href="#informacoes" data-info-page="sobre">A marca ↗</a>
-            <!-- Dentro da tag <nav> ou no teu menu de links -->
-        </nav>
-
         <div class="header-tools">
         <!-- CARRINHO -->
 
@@ -3478,10 +3437,11 @@
                 Início
             </a>
 
-            <a class="menu-mobile-category" href="#produtos">Novidades</a>
+            <a class="menu-mobile-category" href="#produtos">Nova coleção</a>
             <a class="menu-mobile-category" href="colecao.html?categoria=mulheres">Mulheres</a>
             <a class="menu-mobile-category" href="colecao.html?categoria=homens">Homens</a>
             <a class="menu-mobile-category" href="colecao.html?categoria=criancas">Crianças</a>
+            <a class="menu-mobile-category" href="#informacoes" data-info-page="sobre">A marca ↗</a>
 
             <a href="#contactos">
                 Contactos
