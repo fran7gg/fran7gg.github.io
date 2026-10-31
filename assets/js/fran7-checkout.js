@@ -146,14 +146,17 @@
         return order;
     }
 
-    async function guardarNoPocketBase(order) {
+    async function guardarNoPocketBase(order, token) {
         const baseUrl = String(CONFIG.pocketBaseUrl || "").replace(/\/+$/, "");
         const collection = encodeURIComponent(CONFIG.collectionName || "encomendas");
         if (!baseUrl) throw new Error("Configura FRAN7_CHECKOUT_CONFIG.pocketBaseUrl antes de aceitar encomendas.");
 
         const response = await fetch(baseUrl + "/api/collections/" + collection + "/records", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token
+            },
             body: JSON.stringify(order)
         });
         const result = await response.json().catch(function() { return {}; });
@@ -393,10 +396,30 @@
     }
 
     async function finalizar(items, details) {
+        const auth = window.Fran7PocketBaseAuth;
+        const session = auth?.estaAutenticado() ? auth.obterSessao() : null;
+        if (!session?.token) {
+            if (!window.Fran7Notify) {
+                throw new Error("O aviso de início de sessão não está disponível.");
+            }
+            const iniciarSessao = await window.Fran7Notify.confirm(
+                "Para finalizar a compra, inicia sessão ou cria uma conta FRAN7.",
+                {
+                    title: "Entra na tua conta",
+                    confirmText: "Entrar / criar conta",
+                    cancelText: "Continuar a explorar"
+                }
+            );
+            if (iniciarSessao) {
+                window.location.href = "registo.html?modo=login";
+            }
+            return null;
+        }
+
         const whatsappWindow = window.open("about:blank", "_blank");
         const order = criarPedido(items, details || {});
         try {
-            await guardarNoPocketBase(order);
+            await guardarNoPocketBase(order, session.token);
             guardarPedidoLocal(order);
         } catch (error) {
             if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();

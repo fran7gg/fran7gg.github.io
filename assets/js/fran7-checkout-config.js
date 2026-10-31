@@ -20,7 +20,7 @@
 
     const configuredPocketBaseUrl = window.FRAN7_POCKETBASE_URL ||
         existingConfig.pocketBaseUrl ||
-        (isLocalhost ? defaultLocalUrl : (POCKETBASE_CLOUD_URL || defaultLocalUrl));
+        (isLocalhost ? defaultLocalUrl : POCKETBASE_CLOUD_URL);
 
     const defaults = {
         pocketBaseUrl: String(configuredPocketBaseUrl).replace(/\/+$/, ""),

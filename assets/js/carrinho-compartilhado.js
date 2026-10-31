@@ -258,6 +258,29 @@
         notice.hidden = false;
     }
 
+    async function exigirConta(acao) {
+        if (window.Fran7Session?.estaAutenticado()) {
+            return true;
+        }
+
+        if (!window.Fran7Notify) {
+            throw new Error("O aviso de início de sessão não está disponível.");
+        }
+
+        const iniciarSessao = await window.Fran7Notify.confirm(
+            "Para " + acao + ", inicia sessão ou cria uma conta FRAN7.",
+            {
+                title: "Entra na tua conta",
+                confirmText: "Entrar / criar conta",
+                cancelText: "Continuar a explorar"
+            }
+        );
+        if (iniciarSessao) {
+            window.location.href = "registo.html?modo=login";
+        }
+        return false;
+    }
+
     function focarCampoEmFalta() {
         const itemEmFalta = items.find(function(item) {
             return !item.cor ||
@@ -568,7 +591,10 @@
         }
     }
 
-    function abrirCarrinho() {
+    async function abrirCarrinho() {
+        if (!await exigirConta("aceder à sacola")) {
+            return;
+        }
         const overlay = document.getElementById("fran7CartOverlay");
         overlay.hidden = false;
         document.body.style.overflow = "hidden";
@@ -588,7 +614,10 @@
         }, 300);
     }
 
-    function adicionar(item) {
+    async function adicionar(item) {
+        if (!await exigirConta("adicionar produtos à sacola")) {
+            return;
+        }
         const nome = String(item.nome || "Produto FRAN7").trim();
         const imagem = String(item.imagem || "");
         const imagemBase = String(item.imagemBase || imagem);
@@ -634,6 +663,10 @@
     }
 
     async function enviarPedido() {
+        if (!await exigirConta("finalizar a compra")) {
+            return;
+        }
+
         const location = document.getElementById("fran7CartLocation").value.trim();
         const city = document.getElementById("fran7CartCity").value.trim();
         const note = document.getElementById("fran7CartNote").value.trim();
@@ -676,6 +709,9 @@
                 localizacao: location,
                 comentario: note
             });
+            if (!result) {
+                return;
+            }
             mostrarAviso("Pedido " + result.order.id_pedido + " registado. " +
                 (result.pdfGerado ? "A fatura foi descarregada." : "Não foi possível gerar o PDF."));
         } catch (error) {
