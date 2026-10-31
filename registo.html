@@ -2,24 +2,18 @@
 <html lang="pt">
 <head>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GPZEHQ9KJH"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-GPZEHQ9KJH');
-    </script>
+    <link rel="stylesheet" href="assets/css/consentimento-cookies.css?v=20261031-1">
+    <script defer src="assets/js/consentimento-cookies.js?v=20261031-1"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
 
     <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png">
     <link rel="shortcut icon" type="image/png" href="./favicon-48.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
-    <link rel="stylesheet" href="assets/css/assistente.css">
+    <link rel="stylesheet" href="assets/css/assistente.css?v=20261030-4">
 
     <title>REGISTRO | FRAN7</title>
 
@@ -402,6 +396,71 @@
             font-size: 14px;
         }
 
+        .recuperar-palavra-passe {
+            margin: 2px 0 18px;
+            text-align: center;
+        }
+
+        .recuperar-palavra-passe button {
+            padding: 9px 12px;
+            border: 1px solid #777;
+            border-radius: 8px;
+            background: #222;
+            color: #fff;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color .2s ease, border-color .2s ease;
+        }
+
+        .recuperar-palavra-passe button:hover,
+        .recuperar-palavra-passe button:focus-visible {
+            border-color: #fff;
+            background: #333;
+        }
+
+        .voltar-login {
+            padding: 0;
+            border: 0;
+            background: none;
+            color: #ddd;
+            font: inherit;
+            font-size: 13px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .recuperar-estado {
+            min-height: 1.5em;
+            margin: 0 0 15px !important;
+            padding: 10px 12px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            background: #171717;
+            color: #fff !important;
+            font-size: 13px;
+        }
+
+        .recuperar-estado[data-error="true"] {
+            border-color: #b94a48;
+            background: #2a1515;
+            color: #ffd8d6 !important;
+        }
+
+        .recuperar-estado a {
+            display: inline-block;
+            margin-top: 8px;
+            color: #fff;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        #formSolicitarRecuperacao[hidden] {
+            display: none !important;
+        }
+
         /* =========================
            NOTIFICAÇÃO
         ========================= */
@@ -549,7 +608,7 @@
            MODO CLARO
         ========================= */
 
-        @media (prefers-color-scheme: light) {
+        @media all {
 
             html,
             body {
@@ -712,7 +771,7 @@
            MODO ESCURO
         ========================= */
 
-        @media (prefers-color-scheme: dark) {
+        @media not all {
 
             html,
             body {
@@ -1081,6 +1140,9 @@
 
                 </div>
 
+                <p class="recuperar-palavra-passe">
+                    <button type="button" onclick="mostrarFormularioRecuperacao()">Esqueci-me da palavra-passe</button>
+                </p>
 
                 <button
                     type="submit"
@@ -1103,6 +1165,29 @@
 
                 </div>
 
+            </form>
+
+            <form
+                id="formSolicitarRecuperacao"
+                onsubmit="solicitarRecuperacao(event)"
+                hidden
+            >
+                <input
+                    type="email"
+                    id="recuperacaoEmail"
+                    class="campo"
+                    placeholder="Digite o e-mail da sua conta"
+                    autocomplete="email"
+                    required
+                >
+                <div id="recuperacaoEstado" class="recuperar-estado" role="status" aria-live="polite" hidden>
+                    <span id="recuperacaoMensagem"></span>
+                    <a href="https://wa.me/244973560521?text=Preciso%20de%20ajuda%20para%20recuperar%20a%20minha%20palavra-passe" target="_blank" rel="noopener noreferrer" hidden>Contactar o suporte</a>
+                </div>
+                <button type="submit" class="botao-login">ENVIAR LINK DE RECUPERAÇÃO</button>
+                <div class="trocar-formulario">
+                    <button type="button" class="voltar-login" onclick="voltarAoLogin()">Voltar ao login</button>
+                </div>
             </form>
 
 
@@ -1348,7 +1433,7 @@
          <script src="assets/js/fran7-checkout-config.js?v=20261027-1"></script>
          <script src="assets/js/fran7-sessao.js"></script>
          <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-         <script src="assets/js/pocketbase-auth.js?v=20261027-1"></script>
+         <script src="assets/js/pocketbase-auth.js?v=20261031-4"></script>
          <script>
 
         /* =========================
@@ -1430,6 +1515,7 @@
             document.getElementById(
                 "formLogin"
             ).style.display = "block";
+            document.getElementById("formSolicitarRecuperacao").hidden = true;
 
             document.getElementById(
                 "formCadastro"
@@ -1463,6 +1549,54 @@
 
         }
 
+        function mostrarFormularioRecuperacao() {
+            const loginEmail = document.getElementById("loginEmail");
+            const recoveryEmail = document.getElementById("recuperacaoEmail");
+            recoveryEmail.value = loginEmail.value.trim();
+            document.getElementById("formLogin").style.display = "none";
+            document.getElementById("formCadastro").style.display = "none";
+            document.getElementById("formSolicitarRecuperacao").hidden = false;
+            document.getElementById("recuperacaoEstado").hidden = true;
+            document.getElementById("tituloFormulario").textContent = "RECUPERAR PALAVRA-PASSE";
+            document.getElementById("descricaoFormulario").textContent =
+                "Se existir uma conta para este e-mail, receberás instruções para criar uma nova palavra-passe.";
+            recoveryEmail.focus();
+        }
+
+        function voltarAoLogin() {
+            document.getElementById("formSolicitarRecuperacao").hidden = true;
+            mostrarFormularioLogin();
+        }
+
+        async function solicitarRecuperacao(event) {
+            event.preventDefault();
+            const email = document.getElementById("recuperacaoEmail").value.trim().toLowerCase();
+            const status = document.getElementById("recuperacaoEstado");
+            const message = document.getElementById("recuperacaoMensagem");
+            const supportLink = status.querySelector("a");
+            const button = event.currentTarget.querySelector('button[type="submit"]');
+            status.dataset.error = "false";
+            message.textContent = "A enviar o pedido…";
+            supportLink.hidden = true;
+            status.hidden = false;
+            button.disabled = true;
+            button.textContent = "A ENVIAR…";
+
+            try {
+                await window.Fran7PocketBaseAuth.solicitarRecuperacao(email);
+                message.textContent =
+                    "Se existir uma conta para este e-mail, receberás instruções para redefinir a palavra-passe.";
+            } catch (error) {
+                status.dataset.error = "true";
+                message.textContent = error.message ||
+                    "Não foi possível enviar o e-mail de recuperação neste momento. Tenta novamente mais tarde ou contacta o suporte.";
+                supportLink.hidden = false;
+            } finally {
+                button.disabled = false;
+                button.textContent = "ENVIAR LINK DE RECUPERAÇÃO";
+            }
+        }
+
 
         /* =========================
            MOSTRAR CADASTRO
@@ -1473,6 +1607,7 @@
             document.getElementById(
                 "formLogin"
             ).style.display = "none";
+            document.getElementById("formSolicitarRecuperacao").hidden = true;
 
             document.getElementById(
                 "formCadastro"
@@ -2381,7 +2516,7 @@
 
     </script>
     <script src="assets/js/assistente-widget.js"></script>
-    <script src="assets/js/assistente.js?v=20261027-2"></script>
+    <script src="assets/js/assistente-suporte.js?v=20261030-1"></script>
 
 </body>
 </html>

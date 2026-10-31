@@ -22,8 +22,45 @@
         "fran7_telefone"
     ];
 
+    function criarFallbackAuth(message) {
+        return {
+            criarConta: async function() {
+                throw new Error(message);
+            },
+            entrar: async function() {
+                throw new Error(message);
+            },
+            solicitarRecuperacao: async function() {
+                throw new Error(message);
+            },
+            redefinirPalavraPasse: async function() {
+                throw new Error(message);
+            },
+            terminarSessao: function() {
+                SESSION_KEYS.forEach(function(key) {
+                    localStorage.removeItem(key);
+                });
+                localStorage.removeItem(AUTH_STORAGE_KEY);
+            },
+            guardarSessao: function() {
+                return null;
+            },
+            estaAutenticado: function() {
+                return false;
+            },
+            obterSessao: function() {
+                return null;
+            },
+            obterCliente: function() {
+                throw new Error(message);
+            }
+        };
+    }
+
     if (typeof window.PocketBase !== "function") {
-        throw new Error("A biblioteca PocketBase não foi carregada.");
+        window.Fran7PocketBaseAuth = criarFallbackAuth(
+            "A biblioteca PocketBase não foi carregada. Confirma a ligação ao servidor e que os scripts da autenticação foram carregados corretamente."
+        );
     }
 
     function tokenExpirado(token) {
@@ -132,7 +169,7 @@
         };
     }
 
-    const pb = POCKETBASE_URL
+    const pb = typeof window.PocketBase === "function" && POCKETBASE_URL
         ? new window.PocketBase(POCKETBASE_URL, criarAuthStore())
         : null;
 
@@ -233,6 +270,48 @@
         }
     }
 
+    async function solicitarRecuperacao(email) {
+        const client = exigirPocketBase();
+        const redirectUrl = new URL("redefinir-palavra-passe.html", window.location.href).href;
+        try {
+            await client.collection(COLLECTION).requestPasswordReset(
+                String(email || "").trim().toLowerCase(),
+                { redirectUrl: redirectUrl }
+            );
+        } catch (error) {
+            console.error("PocketBase: não foi possível solicitar a recuperação da palavra-passe.", error);
+            if (error && error.status === 0) {
+                throw new Error("Não foi possível ligar ao PocketBase. Confirma que o servidor está ativo e tenta novamente.");
+            }
+            if (error && error.status >= 500) {
+                throw new Error("Não foi possível enviar o e-mail de recuperação neste momento. Tenta novamente mais tarde ou contacta o suporte.");
+            }
+            if (error && error.status === 429) {
+                throw new Error("Foram feitos muitos pedidos. Aguarda alguns minutos antes de tentar novamente.");
+            }
+            throw new Error(
+                "Não foi possível enviar o e-mail de recuperação neste momento. Tenta novamente mais tarde ou contacta o suporte."
+            );
+        }
+    }
+
+    async function redefinirPalavraPasse(token, password, passwordConfirm) {
+        const client = exigirPocketBase();
+        try {
+            await client.collection(COLLECTION).confirmPasswordReset(
+                token,
+                password,
+                passwordConfirm
+            );
+        } catch (error) {
+            console.error("PocketBase: não foi possível redefinir a palavra-passe.", error);
+            if (error && error.status === 400) {
+                throw new Error("O link expirou ou é inválido. Solicita um novo link de recuperação.");
+            }
+            throw new Error("Não foi possível redefinir a palavra-passe. Tenta novamente mais tarde.");
+        }
+    }
+
     function terminarSessao() {
         limparSessao();
     }
@@ -249,6 +328,8 @@
     window.Fran7PocketBaseAuth = {
         criarConta: criarConta,
         entrar: entrar,
+        solicitarRecuperacao: solicitarRecuperacao,
+        redefinirPalavraPasse: redefinirPalavraPasse,
         terminarSessao: terminarSessao,
         guardarSessao: guardarSessao,
         estaAutenticado: function() {

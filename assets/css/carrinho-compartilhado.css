@@ -452,7 +452,7 @@
     filter: brightness(1.04);
 }
 
-@media (prefers-color-scheme: dark) {
+@media not all {
     .fran7-cart-trigger {
         border-color: rgba(190, 190, 190, .55);
         background: linear-gradient(145deg, #222, #080808);

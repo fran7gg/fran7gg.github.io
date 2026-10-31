@@ -81,12 +81,12 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform .7s cubic-bezier(.2, .75, .25, 1);
 }
 
 .fran7-product-image-stage:hover .fran7-product-main-image {
-    transform: translateY(-3px) scale(1.035);
+    transform: none;
 }
 
 .fran7-product-view-enter {
@@ -392,19 +392,35 @@
 }
 
 .fran7-product-description {
-    margin: 0;
+    margin: 10px 0 0;
     line-height: 1.7;
     opacity: .72;
 }
 
 .fran7-product-note {
-    margin: 0;
+    margin: 10px 0 0;
     padding: 13px;
     border-left: 2px solid color-mix(in srgb, CanvasText 55%, transparent);
     background: color-mix(in srgb, CanvasText 6%, Canvas);
     font-size: 13px;
     line-height: 1.6;
     opacity: .78;
+}
+
+.fran7-product-more {
+    font-size: 13px;
+}
+
+.fran7-product-more summary {
+    width: fit-content;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.fran7-product-more summary:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 3px;
 }
 
 .fran7-product-color-label {
@@ -442,15 +458,14 @@
 
 @media (max-width: 680px) {
     .fran7-product-overlay {
-        padding: 0;
-        padding: 12px;
+        padding: 8px;
         place-items: center;
-        overflow-y: auto;
+        overflow: hidden;
     }
 
     .fran7-product-panel {
         width: min(480px, 100%);
-        max-height: 84dvh;
+        max-height: calc(100dvh - 16px);
         min-height: 0;
         border-radius: 14px;
         overscroll-behavior: contain;
@@ -461,13 +476,13 @@
     }
 
     .fran7-product-gallery {
-        padding: 8px;
+        padding: 8px 8px 4px;
     }
 
     .fran7-product-image-stage,
     .fran7-product-main-placeholder {
-        height: min(34dvh, 300px);
-        min-height: 200px;
+        height: min(38dvh, 310px);
+        min-height: 160px;
         aspect-ratio: auto;
     }
 
@@ -483,20 +498,65 @@
     .fran7-product-thumbnails {
         grid-auto-columns: 72px;
         gap: 6px;
-        margin-top: 8px;
+        margin-top: 5px;
     }
 
     .fran7-product-details {
-        gap: 8px;
-        padding: 16px;
+        gap: 6px;
+        padding: 12px 14px 14px;
+    }
+
+    .fran7-product-eyebrow,
+    .fran7-product-availability {
+        font-size: 9px;
+        letter-spacing: .1em;
     }
 
     .fran7-product-name {
-        font-size: 23px;
+        font-size: 21px;
     }
 
     .fran7-product-price {
-        font-size: 18px;
+        font-size: 16px;
+    }
+
+    .fran7-product-add {
+        min-height: 40px;
+        padding: 9px 14px;
+    }
+
+    .fran7-product-color-options {
+        justify-content: flex-start;
+        gap: 8px;
+        min-height: 0;
+        padding: 4px 2px;
+    }
+
+    .fran7-product-color-swatch {
+        width: auto;
+        min-width: 46px;
+        min-height: 42px;
+        gap: 4px;
+        padding: 5px 8px;
+        border-radius: 6px;
+        font-size: 9px;
+        animation: none;
+        transform: none;
+    }
+
+    .fran7-product-color-swatch::before,
+    .fran7-product-color-swatch::after {
+        display: none;
+    }
+
+    .fran7-product-color-options.has-selection .fran7-product-color-swatch:not([aria-pressed="true"]),
+    .fran7-product-color-options.has-selection .fran7-product-color-swatch[aria-pressed="true"],
+    .fran7-product-color-swatch[aria-pressed="true"] {
+        transform: none;
+    }
+
+    .fran7-product-more {
+        font-size: 12px;
     }
 
     .fran7-product-description,
@@ -506,12 +566,7 @@
     }
 
     .fran7-product-note {
-        padding: 9px;
-    }
-
-    .fran7-product-add {
-        min-height: 42px;
-        padding: 10px 14px;
+        padding: 8px;
     }
 }
 

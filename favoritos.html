@@ -1,32 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GPZEHQ9KJH"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-GPZEHQ9KJH');
-    </script>
+    <link rel="stylesheet" href="assets/css/consentimento-cookies.css?v=20261031-1">
+    <script defer src="assets/js/consentimento-cookies.js?v=20261031-1"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Os meus favoritos | FRAN7</title>
     <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png">
     <link rel="shortcut icon" type="image/png" href="./favicon-48.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fran7gg/fran7gg.github.io@68b8a75/assets/css/assistente.css">
+    <link rel="stylesheet" href="assets/css/assistente.css?v=20261030-4">
     <link rel="stylesheet" href="assets/css/carrinho-compartilhado.css?v=20261026-2">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
-    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261027-5">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261031-2">
     <style>
         :root {
-            color-scheme: light dark;
+            color-scheme: light;
             font-family: Arial, Helvetica, sans-serif;
             background: #080808;
             color: #f5f5f5;
@@ -222,13 +216,17 @@
             }
 
             .voltar-loja {
+                flex: 0 1 auto;
                 min-width: 0;
-                max-width: 34vw;
-                overflow: hidden;
+                max-width: none;
+                overflow: visible;
                 font-size: clamp(8px, 2.5vw, 10px);
                 letter-spacing: 0;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                line-height: 1.2;
+                padding: 8px 10px;
+                text-overflow: clip;
+                white-space: normal;
+                overflow-wrap: anywhere;
             }
 
             main {
@@ -316,10 +314,10 @@
     <script src="assets/js/carrinho-compartilhado.js?v=20261027-4"></script>
     <script src="assets/js/pocketbase-auth.js?v=20261028-1"></script>
     <script src="assets/js/classificacao-estrelas.js?v=20261027-1"></script>
-    <script src="assets/js/detalhe-produto.js?v=20261030-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261031-1"></script>
     <script src="assets/js/assistente-widget.js"></script>
     <script src="assets/js/fran7-sessao.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/fran7gg/fran7gg.github.io@b1b1008/assets/js/assistente-suporte.js"></script>
+    <script src="assets/js/assistente-suporte.js?v=20261030-1"></script>
     <script>
         (function() {
             "use strict";

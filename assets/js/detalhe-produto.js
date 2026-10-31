@@ -20,8 +20,11 @@
                     <div class="fran7-product-rating"></div>
                     <p class="fran7-product-color" hidden></p>
                     <div class="fran7-product-color-options" role="group" aria-label="Escolher cor"></div>
-                    <p class="fran7-product-description"></p>
-                    <p class="fran7-product-note">Coleção Conceito — Detalhes em alta gramatura com assinatura interior "Grief &amp; Glory".</p>
+                    <details class="fran7-product-more">
+                        <summary>Descrição e detalhes</summary>
+                        <p class="fran7-product-description"></p>
+                        <p class="fran7-product-note">Coleção Conceito — Detalhes em alta gramatura com assinatura interior "Grief &amp; Glory".</p>
+                    </details>
                     <button class="fran7-product-add" type="button">ADICIONAR À SACOLA</button>
                 </div>
             </div>
@@ -392,8 +395,7 @@
         }
 
         selectedColor = colorVariants[0].cor;
-        colorLabel.textContent = "Cor selecionada: " + selectedColor;
-        colorLabel.hidden = false;
+        colorLabel.hidden = true;
         availability.textContent = availableVariants.length
             ? "Disponível"
             : "Sem stock nesta cor.";

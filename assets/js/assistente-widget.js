@@ -37,6 +37,7 @@
                 <button type="button" data-assistant-prompt="Apresenta todos os produtos do catálogo FRAN7">Catálogo completo</button>
                 <button type="button" data-assistant-prompt="Quais são os tamanhos?">Tamanhos</button>
                 <button type="button" data-assistant-prompt="Como funcionam as entregas?">Entregas</button>
+                <button type="button" data-assistant-prompt="Quero falar com o suporte">Suporte</button>
             </div>
             <form class="fran7-ai-input-area" id="fran7AiForm">
                 <input type="text" id="fran7AiInput" class="fran7-ai-input" placeholder="Escreve uma mensagem..." autocomplete="off" aria-label="Mensagem para o assistente">

@@ -4,6 +4,11 @@
     const MAX_HISTORICO = 6;
     const AI_FUNCTION_URL = "https://pqvnqloukcwwtavdyjry.supabase.co/functions/v1/fran7-ia";
     const historico = [];
+    let idMensagemSuporte = null;
+    let canceladorRealtimeSuporte = null;
+    let audioContext = null;
+    let ultimaRespostaSuporte = "";
+    let textoConversaSuporte = "";
     const openButton = document.getElementById("fran7AiOpen");
     const closeButton = document.getElementById("fran7AiClose");
     const chatWindow = document.getElementById("fran7AiWindow");
@@ -11,6 +16,8 @@
     const sendButton = document.getElementById("fran7AiSend");
     const messages = document.getElementById("fran7AiMessages");
     const form = document.getElementById("fran7AiForm");
+    const title = document.getElementById("fran7AiTitle");
+    const statusText = chatWindow.querySelector(".fran7-ai-status");
 
     if (!openButton || !closeButton || !chatWindow || !input || !sendButton || !messages || !form) {
         throw new Error("Não foi possível iniciar o assistente FRAN7: faltam elementos da interface.");
@@ -34,49 +41,103 @@
             .trim();
     }
 
+    async function pedirPermissaoNotificacao() {
+        let permissao = "Notification" in window ? Notification.permission : "unsupported";
+        if (permissao === "default") {
+            permissao = await Notification.requestPermission();
+        }
+
+        const ContextoAudio = window.AudioContext || window.webkitAudioContext;
+        if (ContextoAudio) {
+            if (!audioContext) audioContext = new ContextoAudio();
+            if (audioContext.state === "suspended") await audioContext.resume().catch(function () {});
+        }
+        return permissao;
+    }
+
+    function tocarSomSMS() {
+        const ContextoAudio = window.AudioContext || window.webkitAudioContext;
+        if (!ContextoAudio) return;
+        if (!audioContext) audioContext = new ContextoAudio();
+        if (audioContext.state === "suspended") {
+            audioContext.resume().catch(function () {});
+        }
+
+        [880, 1320].forEach(function (frequencia, indice) {
+            const inicio = audioContext.currentTime + indice * 0.13;
+            const oscilador = audioContext.createOscillator();
+            const ganho = audioContext.createGain();
+            oscilador.type = "sine";
+            oscilador.frequency.setValueAtTime(frequencia, inicio);
+            ganho.gain.setValueAtTime(0.0001, inicio);
+            ganho.gain.exponentialRampToValueAtTime(0.12, inicio + 0.012);
+            ganho.gain.exponentialRampToValueAtTime(0.0001, inicio + 0.10);
+            oscilador.connect(ganho);
+            ganho.connect(audioContext.destination);
+            oscilador.start(inicio);
+            oscilador.stop(inicio + 0.11);
+        });
+    }
+
+    function mostrarRespostaHumana(resposta, agenteNome) {
+        if (!resposta || resposta === ultimaRespostaSuporte) return;
+        ultimaRespostaSuporte = resposta;
+        tocarSomSMS();
+
+        const nomeAgente = agenteNome || "Atendimento";
+        adicionarMensagem("👤 " + nomeAgente + ": " + resposta, "bot");
+
+        if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+            new Notification("👤 Agente " + nomeAgente, {
+                body: resposta,
+                tag: "suporte-resposta-" + idMensagemSuporte,
+                icon: "assets/images/logo.png.png"
+            });
+        }
+    }
+
+    async function subscreverRespostaSuporte(pb) {
+        if (!idMensagemSuporte) return;
+        if (typeof canceladorRealtimeSuporte === "function") {
+            await canceladorRealtimeSuporte();
+        }
+
+        canceladorRealtimeSuporte = await pb.collection("suporte_mensagens").subscribe(
+            idMensagemSuporte,
+            function (evento) {
+                if (evento.action !== "update" || !evento.record?.resposta) return;
+                mostrarRespostaHumana(evento.record.resposta, evento.record.agente_nome);
+            }
+        );
+    }
+
     function pedeTodosOsProdutos(texto) {
         return /\b(catalogo|todos|todas|lista completa|quais produtos|que produtos|que modelos|quais modelos|o que vende|o que tem na fran7|produtos da fran7|tudo que sabes|tudo o que sabes|tudo do site|apresenta tudo|tudo sobre a fran7)\b/.test(normalizar(texto));
     }
 
     const MENSAGEM_SUPORTE_UNICA =
-        "Um agente humano da FRAN7 já pode acompanhar o seu pedido.\n" +
-        "Escolha uma das opções abaixo e será direcionado imediatamente.";
-
-    const CANAIS_SUPORTE = [
-        {nome: "Site", url: "https://fran7gg.github.io/inicio.html", classe: "site"},
-        {nome: "WhatsApp", url: "https://wa.me/244973560521", classe: "whatsapp"},
-        {nome: "Instagram", url: "https://instagram.com/fran7.official", classe: "instagram"},
-        {nome: "Email", url: "mailto:fran7officiall@gmail.com", classe: "email"},
-        {nome: "Telefone", url: "tel:+244973560521", classe: "telefone"}
-    ];
+        "A tua conversa foi enviada ao atendimento humano da FRAN7.\n" +
+        "Escreve aqui; o agente poderá responder diretamente neste chat.";
 
     function pedeSuporte(texto) {
         return /\b(suporte|atendente|agente|ajuda humana|ajuda dos trabalhadores|trabalhador|trabalhadores|funcionario|funcionarios|falar com alguem|problema com|problema no|reclamacao|denuncia|contactar a loja|enviar mensagem ao suporte)\b/.test(normalizar(texto));
     }
 
 
-    function mostrarCanaisSuporte(message) {
-        const links = document.createElement("div");
-        links.className = "fran7-ai-support-actions";
-        links.setAttribute("aria-label", "Meios de contacto com o suporte da FRAN7");
-
-        CANAIS_SUPORTE.forEach(function(canal) {
-            const link = document.createElement("a");
-            link.className = "fran7-ai-support-action fran7-ai-support-action--" + canal.classe;
-            link.href = canal.url;
-            link.textContent = canal.nome;
-            link.target = canal.url.startsWith("http") ? "_blank" : "_self";
-            link.rel = "noopener noreferrer";
-            links.appendChild(link);
-        });
-
-        message.appendChild(links);
-        messages.scrollTop = messages.scrollHeight;
+    function activarModoHumano() {
+        chatWindow.classList.add("is-human-support");
+        title.textContent = "ATENDIMENTO FRAN7";
+        statusText.lastChild.textContent = " Agente disponível";
+        input.placeholder = "Escreve a tua mensagem ao agente...";
+        input.setAttribute("aria-label", "Mensagem para o agente de atendimento FRAN7");
+        openButton.setAttribute("aria-label", "Abrir atendimento FRAN7");
+        closeButton.setAttribute("aria-label", "Fechar atendimento");
+        document.querySelector(".fran7-ai-quick")?.setAttribute("hidden", "");
     }
 
     async function enviarMensagemSuporte(nome, contacto, textoMensagem) {
-        const message = adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
-        mostrarCanaisSuporte(message);
+        activarModoHumano();
+        adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
 
         try {
             if (!window.Fran7PocketBaseAuth?.obterCliente) {
@@ -95,16 +156,41 @@
             if (pb.authStore.isValid && pb.authStore.record?.id) {
                 data.user = pb.authStore.record.id;
             }
-            return await pb.collection("suporte_mensagens").create(data);
+            const record = await pb.collection("suporte_mensagens").create(data);
+            idMensagemSuporte = record.id;
+            textoConversaSuporte = data.mensagem;
+            ultimaRespostaSuporte = "";
+            await subscreverRespostaSuporte(pb);
+            return record;
         } catch (error) {
             console.warn("O pedido de suporte não pôde ser registado no PocketBase:", error);
+            const mensagemErro = error && error.status === 403
+                ? "O suporte está temporariamente indisponível porque a coleção suporte_mensagens não tem permissão para criar mensagens. Ajusta as regras do PocketBase para permitir a criação pública e tenta novamente."
+                : "Não foi possível enviar a mensagem para o suporte. Tenta novamente mais tarde.";
+            adicionarMensagem(mensagemErro, "bot");
             return null;
         }
     }
 
     async function processarPedidoSuporte(question) {
-        if (!pedeSuporte(question)) return false;
+        const modoHumano = chatWindow.classList.contains("is-human-support");
+        if (!pedeSuporte(question) && !modoHumano) return false;
 
+        if (modoHumano && idMensagemSuporte) {
+            textoConversaSuporte += "\n" + question;
+            try {
+                const pb = window.Fran7PocketBaseAuth.obterCliente();
+                await pb.collection("suporte_mensagens").update(idMensagemSuporte, {
+                    mensagem: textoConversaSuporte,
+                    status: "pendente"
+                });
+            } catch (error) {
+                console.warn("Não foi possível actualizar o pedido de suporte:", error);
+            }
+            return true;
+        }
+
+        await pedirPermissaoNotificacao();
         const sessao = window.Fran7PocketBaseAuth?.obterSessao?.();
         const nome = String(sessao?.record?.nome || sessao?.record?.name || "Visitante").trim() || "Visitante";
         const contacto = String(sessao?.record?.telefone || sessao?.record?.email || "Não informado").trim() || "Não informado";

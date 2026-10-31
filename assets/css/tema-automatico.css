@@ -1,44 +1,15 @@
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
     --fran7-theme-bg: #fff;
     --fran7-theme-surface: #fff;
     --fran7-theme-text: #171717;
     --fran7-theme-muted: #686868;
     --fran7-theme-border: #dededb;
     --fran7-theme-hover: #fff;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-fran7-theme="light"]) {
-        --fran7-theme-bg: #090909;
-        --fran7-theme-surface: #090909;
-        --fran7-theme-text: #f4f4f1;
-        --fran7-theme-muted: #aaa9a4;
-        --fran7-theme-border: #30302e;
-        --fran7-theme-hover: #090909;
-    }
-}
-
-:root[data-fran7-theme="light"] {
-    --fran7-theme-bg: #fff;
-    --fran7-theme-surface: #fff;
-    --fran7-theme-text: #171717;
-    --fran7-theme-muted: #686868;
-    --fran7-theme-border: #dededb;
-    --fran7-theme-hover: #fff;
-}
-
-:root[data-fran7-theme="dark"] {
-    --fran7-theme-bg: #090909;
-    --fran7-theme-surface: #090909;
-    --fran7-theme-text: #f4f4f1;
-    --fran7-theme-muted: #aaa9a4;
-    --fran7-theme-border: #30302e;
-    --fran7-theme-hover: #090909;
 }
 
 html {
-    color-scheme: light dark;
+    color-scheme: light;
 }
 
 #fran7-ai {
@@ -149,16 +120,6 @@ body:not(.fran7-subpage) .menu a {
 body:not(.fran7-subpage) .menu a:hover {
     background: var(--fran7-theme-text);
     color: var(--fran7-theme-bg);
-}
-
-body:not(.fran7-subpage) .announcement-bar {
-    border-color: var(--fran7-theme-border);
-    background: var(--fran7-theme-bg) !important;
-    color: var(--fran7-theme-muted) !important;
-}
-
-body:not(.fran7-subpage) .announcement-bar a {
-    color: var(--fran7-theme-text) !important;
 }
 
 body:not(.fran7-subpage) .hero {
@@ -310,18 +271,6 @@ body:not(.fran7-subpage) footer .footer-column a:hover {
     opacity: 1;
 }
 
-:root[data-fran7-theme="light"] .fran7-subpage .marca img,
-:root[data-fran7-theme="light"] body:not(.fran7-subpage) footer .footer-brand img,
-:root[data-fran7-theme="light"] .loading-logo {
-    filter: none !important;
-}
-
-:root[data-fran7-theme="dark"] .fran7-subpage .marca img,
-:root[data-fran7-theme="dark"] body:not(.fran7-subpage) footer .footer-brand img,
-:root[data-fran7-theme="dark"] .loading-logo {
-    filter: brightness(0) invert(1) !important;
-}
-
 .fran7-subpage .marca img {
     filter: brightness(0);
 }
@@ -398,22 +347,6 @@ body:not(.fran7-subpage) footer .footer-column a:hover {
 
 .loading-logo {
     filter: brightness(0) !important;
-}
-
-@media (prefers-color-scheme: dark) {
-    .fran7-subpage .marca img,
-    body:not(.fran7-subpage) footer .footer-brand img,
-    .loading-logo {
-        filter: brightness(0) invert(1) !important;
-    }
-
-    body:not(.fran7-subpage) > header {
-        border-color: #151515;
-    }
-
-    body:not(.fran7-subpage) footer .footer-column a:hover {
-        color: var(--fran7-theme-text);
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {

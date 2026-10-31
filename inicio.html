@@ -2,18 +2,12 @@
 <html lang="pt">
 <head>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GPZEHQ9KJH"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-GPZEHQ9KJH');
-    </script>
+    <link rel="stylesheet" href="assets/css/consentimento-cookies.css?v=20261031-1">
+    <script defer src="assets/js/consentimento-cookies.js?v=20261031-1"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
 
     <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png">
@@ -42,13 +36,15 @@
     <meta name="twitter:image:alt" content="Logótipo da FRAN7">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="assets/js/fran7-sessao.js"></script>
-    <script src="assets/js/proteger-inicio.js"></script>
+    <script src="assets/js/proteger-inicio.js?v=20261031-1"></script>
     <script src="assets/js/entrada-site.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fran7gg/fran7gg.github.io@68b8a75/assets/css/assistente.css">
+    <link rel="stylesheet" href="assets/css/assistente.css?v=20261030-4">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css">
-    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261027-5">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261031-2">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
+    <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261031-8">
+    <script defer src="assets/js/hero-carousel.js?v=20261031-7"></script>
 
     <style>
 
@@ -63,7 +59,7 @@
         }
 
         :root {
-            color-scheme: light dark;
+            color-scheme: light;
         }
 
         body {
@@ -106,7 +102,7 @@
            TEMA ESCURO
         ===================================================== */
 
-        @media (prefers-color-scheme: dark) {
+        @media not all {
 
             body {
                 background: #000;
@@ -337,7 +333,7 @@
            TEMA CLARO
         ===================================================== */
 
-        @media (prefers-color-scheme: light) {
+        @media all {
 
             body {
                 background: #fff;
@@ -938,6 +934,10 @@
             padding: 17px 20px;
 
             transition: .25s;
+        }
+
+        .menu a.menu-mobile-category {
+            display: none;
         }
 
         /* =====================================================
@@ -2244,6 +2244,70 @@
             margin-bottom: 5px;
         }
 
+        .perfil-exclusao-conta {
+            margin-top: 20px;
+            padding: 14px;
+            border: 1px solid #b33;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .perfil-exclusao-conta > summary {
+            color: #a52626;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .perfil-exclusao-conta > p {
+            margin: 10px 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .perfil-exclusao-conta label {
+            display: block;
+            margin: 12px 0 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .perfil-exclusao-conta input {
+            width: 100%;
+            min-height: 42px;
+            padding: 10px 12px;
+            border: 1px solid #999;
+            border-radius: 6px;
+            background: #fff;
+            color: #171717;
+            font: inherit;
+        }
+
+        .perfil-exclusao-conta button {
+            width: 100%;
+            min-height: 42px;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #a52626;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .perfil-exclusao-conta button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .perfil-exclusao-estado {
+            margin: 10px 0 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
         .perfil-dado-valor {
             display: block;
             font-size: 15px;
@@ -2339,37 +2403,14 @@
                 padding: 30px 20px;
             }
         }
-        .announcement-bar {
-            min-height: 32px;
-            padding: 7px 4.5%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            background: #090909;
-            color: #d0d0d0;
-            font-size: 9px;
-            letter-spacing: 1.8px;
-            text-transform: uppercase;
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-        }
-
         html,
         body {
-            overflow-x: hidden;
+            overflow-x: clip;
         }
-
-            .announcement-bar a {
-                color: inherit;
-                text-decoration: none;
-                letter-spacing: .5px;
-            }
 
             header {
                 position: sticky;
-                top: 32px;
+                top: 0;
                 left: auto;
                 width: 100%;
                 height: 88px;
@@ -2379,6 +2420,7 @@
                 background: rgba(8, 8, 8, .96);
                 border-bottom: 1px solid #202020;
                 color: #f5f5f5;
+                z-index: 1001;
                 backdrop-filter: blur(15px);
             }
 
@@ -2409,10 +2451,6 @@
 
             .header-primary-nav a:hover {
                 color: #fff;
-            }
-
-            .mobile-category-nav {
-                display: none;
             }
 
             .header-tools {
@@ -2747,13 +2785,6 @@
             }
 
             @media (max-width: 750px) {
-                .announcement-bar {
-                    padding-right: 18px;
-                    padding-left: 18px;
-                    font-size: 8px;
-                    letter-spacing: 1px;
-                }
-
                 header {
                     height: 74px;
                     padding: 10px 16px;
@@ -2768,34 +2799,8 @@
                     display: none;
                 }
 
-                .mobile-category-nav {
-                    display: flex;
-                    min-height: 44px;
-                    align-items: center;
-                    justify-content: flex-start;
-                    gap: 22px;
-                    overflow-x: auto;
-                    padding: 0 18px;
-                    border-bottom: 1px solid #202020;
-                    background: #090909;
-                    scrollbar-width: none;
-                    white-space: nowrap;
-                }
-
-                .mobile-category-nav::-webkit-scrollbar {
-                    display: none;
-                }
-
-                .mobile-category-nav a {
-                    flex: 0 0 auto;
-                    color: #dedede;
-                    font-size: 11px;
-                    text-decoration: none;
-                }
-
-                .mobile-category-nav a:hover,
-                .mobile-category-nav a:focus-visible {
-                    color: #fff;
+                .menu.aberto a.menu-mobile-category {
+                    display: block;
                 }
 
                 .header-tools {
@@ -2824,14 +2829,6 @@
             }
 
             @media (max-width: 480px) {
-                .announcement-bar {
-                    align-items: flex-start;
-                    flex-direction: column;
-                    gap: 3px;
-                    padding-top: 8px;
-                    padding-bottom: 8px;
-                }
-
                 .header-tools .botao-carrinho,
                 .header-tools .botao-parceria,
                 .header-tools .botao-perfil,
@@ -3126,11 +3123,165 @@
             }
         }
 
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: clamp(29px, 8.5vw, 38px);
+                letter-spacing: -1.2px;
+            }
+
+            .hero p {
+                font-size: 13px;
+            }
+
+            .redes h2 {
+                font-size: clamp(28px, 8vw, 34px);
+            }
+
+            .produtos .titulo {
+                font-size: 26px;
+            }
+
+            .botao-carrinho svg,
+            .icone-amigos,
+            .icone-amigos svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .icone-perfil {
+                width: 28px;
+                height: 28px;
+            }
+
+            .header-tools .menu-btn {
+                font-size: 23px;
+            }
+        }
+
+        #produtos .produtos-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            align-items: start;
+            gap: clamp(16px, 2.4vw, 30px);
+        }
+
+        #produtos .produto {
+            overflow: visible;
+            border: 0 !important;
+            border-radius: 0;
+            background: transparent !important;
+            box-shadow: none !important;
+            transition: transform .3s ease;
+        }
+
+        #produtos .produto:hover {
+            transform: translateY(-4px);
+            box-shadow: none !important;
+        }
+
+        #produtos .produto-imagem {
+            height: auto;
+            aspect-ratio: 4 / 5;
+            background: #eeece7;
+        }
+
+        #produtos .produto-imagem img {
+            transition: transform .5s ease;
+        }
+
+        #produtos .produto:hover .produto-imagem img {
+            transform: scale(1.035);
+        }
+
+        #produtos .produto-info {
+            padding: 16px 0 0 !important;
+        }
+
+        #produtos .produto-tag {
+            margin-bottom: 7px;
+            font-size: 9px;
+            letter-spacing: .16em;
+        }
+
+        #produtos .produto-info h3 {
+            margin-bottom: 8px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: -.025em;
+        }
+
+        #produtos .fran7-rating {
+            gap: 3px;
+            margin: 0 0 9px;
+        }
+
+        #produtos .fran7-rating-summary {
+            min-height: 16px;
+            gap: 6px;
+        }
+
+        #produtos .fran7-rating-summary-stars {
+            font-size: 12px;
+        }
+
+        #produtos .fran7-rating-summary-text {
+            font-size: 9px;
+        }
+
+        #produtos .fran7-rating-label {
+            font-size: 8px;
+            letter-spacing: .08em;
+        }
+
+        #produtos .fran7-rating-star {
+            width: 22px;
+            height: 23px;
+            color: #b28b4d;
+            font-size: 17px;
+        }
+
+        #produtos .fran7-rating-note,
+        #produtos .fran7-rating-status {
+            font-size: 9px;
+        }
+
+        #produtos .produto-info p {
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+
+        #produtos .preco {
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        #produtos .botao-produto {
+            padding: 10px 15px;
+            border-radius: 999px;
+            font-size: 9px;
+            letter-spacing: .1em;
+        }
+
+        @media (max-width: 750px) {
+            #produtos .produtos-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            #produtos .produto-info {
+                padding-top: 12px !important;
+            }
+
+            #produtos .produto-info h3 {
+                font-size: 17px;
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="assets/css/tema-automatico.css">
-    <link rel="stylesheet" href="assets/css/preloader-shimmer.css">
+    <link rel="stylesheet" href="assets/css/preloader-shimmer.css?v=20261030-1">
     <link rel="stylesheet" href="assets/css/botoes-outline.css">
-    <link rel="stylesheet" href="assets/css/classificacao-estrelas.css?v=20261026-1">
+    <link rel="stylesheet" href="assets/css/classificacao-estrelas.css?v=20261030-1">
     <script src="assets/js/configuracoes.js"></script>
 
 </head>
@@ -3151,10 +3302,23 @@
             >
         </div>
 
-    </div>
+        <details class="perfil-exclusao-conta" id="perfilEliminarConta" hidden>
+            <summary>Eliminar a minha conta</summary>
+            <p>A conta e os dados de perfil serão eliminados. Esta ação é permanente. Poderão ser mantidos registos de encomendas quando necessário.</p>
+            <form id="formEliminarConta" onsubmit="eliminarContaPerfil(event)">
+                <label for="perfilEliminarPalavraPasse">Confirma com a tua palavra-passe</label>
+                <input
+                    id="perfilEliminarPalavraPasse"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
+                <button type="submit">Eliminar conta permanentemente</button>
+                <p class="perfil-exclusao-estado" id="perfilEliminarEstado" role="status" aria-live="polite" hidden></p>
+            </form>
+        </details>
 
-    <div class="announcement-bar">
-        <span>FRAN7 — GRIEF &amp; GLORY | EST. 17.04.2026</span>
     </div>
 
     <!-- =====================================================
@@ -3314,15 +3478,10 @@
                 Início
             </a>
 
-            <a href="#produtos">
-                Produtos
-            </a>
-
-            <a href="catalogo.html">
-                Catálogo
-            </a>
-
-            <a href="configuracoes.html">Configurações</a>
+            <a class="menu-mobile-category" href="#produtos">Novidades</a>
+            <a class="menu-mobile-category" href="colecao.html?categoria=mulheres">Mulheres</a>
+            <a class="menu-mobile-category" href="colecao.html?categoria=homens">Homens</a>
+            <a class="menu-mobile-category" href="colecao.html?categoria=criancas">Crianças</a>
 
             <a href="#contactos">
                 Contactos
@@ -3334,64 +3493,14 @@
 
     </header>
 
-    <nav class="mobile-category-nav" aria-label="Categorias">
-        <a href="#produtos">Novidades</a>
-        <a href="colecao.html?categoria=mulheres">Mulheres</a>
-        <a href="colecao.html?categoria=homens">Homens</a>
-        <a href="colecao.html?categoria=criancas">Crianças</a>
-    </nav>
-
     <!-- =====================================================
          INÍCIO
     ===================================================== -->
 
-    <section
-        class="hero"
-        id="inicio"
-    >
-
-        <div class="hero-content">
-
-            <div class="hero-label">
-                FRAN7
-            </div>
-
-            <h1 class="hero-title">
-                GRIEF &amp; GLORY.
-            </h1>
-
-     <video
-            class="imagem-colecao"
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            controls
-        >
-            <source src="./VIDEOS%201.mp4" type="video/mp4">
-            O teu navegador não suporta este vídeo.
-
-</video>
-
-
-        </div>
-
-    </section>
-
-    <section class="home-photo-area" aria-label="Espaço para fotos depois do vídeo">
-        <div class="home-photo-grid">
-            <figure class="home-photo-slot home-photo-slot--feature">
-                <img src="foto1.png" alt="Campanha de verão FRAN7">
-                <div class="home-photo-overlay">
-                    <p class="home-photo-eyebrow">FRAN7 · VERÃO 2026</p>
-                    <h2>O verão tem outra presença.</h2>
-                    <p>Descobre peças feitas para acompanhar cada momento da estação.</p>
-                    <a class="home-photo-button" href="catalogo.html">
-                        Ver catálogo de verão <span aria-hidden="true">→</span>
-                    </a>
-                </div>
-            </figure>
-        </div>
+    <section class="fran7-carousel" id="inicio" data-fran7-carousel aria-roledescription="carrossel" aria-label="Imagens FRAN7">
+        <div class="fran7-carousel-track" data-carousel-track></div>
+        <p class="fran7-carousel-status" data-carousel-status role="status" hidden></p>
+        <div class="fran7-carousel-indicators" data-carousel-indicators aria-label="Escolher imagem" hidden></div>
     </section>
 
     <!-- =====================================================
@@ -3414,23 +3523,6 @@
         <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques do PocketBase...</p></div>
 
     </section>
-
-    <section class="home-photo-area" aria-label="Coleção BASKET BALL FLOWERS">
-        <div class="home-photo-grid">
-            <figure class="home-photo-slot home-photo-slot--feature">
-                <img src="foto2.png" alt="Coleção BASKET BALL FLOWERS da FRAN7">
-                <div class="home-photo-overlay">
-                    <p class="home-photo-eyebrow">FRAN7 · COLEÇÃO</p>
-                    <h2>BASKET BALL FLOWERS</h2>
-                    <p>Atitude e identidade numa coleção feita para se destacar.</p>
-                    <a class="home-photo-button" href="catalogo.html">
-                        Ver coleção BASKET BALL FLOWERS <span aria-hidden="true">→</span>
-                    </a>
-                </div>
-            </figure>
-        </div>
-    </section>
-
 
     <!-- =====================================================
          CATÁLOGO
@@ -3740,75 +3832,6 @@
 
         </div>
 
-    </div>
-
-    <div id="fran7-ai">
-        <button
-            class="fran7-ai-button"
-            id="fran7AiOpen"
-            type="button"
-            aria-label="Abrir assistente FRAN7"
-            aria-controls="fran7AiWindow"
-            aria-expanded="false"
-        >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.2A7.5 7.5 0 1 1 20 11.5Z"/>
-                <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/>
-            </svg>
-        </button>
-
-        <section
-            class="fran7-ai-window"
-            id="fran7AiWindow"
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby="fran7AiTitle"
-            hidden
-        >
-            <header class="fran7-ai-header">
-                <div class="fran7-ai-brand">
-                    <div class="fran7-ai-logo" aria-hidden="true">
-                        <span class="fran7-ai-avatar">
-                            <span class="fran7-ai-avatar-hand fran7-ai-avatar-hand-left"></span>
-                            <span class="fran7-ai-avatar-hand fran7-ai-avatar-hand-right"></span>
-                            <span class="fran7-ai-avatar-face"><span></span><span></span></span>
-                        </span>
-                    </div>
-                    <div class="fran7-ai-title">
-                        <strong id="fran7AiTitle">FRAN7 AI</strong>
-                        <span class="fran7-ai-status">
-                            <span class="fran7-ai-status-dot"></span>
-                            Assistente FRAN7
-                        </span>
-                    </div>
-                </div>
-                <button class="fran7-ai-close" id="fran7AiClose" type="button" aria-label="Fechar assistente">×</button>
-            </header>
-
-            <div class="fran7-ai-messages" id="fran7AiMessages" aria-live="polite">
-                <div class="fran7-ai-message bot">Olá! Sou o assistente automático da FRAN7. Posso ajudar com produtos, tamanhos, pedidos e suporte.</div>
-            </div>
-
-            <div class="fran7-ai-quick" role="group" aria-label="Perguntas rápidas">
-                <button type="button" data-assistant-prompt="Quero ver os produtos">Produtos</button>
-                <button type="button" data-assistant-prompt="Apresenta todos os produtos do catálogo FRAN7">Catálogo completo</button>
-                <button type="button" data-assistant-prompt="Quais são os tamanhos?">Tamanhos</button>
-                <button type="button" data-assistant-prompt="Como funcionam as entregas?">Entregas</button>
-                <button type="button" data-assistant-prompt="Quero falar com o suporte">Suporte</button>
-            </div>
-
-            <form class="fran7-ai-input-area" id="fran7AiForm">
-                <input
-                    type="text"
-                    id="fran7AiInput"
-                    class="fran7-ai-input"
-                    placeholder="Escreve uma mensagem..."
-                    autocomplete="off"
-                    aria-label="Mensagem para o assistente"
-                >
-                <button class="fran7-ai-send" id="fran7AiSend" type="submit" aria-label="Enviar mensagem">↑</button>
-            </form>
-        </section>
     </div>
 
     <!-- =====================================================
@@ -5041,6 +5064,10 @@
                 typeof cliente.aniversario === "string" && cliente.aniversario.trim()
                     ? cliente.aniversario.trim()
                     : "Não informado";
+            const exclusaoConta = document.getElementById("perfilEliminarConta");
+            if (exclusaoConta) {
+                exclusaoConta.hidden = !window.Fran7PocketBaseAuth?.estaAutenticado();
+            }
 
 
             const elementoNome =
@@ -5183,6 +5210,76 @@
 
         }
 
+        async function eliminarContaPerfil(event) {
+            event.preventDefault();
+
+            const form = document.getElementById("formEliminarConta");
+            const passwordInput = document.getElementById("perfilEliminarPalavraPasse");
+            const status = document.getElementById("perfilEliminarEstado");
+            const submitButton = form.querySelector('button[type="submit"]');
+            const password = passwordInput.value;
+            const auth = window.Fran7PocketBaseAuth;
+
+            status.hidden = true;
+            status.textContent = "";
+            if (!password) {
+                passwordInput.focus();
+                return;
+            }
+
+            if (!auth || !auth.estaAutenticado()) {
+                status.textContent = "Inicia sessão novamente antes de eliminar a conta.";
+                status.hidden = false;
+                return;
+            }
+
+            const currentSession = auth.obterSessao();
+            const userId = currentSession?.record?.id;
+            const email = currentSession?.record?.email;
+            if (!userId || !email) {
+                status.textContent = "Não foi possível confirmar os dados da conta. Inicia sessão novamente.";
+                status.hidden = false;
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = "A CONFIRMAR…";
+            let confirmingPassword = true;
+
+            try {
+                const client = auth.obterCliente();
+                const collection = client.collection("usuarios_loja");
+                const confirmed = await collection.authWithPassword(email, password);
+                if (!confirmed.record || confirmed.record.id !== userId) {
+                    throw new Error("A sessão confirmada não corresponde à conta atual.");
+                }
+
+                confirmingPassword = false;
+                await collection.delete(userId);
+                auth.terminarSessao();
+                passwordInput.value = "";
+                passwordInput.disabled = true;
+                submitButton.textContent = "CONTA ELIMINADA";
+                status.textContent = "A conta foi eliminada. A sessão foi terminada.";
+                status.hidden = false;
+                window.setTimeout(function() {
+                    window.location.href = "registo.html?modo=login";
+                }, 1800);
+            } catch (error) {
+                console.error("Não foi possível eliminar a conta FRAN7.", error);
+                if (confirmingPassword && error && error.status === 400) {
+                    status.textContent = "A palavra-passe está incorreta. Confirma-a e tenta novamente.";
+                } else if (error && error.status === 403) {
+                    status.textContent = "O PocketBase não permite eliminar esta conta. Confirma a regra Delete da coleção usuarios_loja.";
+                } else {
+                    status.textContent = "Não foi possível eliminar a conta. Verifica a ligação ao PocketBase e tenta novamente.";
+                }
+                status.hidden = false;
+                submitButton.disabled = false;
+                submitButton.textContent = "Eliminar conta permanentemente";
+            }
+        }
+
 
         /* =====================================================
            CARREGAMENTO
@@ -5203,6 +5300,16 @@
                             document.getElementById(
                                 "loading-screen"
                             );
+
+                        loading.addEventListener(
+                            "transitionend",
+                            function(event) {
+                                if (event.target === loading && event.propertyName === "opacity") {
+                                    loading.classList.add("concluido");
+                                }
+                            },
+                            { once: true }
+                        );
 
                         loading.classList.add(
                             "saindo"
@@ -5356,11 +5463,12 @@
     <script src="assets/js/pocketbase-destaques-inicio.js?v=20261027-3"></script>
     <script src="assets/js/favoritos.js?v=20261027-1"></script>
     <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-    <script src="assets/js/pocketbase-auth.js?v=20261028-1"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261031-4"></script>
     <script src="assets/js/classificacao-estrelas.js?v=20261027-1"></script>
-    <script src="assets/js/detalhe-produto.js?v=20261030-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261031-1"></script>
     <script src="assets/js/informacoes-modal.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/fran7gg/fran7gg.github.io@b1b1008/assets/js/assistente-suporte.js"></script>
+    <script src="assets/js/assistente-widget.js?v=20261028-3"></script>
+    <script src="assets/js/assistente-suporte.js?v=20261030-1"></script>
 
 </body>
 </html>

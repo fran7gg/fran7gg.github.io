@@ -149,7 +149,7 @@
     resize: vertical;
 }
 
-@media (prefers-color-scheme: dark) {
+@media not all {
     .fran7-info-dialog {
         background: #111;
         color: #f4f4f1;

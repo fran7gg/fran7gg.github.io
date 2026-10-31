@@ -24,18 +24,91 @@
         .resposta-atual { color: #aaa; font-size: 14px; }
         input, textarea, button { width: 100%; border: 1px solid #454545; border-radius: 8px; background: #0d0d0d; color: var(--texto); font: inherit; }
         input, textarea { padding: 12px; }
+        .campo-senha { position: relative; }
+        .campo-senha input { padding-right: 48px; }
+        .mostrar-senha { position: absolute; top: 50%; right: 8px; width: 36px; height: 36px; padding: 0; transform: translateY(-50%); border: 0; background: transparent; color: #aaa; font-size: 18px; }
+        .mostrar-senha:hover, .mostrar-senha:focus-visible { color: #fff; }
         textarea { min-height: 100px; resize: vertical; }
         button { padding: 12px 16px; border: 0; background: var(--sucesso); color: #07160d; font-weight: 700; cursor: pointer; }
         button:disabled { cursor: wait; opacity: .65; }
         .aviso { color: #aaa; font-size: 13px; }
+        #ativar-notificacoes { width: auto; margin: 0 0 20px; }
+        #login-suporte, #criar-conta-suporte { display: grid; max-width: 420px; gap: 10px; margin: 20px 0; }
+        #login-suporte[hidden], #criar-conta-suporte[hidden] { display: none; }
+        .alternar-acesso { display: flex; width: min(420px, 100%); gap: 8px; margin-bottom: 4px; }
+        .alternar-acesso[hidden] { display: none; }
+        .alternar-acesso button { background: #2a2a2a; color: #fff; }
+        .alternar-acesso button.ativo { background: var(--sucesso); color: #07160d; }
+        .painel-suporte[hidden] { display: none; }
+        .perfil-agente { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; background: var(--painel); }
+        .perfil-abrir { display: flex; min-width: 0; flex: 1; align-items: center; gap: 12px; padding: 0; border: 0; background: transparent; color: var(--texto); text-align: left; }
+        .perfil-abrir:hover .perfil-avatar { filter: brightness(1.08); }
+        .perfil-avatar { display: grid; flex: 0 0 44px; width: 44px; height: 44px; place-items: center; border-radius: 50%; background: var(--sucesso); color: #07160d; font-size: 18px; font-weight: 800; }
+        .perfil-dados { min-width: 0; }
+        .perfil-dados strong, .perfil-dados span { display: block; overflow: hidden; text-overflow: ellipsis; }
+        .perfil-dados strong { font-size: 15px; }
+        .perfil-dados span { margin-top: 3px; color: #aaa; font-size: 13px; }
+        .perfil-popup { position: absolute; z-index: 20; top: calc(100% - 8px); left: 14px; width: min(420px, calc(100% - 28px)); max-height: 70vh; overflow: auto; padding: 14px; border: 1px solid #484848; border-radius: 10px; background: #111; box-shadow: 0 18px 45px rgba(0,0,0,.55); }
+        .perfil-popup[hidden] { display: none; }
+        .perfil-popup h2 { margin: 0 0 10px; font-size: 16px; }
+        .perfil-lista { display: grid; gap: 8px; margin: 0; }
+        .perfil-item { display: grid; grid-template-columns: minmax(110px, 0.38fr) minmax(0, 1fr); gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #292929; }
+        .perfil-item:last-child { padding-bottom: 0; border: 0; }
+        .perfil-item dt { color: #999; }
+        .perfil-item dd { margin: 0; overflow-wrap: anywhere; }
+        #sair-suporte { width: auto; flex: 0 0 auto; background: #333; color: #fff; }
     </style>
 </head>
 <body>
     <main>
         <h1>Mensagens de suporte</h1>
         <p class="descricao">Responda às mensagens enviadas pela assistente FRAN7.</p>
-        <div id="mensagens-suporte">
-            <div class="estado">A carregar mensagens do PocketBase…</div>
+        <div class="alternar-acesso" aria-label="Escolher acesso">
+            <button id="mostrar-login" class="ativo" type="button">Iniciar sessão</button>
+            <button id="mostrar-criar" type="button">Criar conta</button>
+        </div>
+        <form id="login-suporte">
+            <input id="admin-email" type="email" autocomplete="username" placeholder="E-mail do agente" required>
+            <div class="campo-senha">
+                <input id="admin-senha" type="password" autocomplete="current-password" placeholder="Palavra-passe" required>
+                <button class="mostrar-senha" type="button" data-campo-senha="admin-senha" aria-label="Mostrar palavra-passe" aria-pressed="false">👁</button>
+            </div>
+            <button type="submit">Entrar no painel</button>
+            <span class="aviso" id="login-aviso" aria-live="polite"></span>
+        </form>
+        <form id="criar-conta-suporte" hidden>
+            <input id="agente-nome" type="text" autocomplete="name" placeholder="Nome do agente" required>
+            <input id="agente-email" type="email" autocomplete="email" placeholder="E-mail do agente" required>
+            <div class="campo-senha">
+                <input id="agente-senha" type="password" autocomplete="new-password" minlength="8" placeholder="Palavra-passe (mínimo 8 caracteres)" required>
+                <button class="mostrar-senha" type="button" data-campo-senha="agente-senha" aria-label="Mostrar palavra-passe" aria-pressed="false">👁</button>
+            </div>
+            <div class="campo-senha">
+                <input id="agente-senha-confirmar" type="password" autocomplete="new-password" minlength="8" placeholder="Confirmar palavra-passe" required>
+                <button class="mostrar-senha" type="button" data-campo-senha="agente-senha-confirmar" aria-label="Mostrar confirmação da palavra-passe" aria-pressed="false">👁</button>
+            </div>
+            <button type="submit">Criar conta e entrar</button>
+            <span class="aviso" id="criar-conta-aviso" aria-live="polite"></span>
+        </form>
+        <div class="painel-suporte" id="painel-suporte" hidden>
+            <div class="perfil-agente">
+                <button class="perfil-abrir" id="perfil-abrir" type="button" aria-expanded="false" aria-controls="perfil-popup">
+                    <div class="perfil-avatar" id="perfil-avatar" aria-hidden="true">A</div>
+                    <div class="perfil-dados">
+                        <strong id="perfil-nome">Agente</strong>
+                        <span id="perfil-email"></span>
+                    </div>
+                </button>
+                <button id="sair-suporte" type="button">Terminar sessão</button>
+                <section class="perfil-popup" id="perfil-popup" aria-labelledby="perfil-titulo" hidden>
+                    <h2 id="perfil-titulo">Dados do perfil</h2>
+                    <dl class="perfil-lista" id="perfil-lista"></dl>
+                </section>
+            </div>
+            <button id="ativar-notificacoes" type="button">Ativar notificações e som</button>
+            <div id="mensagens-suporte">
+                <div class="estado">A carregar mensagens do PocketBase…</div>
+            </div>
         </div>
     </main>
 
@@ -47,7 +120,232 @@
             "use strict";
 
             const container = document.getElementById("mensagens-suporte");
+            const loginForm = document.getElementById("login-suporte");
+            const criarContaForm = document.getElementById("criar-conta-suporte");
+            const loginAviso = document.getElementById("login-aviso");
+            const criarContaAviso = document.getElementById("criar-conta-aviso");
+            const botaoMostrarLogin = document.getElementById("mostrar-login");
+            const botaoMostrarCriar = document.getElementById("mostrar-criar");
+            const painel = document.getElementById("painel-suporte");
+            const sair = document.getElementById("sair-suporte");
+            const ativarNotificacoes = document.getElementById("ativar-notificacoes");
             const baseUrl = String(window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl || "").replace(/\/+$/, "");
+            let pb = null;
+            let audioContext = null;
+
+            function obterPocketBase() {
+                if (!pb) {
+                    pb = new window.PocketBase(baseUrl);
+                }
+                return pb;
+            }
+
+            function estaAutenticado() {
+                return Boolean(obterPocketBase().authStore.isValid);
+            }
+
+            function nomeAgenteAtual() {
+                const record = obterPocketBase().authStore.record || {};
+                return String(record.nome || record.name || record.email || "Agente").trim() || "Agente";
+            }
+
+            function nomeCampoPerfil(chave) {
+                const nomes = {
+                    id: "ID",
+                    collectionId: "ID da coleção",
+                    collectionName: "Coleção",
+                    nome: "Nome",
+                    name: "Nome",
+                    username: "Nome de utilizador",
+                    email: "E-mail",
+                    emailVisibility: "E-mail visível",
+                    verified: "Conta verificada",
+                    created: "Criada em",
+                    updated: "Actualizada em",
+                    lastLogin: "Último início de sessão",
+                    role: "Função",
+                    ativo: "Conta ativa"
+                };
+                return nomes[chave] || chave
+                    .replace(/([a-z])([A-Z])/g, "$1 $2")
+                    .replace(/^./, function (letra) { return letra.toUpperCase(); });
+            }
+
+            function valorCampoPerfil(chave, valor) {
+                if (typeof valor === "boolean") return valor ? "Sim" : "Não";
+                if (valor == null || valor === "") return "Não informado";
+                if ((chave === "created" || chave === "updated" || chave === "lastLogin") && !Number.isNaN(Date.parse(valor))) {
+                    return new Intl.DateTimeFormat("pt-PT", { dateStyle: "medium", timeStyle: "short" }).format(new Date(valor));
+                }
+                if (typeof valor === "object") return JSON.stringify(valor);
+                return String(valor);
+            }
+
+            function dadosSegurosPerfil(record) {
+                const camposOcultos = /^(password|passwordConfirm|token|tokenKey|secret|hash)$/i;
+                return Object.entries(record)
+                    .filter(function ([chave, valor]) {
+                        return !camposOcultos.test(chave) && valor !== undefined;
+                    })
+                    .sort(function ([chaveA], [chaveB]) {
+                        return chaveA.localeCompare(chaveB, "pt-PT");
+                    });
+            }
+
+            function mostrarPerfil() {
+                const record = obterPocketBase().authStore.record || {};
+                const nome = nomeAgenteAtual();
+                const email = String(record.email || "").trim();
+                const avatar = document.getElementById("perfil-avatar");
+                const lista = document.getElementById("perfil-lista");
+
+                document.getElementById("perfil-nome").textContent = nome;
+                document.getElementById("perfil-email").textContent = email || "Sem e-mail associado";
+                avatar.textContent = nome.slice(0, 1).toLocaleUpperCase();
+                lista.replaceChildren();
+
+                dadosSegurosPerfil(record).forEach(function ([chave, valor]) {
+                    const item = document.createElement("div");
+                    item.className = "perfil-item";
+                    const rotulo = document.createElement("dt");
+                    const conteudo = document.createElement("dd");
+                    rotulo.textContent = nomeCampoPerfil(chave);
+                    conteudo.textContent = valorCampoPerfil(chave, valor);
+                    item.append(rotulo, conteudo);
+                    lista.appendChild(item);
+                });
+            }
+
+            function mostrarPainel() {
+                loginForm.hidden = true;
+                criarContaForm.hidden = true;
+                document.querySelector(".alternar-acesso").hidden = true;
+                painel.hidden = false;
+                mostrarPerfil();
+            }
+
+            function mostrarAcesso(modoCriacao) {
+                loginForm.hidden = modoCriacao;
+                criarContaForm.hidden = !modoCriacao;
+                botaoMostrarLogin.classList.toggle("ativo", !modoCriacao);
+                botaoMostrarCriar.classList.toggle("ativo", modoCriacao);
+            }
+
+            function mensagemErroAutenticacao(error) {
+                const detalhes = error?.response?.data;
+                const campoSenha = detalhes?.password;
+                if (campoSenha?.message) return campoSenha.message;
+                if (campoSenha && typeof campoSenha === "string") return campoSenha;
+                if (error?.status === 400) return "E-mail ou palavra-passe inválidos.";
+                if (error?.status === 404) return "A coleção agentes_suporte não foi encontrada.";
+                return "Não foi possível criar ou iniciar a conta. Confirme os dados e tente novamente.";
+            }
+
+            async function iniciarSessao(evento) {
+                evento.preventDefault();
+                const email = document.getElementById("admin-email").value.trim();
+                const senha = document.getElementById("admin-senha").value;
+                const botao = loginForm.querySelector("button");
+                botao.disabled = true;
+                loginAviso.textContent = "Entrando…";
+
+                try {
+                    const pb = obterPocketBase();
+                    try {
+                        await pb.collection("agentes_suporte").authWithPassword(email, senha);
+                    } catch (erroAgente) {
+                        await pb.collection("_superusers").authWithPassword(email, senha);
+                    }
+                    loginAviso.textContent = "";
+                    mostrarPainel();
+                    await carregarMensagens();
+                    await iniciarRealtime();
+                    await pedirPermissaoNotificacao();
+                } catch (error) {
+                    console.error("Não foi possível autenticar no painel:", error);
+                    loginAviso.textContent = mensagemErroAutenticacao(error);
+                } finally {
+                    botao.disabled = false;
+                }
+            }
+
+            async function criarContaAgente(evento) {
+                evento.preventDefault();
+                const nome = document.getElementById("agente-nome").value.trim();
+                const email = document.getElementById("agente-email").value.trim();
+                const senha = document.getElementById("agente-senha").value;
+                const confirmarSenha = document.getElementById("agente-senha-confirmar").value;
+                const botao = criarContaForm.querySelector("button");
+
+                if (senha !== confirmarSenha) {
+                    criarContaAviso.textContent = "As palavras-passe não coincidem.";
+                    return;
+                }
+
+                botao.disabled = true;
+                criarContaAviso.textContent = "Criando conta…";
+                try {
+                    const pb = obterPocketBase();
+                    await pb.collection("agentes_suporte").create({
+                        nome: nome,
+                        email: email,
+                        password: senha,
+                        passwordConfirm: confirmarSenha
+                    });
+                    await pb.collection("agentes_suporte").authWithPassword(email, senha);
+                    criarContaAviso.textContent = "";
+                    mostrarPainel();
+                    await carregarMensagens();
+                    await iniciarRealtime();
+                    await pedirPermissaoNotificacao();
+                } catch (error) {
+                    console.error("Não foi possível criar a conta do agente:", error);
+                    criarContaAviso.textContent = mensagemErroAutenticacao(error);
+                } finally {
+                    botao.disabled = false;
+                }
+            }
+
+            async function pedirPermissaoNotificacao() {
+                if (!("Notification" in window)) return "unsupported";
+                const permissao = Notification.permission === "default"
+                    ? await Notification.requestPermission()
+                    : Notification.permission;
+                ativarNotificacoes.textContent = permissao === "granted"
+                    ? "Notificações ativadas"
+                    : "Ativar notificações e som";
+                ativarNotificacoes.disabled = permissao === "granted";
+                if (!audioContext) {
+                    const ContextoAudio = window.AudioContext || window.webkitAudioContext;
+                    if (ContextoAudio) audioContext = new ContextoAudio();
+                }
+                if (audioContext?.state === "suspended") await audioContext.resume();
+                return permissao;
+            }
+
+            function tocarSomSMS() {
+                const ContextoAudio = window.AudioContext || window.webkitAudioContext;
+                if (!ContextoAudio) return;
+                if (!audioContext) audioContext = new ContextoAudio();
+                if (audioContext.state === "suspended") {
+                    audioContext.resume().catch(function () {});
+                }
+
+                [880, 1320].forEach(function (frequencia, indice) {
+                    const inicio = audioContext.currentTime + indice * 0.13;
+                    const oscilador = audioContext.createOscillator();
+                    const ganho = audioContext.createGain();
+                    oscilador.type = "sine";
+                    oscilador.frequency.setValueAtTime(frequencia, inicio);
+                    ganho.gain.setValueAtTime(0.0001, inicio);
+                    ganho.gain.exponentialRampToValueAtTime(0.12, inicio + 0.012);
+                    ganho.gain.exponentialRampToValueAtTime(0.0001, inicio + 0.10);
+                    oscilador.connect(ganho);
+                    ganho.connect(audioContext.destination);
+                    oscilador.start(inicio);
+                    oscilador.stop(inicio + 0.11);
+                });
+            }
 
             function escaparHtml(value) {
                 const node = document.createElement("div");
@@ -75,7 +373,6 @@
                     <p><strong>Contacto:</strong> ${escaparHtml(msg.contacto || "Não informado")}</p>
                     <p><strong>Mensagem:</strong> ${escaparHtml(msg.mensagem || "")}</p>
                     <p class="resposta-atual"><strong>Resposta atual:</strong> ${msg.resposta ? `${escaparHtml(msg.resposta)} (por ${escaparHtml(msg.agente_nome || "Atendimento")})` : "Ainda sem resposta"}</p>
-                    <input type="text" id="agente-${escaparHtml(msg.id)}" placeholder="Nome do Agente (ex: Fredy)" value="${escaparHtml(msg.agente_nome || "Fredy")}">
                     <textarea id="resp-${escaparHtml(msg.id)}" placeholder="Escreva aqui a sua resposta...">${escaparHtml(msg.resposta || "")}</textarea>
                     <button type="button" data-responder="${escaparHtml(msg.id)}">Enviar Resposta Humana</button>
                     <span class="aviso" aria-live="polite"></span>`;
@@ -93,8 +390,7 @@
                 }
 
                 try {
-                    const pb = new window.PocketBase(baseUrl);
-                    const mensagens = await pb.collection("suporte_mensagens").getFullList({
+                    const mensagens = await obterPocketBase().collection("suporte_mensagens").getFullList({
                         sort: "-created"
                     });
 
@@ -113,23 +409,21 @@
             }
 
             async function responderCliente(id, card) {
-                const agenteInput = document.getElementById("agente-" + id);
                 const respostaInput = document.getElementById("resp-" + id);
                 const botao = card.querySelector("[data-responder]");
                 const aviso = card.querySelector(".aviso");
-                const agenteNome = agenteInput.value.trim();
+                const agenteNome = nomeAgenteAtual();
                 const resposta = respostaInput.value.trim();
 
-                if (!agenteNome || !resposta) {
-                    aviso.textContent = "Preencha o nome do agente e a resposta.";
+                if (!resposta) {
+                    aviso.textContent = "Escreva a resposta antes de enviar.";
                     return;
                 }
 
                 botao.disabled = true;
                 aviso.textContent = "Enviando resposta…";
                 try {
-                    const pb = new window.PocketBase(baseUrl);
-                    await pb.collection("suporte_mensagens").update(id, {
+                    await obterPocketBase().collection("suporte_mensagens").update(id, {
                         resposta: resposta,
                         agente_nome: agenteNome,
                         status: "respondido"
@@ -146,7 +440,87 @@
                 }
             }
 
-            carregarMensagens();
+            async function iniciarRealtime() {
+                if (!baseUrl || typeof window.PocketBase !== "function") return;
+
+                try {
+                    await obterPocketBase().collection("suporte_mensagens").subscribe("*", function (evento) {
+                        if (evento.action !== "create") return;
+                        tocarSomSMS();
+                        const nome = evento.record?.cliente_nome || "Cliente";
+                        const mensagem = evento.record?.mensagem || "Nova mensagem de suporte.";
+                        if (Notification.permission === "granted") {
+                            new Notification("Nova mensagem de suporte — " + nome, {
+                                body: mensagem,
+                                tag: "suporte-" + evento.record.id,
+                                icon: "assets/images/logo.png.png"
+                            });
+                        }
+                        carregarMensagens();
+                    });
+                } catch (error) {
+                    console.error("Não foi possível activar o Realtime do suporte:", error);
+                }
+            }
+
+            document.querySelectorAll("[data-campo-senha]").forEach(function (botao) {
+                botao.addEventListener("click", function () {
+                    const campo = document.getElementById(botao.dataset.campoSenha);
+                    const visivel = campo.type === "text";
+                    campo.type = visivel ? "password" : "text";
+                    botao.textContent = visivel ? "👁" : "🙈";
+                    botao.setAttribute("aria-pressed", String(!visivel));
+                    botao.setAttribute("aria-label", visivel ? "Mostrar palavra-passe" : "Ocultar palavra-passe");
+                    campo.focus();
+                });
+            });
+
+            ativarNotificacoes.addEventListener("click", async function () {
+                await pedirPermissaoNotificacao();
+            });
+
+            const perfilAbrir = document.getElementById("perfil-abrir");
+            const perfilPopup = document.getElementById("perfil-popup");
+            perfilAbrir.addEventListener("click", function () {
+                const abrir = perfilPopup.hidden;
+                perfilPopup.hidden = !abrir;
+                perfilAbrir.setAttribute("aria-expanded", String(abrir));
+            });
+            document.addEventListener("click", function (evento) {
+                if (!perfilPopup.hidden && !evento.target.closest(".perfil-agente")) {
+                    perfilPopup.hidden = true;
+                    perfilAbrir.setAttribute("aria-expanded", "false");
+                }
+            });
+            document.addEventListener("keydown", function (evento) {
+                if (evento.key === "Escape" && !perfilPopup.hidden) {
+                    perfilPopup.hidden = true;
+                    perfilAbrir.setAttribute("aria-expanded", "false");
+                    perfilAbrir.focus();
+                }
+            });
+
+            loginForm.addEventListener("submit", iniciarSessao);
+            criarContaForm.addEventListener("submit", criarContaAgente);
+            botaoMostrarLogin.addEventListener("click", function () { mostrarAcesso(false); });
+            botaoMostrarCriar.addEventListener("click", function () { mostrarAcesso(true); });
+            sair.addEventListener("click", function () {
+                obterPocketBase().authStore.clear();
+                perfilPopup.hidden = true;
+                perfilAbrir.setAttribute("aria-expanded", "false");
+                painel.hidden = true;
+                document.querySelector(".alternar-acesso").hidden = false;
+                loginForm.hidden = false;
+                criarContaForm.hidden = true;
+                loginAviso.textContent = "Sessão terminada.";
+                obterPocketBase().collection("suporte_mensagens").unsubscribe("*");
+            });
+
+            if (estaAutenticado()) {
+                mostrarPainel();
+                carregarMensagens();
+                iniciarRealtime();
+            }
         
         })();
     </script>
