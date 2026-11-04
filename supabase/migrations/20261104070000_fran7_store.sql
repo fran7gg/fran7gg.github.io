@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS public.fran7_profiles (
     id uuid PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,
     nome text NOT NULL DEFAULT '',
     telefone text NOT NULL DEFAULT '',
-    aniversario date,
+    aniversario text,
     role text NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
@@ -131,7 +131,7 @@ BEGIN
         NEW.id,
         COALESCE(NEW.raw_user_meta_data ->> 'nome', ''),
         COALESCE(NEW.raw_user_meta_data ->> 'telefone', ''),
-        NULLIF(NEW.raw_user_meta_data ->> 'aniversario', '')::date
+        NULLIF(NEW.raw_user_meta_data ->> 'aniversario', '')
     )
     ON CONFLICT (id) DO NOTHING;
     RETURN NEW;
@@ -148,7 +148,7 @@ SELECT
     id,
     COALESCE(raw_user_meta_data ->> 'nome', ''),
     COALESCE(raw_user_meta_data ->> 'telefone', ''),
-    NULLIF(raw_user_meta_data ->> 'aniversario', '')::date
+    NULLIF(raw_user_meta_data ->> 'aniversario', '')
 FROM auth.users
 ON CONFLICT (id) DO NOTHING;
 
