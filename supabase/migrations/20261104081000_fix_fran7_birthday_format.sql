@@ -20,6 +20,8 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS create_cliente_from_auth_user ON auth.users;
+
 CREATE OR REPLACE FUNCTION public.fran7_create_profile()
 RETURNS trigger
 LANGUAGE plpgsql

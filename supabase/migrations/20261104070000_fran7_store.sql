@@ -139,6 +139,7 @@ END;
 $$;
 
 DROP TRIGGER IF EXISTS fran7_auth_user_created ON auth.users;
+DROP TRIGGER IF EXISTS create_cliente_from_auth_user ON auth.users;
 CREATE TRIGGER fran7_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.fran7_create_profile();
