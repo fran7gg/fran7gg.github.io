@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS public.fran7_profiles (
     id uuid PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,
+    email text NOT NULL DEFAULT '',
     nome text NOT NULL DEFAULT '',
     telefone text NOT NULL DEFAULT '',
     aniversario text,
@@ -139,9 +140,10 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-    INSERT INTO public.fran7_profiles (id, nome, telefone, aniversario)
+    INSERT INTO public.fran7_profiles (id, email, nome, telefone, aniversario)
     VALUES (
         NEW.id,
+        COALESCE(NEW.email, ''),
         COALESCE(NEW.raw_user_meta_data ->> 'nome', ''),
         COALESCE(NEW.raw_user_meta_data ->> 'telefone', ''),
         NULLIF(NEW.raw_user_meta_data ->> 'aniversario', '')
@@ -150,6 +152,62 @@ BEGIN
     RETURN NEW;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION public.fran7_set_profile_role(
+    target_user_id uuid,
+    new_role text
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+    current_role text;
+    admin_count integer;
+BEGIN
+    IF NOT public.fran7_is_admin() THEN
+        RAISE EXCEPTION 'Apenas administradores podem alterar funções.'
+            USING ERRCODE = '42501';
+    END IF;
+
+    IF new_role IS NULL OR new_role NOT IN ('admin', 'customer') THEN
+        RAISE EXCEPTION 'Função inválida.';
+    END IF;
+
+    IF target_user_id = (SELECT auth.uid()) THEN
+        RAISE EXCEPTION 'Não podes alterar a tua própria função.';
+    END IF;
+
+    PERFORM pg_advisory_xact_lock(74192731);
+
+    SELECT role
+    INTO current_role
+    FROM public.fran7_profiles
+    WHERE id = target_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Perfil não encontrado.';
+    END IF;
+
+    IF current_role = 'admin' AND new_role = 'customer' THEN
+        SELECT count(*)::integer
+        INTO admin_count
+        FROM public.fran7_profiles
+        WHERE role = 'admin';
+
+        IF admin_count <= 1 THEN
+            RAISE EXCEPTION 'Não é possível remover o último administrador.';
+        END IF;
+    END IF;
+
+    UPDATE public.fran7_profiles
+    SET role = new_role
+    WHERE id = target_user_id;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.fran7_set_profile_role(uuid, text) FROM PUBLIC, anon;
 
 CREATE OR REPLACE FUNCTION public.fran7_set_product_comment_author()
 RETURNS trigger
@@ -178,14 +236,16 @@ CREATE TRIGGER fran7_product_comment_author
     BEFORE INSERT ON public.fran7_product_comments
     FOR EACH ROW EXECUTE FUNCTION public.fran7_set_product_comment_author();
 
-INSERT INTO public.fran7_profiles (id, nome, telefone, aniversario)
+INSERT INTO public.fran7_profiles (id, email, nome, telefone, aniversario)
 SELECT
     id,
+    COALESCE(email, ''),
     COALESCE(raw_user_meta_data ->> 'nome', ''),
     COALESCE(raw_user_meta_data ->> 'telefone', ''),
     NULLIF(raw_user_meta_data ->> 'aniversario', '')
 FROM auth.users
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE
+SET email = EXCLUDED.email;
 
 ALTER TABLE public.fran7_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.fran7_products ENABLE ROW LEVEL SECURITY;
@@ -309,7 +369,10 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT SELECT ON public.fran7_products, public.fran7_variants, public.fran7_banners,
     public.fran7_rating_summary TO anon, authenticated;
 GRANT SELECT ON public.fran7_ratings TO authenticated;
-GRANT SELECT, INSERT, UPDATE ON public.fran7_profiles TO authenticated;
+GRANT SELECT, INSERT ON public.fran7_profiles TO authenticated;
+REVOKE UPDATE ON public.fran7_profiles FROM authenticated;
+GRANT UPDATE (nome, telefone, aniversario, updated_at)
+    ON public.fran7_profiles TO authenticated;
 GRANT INSERT, SELECT, UPDATE ON public.fran7_orders TO authenticated;
 GRANT INSERT, SELECT, UPDATE ON public.fran7_ratings TO authenticated;
 GRANT INSERT, SELECT ON public.fran7_support_messages TO authenticated;
@@ -333,5 +396,6 @@ $$;
 GRANT INSERT, UPDATE, DELETE ON public.fran7_products, public.fran7_variants,
     public.fran7_banners TO authenticated;
 GRANT EXECUTE ON FUNCTION public.fran7_is_admin() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.fran7_set_profile_role(uuid, text) TO authenticated;
 
 NOTIFY pgrst, 'reload schema';

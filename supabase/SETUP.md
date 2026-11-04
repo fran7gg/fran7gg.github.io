@@ -40,6 +40,14 @@ WHERE id = (
 O painel `admin-suporte.html` só aceita contas cuja função seja `admin`.
 Utilizadores novos continuam a ser `customer`.
 
+Depois de executar a migração de gestão de administradores, os administradores
+podem aprovar ou retirar o acesso de outras contas já registadas no painel
+`admin-suporte.html`. A conta tem de existir primeiro; a migração impede
+remover o último administrador.
+
+Se a migração principal já foi aplicada, executa também
+`migrations/20261104093000_fran7_admin_management.sql` no SQL Editor.
+
 ## 4. Publicar a função de eliminação de conta
 
 Na raiz do repositório, com a Supabase CLI instalada e ligada ao projeto
