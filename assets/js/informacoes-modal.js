@@ -49,7 +49,7 @@
                 <h2>Direitos do utilizador</h2>
                 <p>Podes pedir acesso, correção, atualização ou eliminação dos teus dados, bem como exercer os restantes direitos previstos na legislação aplicável.</p>
                 <h2>Armazenamento no navegador e serviços externos</h2>
-                <p>A sacola e os favoritos ficam guardados neste navegador. Os comentários e o nome escolhido para publicar são guardados na base de dados e ficam visíveis na loja. O registo e a entrada podem usar e-mail e palavra-passe ou Google; a entrada Google usa autenticação Google. WhatsApp, Instagram e YouTube são serviços externos com políticas próprias.</p>
+                <p>A sacola e os favoritos ficam guardados neste navegador. Os comentários dos produtos são guardados no Supabase e ficam visíveis na loja; para comentar, é necessário iniciar sessão. O registo e a entrada podem usar e-mail e palavra-passe ou Google; a entrada Google usa autenticação Google. WhatsApp, Instagram e YouTube são serviços externos com políticas próprias.</p>
                 <h2>Cookies e preferências</h2>
                 <p>O site utiliza cookies necessários ao seu funcionamento. O Google Analytics, usado para medir a utilização da loja, só é carregado se autorizares os cookies de análise. A escolha fica guardada neste navegador durante 180 dias. Para a alterar antes desse prazo, apaga o cookie “fran7_cookie_consent” nas definições do navegador; o aviso voltará a aparecer na página inicial.</p>
                 <h2>Contacto</h2>

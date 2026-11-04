@@ -8,7 +8,8 @@ não é apagada nem alterada.
 
 No projeto `fran7`, abre **SQL Editor**, cola o conteúdo da migração acima e
 executa-o. A migração cria os perfis, produtos, variantes, encomendas,
-classificações e mensagens de suporte, com políticas RLS ativadas.
+classificações, comentários de produtos e mensagens de suporte, com políticas
+RLS ativadas.
 
 ## 2. Configurar a chave pública no site
 
@@ -72,6 +73,15 @@ mostra o produto na página inicial.
 Para tamanhos e cores, adiciona linhas em `fran7_variants` e associa cada uma
 ao `id` do produto em `produto_id`. Também aí `imagem` deve ser um URL público.
 Sem produtos e imagens válidos, as páginas de catálogo aparecem vazias.
+
+## 7. Comentários de produtos
+
+Os comentários são guardados em `fran7_product_comments` e ficam visíveis
+publicamente. Só utilizadores autenticados podem publicar; cada comentário é
+associado ao produto e à conta que o publicou.
+
+Se o esquema principal já tiver sido aplicado, executa também, no SQL Editor,
+o conteúdo de `migrations/20261104083000_fran7_product_comments.sql`.
 
 ## Backups
 
