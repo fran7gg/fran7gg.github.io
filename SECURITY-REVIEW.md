@@ -2,6 +2,10 @@
 
 **Reviewed:** 2026-10-27
 
+> Historical snapshot: this review predates the Supabase store migration started
+> on 2026-11-04. Its PocketBase findings and implementation notes do not assess
+> the new store schema or client code.
+
 ## Summary
 
 The storefront is static, so client-side throttling can improve user experience but cannot enforce limits: callers can invoke public APIs directly. Server-side enforcement belongs in the API service or a trusted gateway.

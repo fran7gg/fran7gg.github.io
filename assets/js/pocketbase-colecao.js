@@ -1,18 +1,10 @@
 (function() {
     "use strict";
 
-    const COLLECTION = "produtos_loja";
-    const VARIANTS_COLLECTION = "variantes_produto";
     const CATEGORY_VALUES = ["homens", "mulheres", "criancas"];
     const PRODUCTS_PER_PAGE = 24;
-    const VARIANT_FILTER_BATCH_SIZE = 40;
     const category = new URLSearchParams(window.location.search).get("categoria");
     const grid = document.querySelector(".produtos-grid");
-    const baseUrl = String(
-        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-        window.FRAN7_POCKETBASE_URL ||
-        ""
-    ).replace(/\/+$/, "");
 
     function mostrarEstado(message) {
         const status = document.createElement("p");
@@ -45,14 +37,14 @@
         return Number.isFinite(valor) ? valor : 0;
     }
 
-    function obterFicheiros(record, field, pb) {
+    function obterFicheiros(record, field) {
         const value = record[field];
         const files = Array.isArray(value)
             ? value
             : typeof value === "string" ? value.split("|") : [];
         return files
             .filter(function(file) { return typeof file === "string" && file.trim(); })
-            .map(function(file) { return pb.files.getURL(record, file.trim()); });
+            .map(function(file) { return file.trim(); });
     }
 
     function obterLista(record, field) {
@@ -65,27 +57,7 @@
             : [];
     }
 
-    async function carregarVariantes(pb, products) {
-        const batches = [];
-        for (let index = 0; index < products.length; index += VARIANT_FILTER_BATCH_SIZE) {
-            batches.push(products.slice(index, index + VARIANT_FILTER_BATCH_SIZE));
-        }
-
-        const results = await Promise.all(batches.map(function(batch) {
-            const filter = batch.map(function(product) {
-                return 'produto_id = "' + product.id + '"';
-            }).join(" || ");
-            return pb.collection(VARIANTS_COLLECTION).getFullList({
-                sort: "-created",
-                filter: filter
-            });
-        }));
-        return results.reduce(function(all, variants) {
-            return all.concat(variants);
-        }, []);
-    }
-
-    function criarCard(record, collection, pb, variants) {
+    function criarCard(record, collection, variants) {
         const name = typeof record.texto === "string" ? record.texto.trim() : "";
         const imageName = typeof record.imagem === "string" ? record.imagem.trim() : "";
         if (!record.id || !name || !imageName) {
@@ -93,22 +65,19 @@
             return null;
         }
 
-        const productImage = pb.files.getURL(record, imageName);
+        const productImage = imageName;
         const productVariants = variants.map(function(variant) {
-            const variantImage = typeof variant.imagem === "string" && variant.imagem.trim()
-                ? pb.files.getURL(variant, variant.imagem.trim())
-                : "";
             return {
                 id: variant.id,
                 cor: typeof variant.cor === "string" ? variant.cor.trim() : "",
                 tamanho: typeof variant.tamanho === "string" ? variant.tamanho.trim() : "",
                 preco: variant.preco,
                 stock: variant.stock,
-                imagem: variantImage
+                imagem: typeof variant.imagem === "string" ? variant.imagem.trim() : ""
             };
         }).filter(function(variant) {
             if (!variant.cor) {
-                console.error("Variante ignorada: preenche a cor no PocketBase.", variant.id);
+                console.error("Variante ignorada: preenche a cor no Supabase.", variant.id);
                 return false;
             }
             return true;
@@ -124,7 +93,7 @@
             return Boolean(variant.imagem);
         }) || defaultVariant;
         const image = imageVariant?.imagem || productImage;
-        const images = obterFicheiros(record, "imagens_extra", pb);
+        const images = obterFicheiros(record, "imagens_extra");
         const colors = obterLista(record, "cores");
         const views = obterLista(record, "vistas");
         const priceSource = defaultVariant ? defaultVariant.preco : record.preco;
@@ -151,8 +120,8 @@
         article.dataset.galleryImages = images.join("|");
         article.dataset.galleryColors = colors.join("|");
         article.dataset.galleryViews = views.join("|");
-        article.dataset.productBackImage = obterFicheiros(record, "imagem_costas", pb)[0] || "";
-        article.dataset.productModel = obterFicheiros(record, "modelo_3d", pb)[0] || "";
+        article.dataset.productBackImage = obterFicheiros(record, "imagem_costas")[0] || "";
+        article.dataset.productModel = obterFicheiros(record, "modelo_3d")[0] || "";
 
         const imageContainer = document.createElement("div");
         imageContainer.className = "produto-imagem";
@@ -221,54 +190,30 @@
         }
 
         mostrarEstado("A carregar produtos de " + category + "...");
-        if (!baseUrl) {
-            mostrarEstado("A ligação ao PocketBase cloud ainda não está configurada.");
-            return;
-        }
-        if (typeof window.PocketBase !== "function") {
-            throw new Error("A biblioteca PocketBase não foi carregada.");
-        }
-
-        const pb = new window.PocketBase(baseUrl);
-        const categoryValues = category === "criancas"
-            ? ["criancas", "crianças"]
-            : [category];
-        const categoryFilter = categoryValues.map(function(value) {
-            return 'categoria ~ "' + value + '"';
-        }).join(" || ");
+        const supabase = window.Fran7Supabase.getClient();
         let page = 1;
         let totalPages = 1;
         const cards = [];
 
         do {
-            const result = await pb.collection(COLLECTION).getList(page, PRODUCTS_PER_PAGE, {
-                sort: "-created",
-                filter: categoryFilter
-            });
-            const products = result.items.filter(function(record) {
+            const from = (page - 1) * PRODUCTS_PER_PAGE;
+            const to = from + PRODUCTS_PER_PAGE - 1;
+            const result = await supabase
+                .from("fran7_products")
+                .select("*, fran7_variants(*)", { count: "exact" })
+                .eq("ativo", true)
+                .order("created_at", { ascending: false })
+                .range(from, to);
+            if (result.error) {
+                throw result.error;
+            }
+            const products = (result.data || []).filter(function(record) {
+                record.created = record.created_at;
                 return normalizarCategoria(record.categoria).includes(category);
             });
 
-            if (page === 1 && !products.length) {
-                mostrarEstado("Ainda não há produtos nesta coleção. Define categoria = \"" + category + "\" no PocketBase.");
-                return;
-            }
-
-            const variants = await carregarVariantes(pb, products);
-            const variantsByProduct = new Map();
-            variants.forEach(function(variant) {
-                if (!variantsByProduct.has(variant.produto_id)) {
-                    variantsByProduct.set(variant.produto_id, []);
-                }
-                variantsByProduct.get(variant.produto_id).push(variant);
-            });
             const pageCards = products.map(function(record) {
-                return criarCard(
-                    record,
-                    window.FRAN7_COLLECTION_PAGE,
-                    pb,
-                    variantsByProduct.get(record.id) || []
-                );
+                return criarCard(record, window.FRAN7_COLLECTION_PAGE, record.fran7_variants || []);
             }).filter(Boolean);
 
             if (page === 1) {
@@ -285,12 +230,12 @@
                 grid.appendChild(card);
             });
             cards.push.apply(cards, pageCards);
-            totalPages = result.totalPages;
+            totalPages = Math.ceil((result.count || 0) / PRODUCTS_PER_PAGE);
             page += 1;
         } while (page <= totalPages);
 
         if (!cards.length) {
-            mostrarEstado("Os produtos desta coleção precisam de nome e imagem válidos no PocketBase.");
+            mostrarEstado("Os produtos desta coleção precisam de nome e imagem válidos no Supabase.");
             return;
         }
 
@@ -305,10 +250,10 @@
             const status = document.createElement("p");
             status.className = "estado-colecao";
             status.setAttribute("role", "status");
-            status.textContent = "Alguns produtos não puderam ser carregados. Confirma a ligação e as regras de leitura do PocketBase.";
+            status.textContent = "Alguns produtos não puderam ser carregados. Confirma a ligação e as permissões no Supabase.";
             grid.appendChild(status);
         } else {
-            mostrarEstado("Não foi possível carregar esta coleção. Confirma a ligação e as regras de leitura do PocketBase.");
+            mostrarEstado("Não foi possível carregar esta coleção. Confirma a ligação e as permissões no Supabase.");
         }
     });
 })();

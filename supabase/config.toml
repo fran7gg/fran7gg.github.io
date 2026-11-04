@@ -1,2 +1,5 @@
 [functions.fran7-ia]
 verify_jwt = false
+
+[functions.fran7-delete-account]
+verify_jwt = true

@@ -1,18 +1,12 @@
 (function() {
     "use strict";
 
-    const COLLECTION = "avaliacao";
-    const AUTH_STORAGE_KEY = "fran7_loja_pocketbase_auth";
-    const POCKETBASE_URL = String(
-        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-        window.FRAN7_POCKETBASE_URL ||
-        ""
-    ).replace(/\/+$/, "");
+    const AUTH_STORAGE_KEY = "fran7_loja_supabase_auth";
     let productRecordsPromise = null;
 
     function getSession() {
         try {
-            const authManager = window.Fran7PocketBaseAuth;
+            const authManager = window.Fran7Auth;
             if (authManager?.obterSessao) {
                 const activeSession = authManager.obterSessao();
                 if (activeSession?.token && activeSession.record?.id) {
@@ -41,7 +35,7 @@
             }
             return { token: token, userId: userId };
         } catch (error) {
-            console.error("A sessão PocketBase não pôde ser lida para a classificação.", error);
+            console.error("A sessão Supabase não pôde ser lida para a classificação.", error);
             return null;
         }
     }
@@ -137,24 +131,21 @@
             .replace(/[\u0300-\u036f]/g, "");
     }
 
-    function obterProdutosPocketBase() {
+    function obterProdutosSupabase() {
         if (!productRecordsPromise) {
-            productRecordsPromise = fetch(
-                POCKETBASE_URL + "/api/collections/produtos_loja/records?perPage=500"
-            ).then(function(response) {
-                if (!response.ok) {
-                    throw new Error("PocketBase respondeu " + response.status + " ao procurar o produto.");
-                }
-                return response.json();
-            }).then(function(result) {
-                if (!Array.isArray(result.items)) {
-                    throw new TypeError("A resposta do PocketBase não contém uma lista de produtos.");
-                }
-                return result.items;
-            }).catch(function(error) {
-                productRecordsPromise = null;
-                throw error;
-            });
+            productRecordsPromise = window.Fran7Supabase.getClient()
+                .from("fran7_products")
+                .select("id,texto")
+                .eq("ativo", true)
+                .then(function(result) {
+                    if (result.error) {
+                        throw result.error;
+                    }
+                    return result.data || [];
+                }).catch(function(error) {
+                    productRecordsPromise = null;
+                    throw error;
+                });
         }
         return productRecordsPromise;
     }
@@ -166,7 +157,7 @@
         widget.dataset.resolving = "true";
 
         try {
-            const products = await obterProdutosPocketBase();
+            const products = await obterProdutosSupabase();
             if (!widget.isConnected) {
                 return;
             }
@@ -175,8 +166,8 @@
             });
             if (matchingProducts.length !== 1) {
                 widget.querySelector(".fran7-rating-note").textContent = matchingProducts.length > 1
-                    ? "Há vários produtos com este nome no PocketBase. Usa um nome único para ligar a classificação."
-                    : "Produto não encontrado em produtos_loja. Adiciona-o com este nome para ativar a classificação.";
+                    ? "Há vários produtos com este nome no Supabase. Usa um nome único para ligar a classificação."
+                    : "Produto não encontrado no catálogo do Supabase.";
                 return;
             }
 
@@ -191,7 +182,7 @@
             setDisabled(widget, false);
             await carregarAvaliacao(widget, productId);
         } catch (error) {
-            console.error("Não foi possível ligar o produto à coleção do PocketBase.", error);
+            console.error("Não foi possível ligar o produto à coleção do Supabase.", error);
             if (widget.isConnected) {
                 widget.querySelector(".fran7-rating-note").textContent =
                     "Não foi possível procurar o produto. Verifica a ligação e as permissões de leitura.";
@@ -201,61 +192,24 @@
         }
     }
 
-    function criarFiltro(productId, userId) {
-        function escapar(valor) {
-            return String(valor).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-        }
-        return "produto_id='" + escapar(productId) + "' && user_id='" + escapar(userId) + "'";
-    }
-
-    function criarFiltroProduto(productId) {
-        const escaped = String(productId).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-        return "produto_id='" + escaped + "'";
-    }
-
     async function carregarResumo(widget, productId) {
         const summaryText = widget.querySelector(".fran7-rating-summary-text");
         const summaryStars = widget.querySelectorAll(".fran7-rating-summary-star");
-        const ratings = [];
-        let page = 1;
-        let pages = 1;
-
         try {
-            do {
-                const params = new URLSearchParams({
-                    filter: criarFiltroProduto(productId),
-                    perPage: "200",
-                    page: String(page),
-                    fields: "rating,produto_id"
-                });
-                const response = await fetch(
-                    POCKETBASE_URL + "/api/collections/" + COLLECTION + "/records?" + params.toString(),
-                    { cache: "no-store" }
-                );
-                if (!response.ok) {
-                    throw new Error("PocketBase respondeu " + response.status + " ao carregar as avaliações.");
-                }
-                const result = await response.json();
-                if (!Array.isArray(result.items)) {
-                    throw new TypeError("A resposta do PocketBase não contém uma lista de avaliações.");
-                }
-                result.items.forEach(function(record) {
-                    const rating = Number(record.rating);
-                    if (Number.isInteger(rating) && rating >= 1 && rating <= 5) {
-                        ratings.push(rating);
-                    }
-                });
-                pages = Number(result.totalPages) || 1;
-                page += 1;
-            } while (page <= pages);
+            const result = await window.Fran7Supabase.getClient()
+                .from("fran7_rating_summary")
+                .select("average_rating,rating_count")
+                .eq("produto_id", productId)
+                .maybeSingle();
+            if (result.error) {
+                throw result.error;
+            }
 
             if (!widget.isConnected) {
                 return;
             }
-            const count = ratings.length;
-            const average = count
-                ? ratings.reduce(function(total, rating) { return total + rating; }, 0) / count
-                : 0;
+            const count = Number(result.data?.rating_count) || 0;
+            const average = Number(result.data?.average_rating) || 0;
             summaryStars.forEach(function(star, index) {
                 const value = average - index;
                 star.classList.toggle("is-filled", value >= 0.75);
@@ -285,70 +239,43 @@
     }
 
     async function pedirRegisto(session, productId) {
-        const params = new URLSearchParams({
-            filter: criarFiltro(productId, session.userId),
-            perPage: "1"
-        });
-        const response = await fetch(
-            POCKETBASE_URL + "/api/collections/" + COLLECTION + "/records?" + params.toString(),
-            { headers: { Authorization: session.token } }
-        );
-        if (!response.ok) {
-            const detail = await response.json().catch(function() { return null; });
-            throw new Error(mensagemErroPocketBase(response.status, detail, "consultar"));
+        const result = await window.Fran7Supabase.getClient()
+            .from("fran7_ratings")
+            .select("id,rating")
+            .eq("produto_id", productId)
+            .eq("user_id", session.userId)
+            .maybeSingle();
+        if (result.error) {
+            throw result.error;
         }
-        const result = await response.json();
-        return result.items?.[0] || null;
+        return result.data;
     }
 
     async function guardarAvaliacao(session, productId, rating, record) {
-        const payload = {
+        const result = await window.Fran7Supabase.getClient()
+            .from("fran7_ratings")
+            .upsert({
             produto_id: productId,
             user_id: session.userId,
             rating: rating
-        };
-        const endpoint = record
-            ? POCKETBASE_URL + "/api/collections/" + COLLECTION + "/records/" + encodeURIComponent(record.id)
-            : POCKETBASE_URL + "/api/collections/" + COLLECTION + "/records";
-        const response = await fetch(endpoint, {
-            method: record ? "PATCH" : "POST",
-            headers: {
-                Authorization: session.token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-        if (!response.ok) {
-            const detail = await response.json().catch(function() { return null; });
-            throw new Error(mensagemErroPocketBase(response.status, detail, "guardar"));
+            }, { onConflict: "produto_id,user_id" })
+            .select("id,rating")
+            .single();
+        if (result.error) {
+            throw result.error;
         }
-        return response.json();
-    }
-
-    function mensagemErroPocketBase(status, detail, operation) {
-        const userError = detail?.data?.user_id?.message || "";
-        if (/relation records with the provided ids/i.test(userError)) {
-            return "O campo user_id da coleção avaliacao não aponta para a coleção de utilizadores do site. Altera a relação para usuarios_loja (Single) e guarda as alterações.";
-        }
-
-        const fields = detail?.data
-            ? Object.entries(detail.data).map(function(entry) {
-                return entry[0] + ": " + entry[1].message;
-            }).join("; ")
-            : "";
-        return "Não foi possível " + operation + " a avaliação (PocketBase " + status + "). " +
-            (fields || detail?.message || "Verifica as regras da coleção avaliacao.");
+        return result.data;
     }
 
     async function carregarAvaliacao(widget, productId) {
         if (!productId) {
             return;
         }
-        if (!POCKETBASE_URL) {
+        if (!window.Fran7Supabase?.isConfigured()) {
             widget.querySelector(".fran7-rating-summary-text").textContent =
                 "Avaliações cloud indisponíveis";
             widget.querySelector(".fran7-rating-note").textContent =
-                "A ligação ao PocketBase cloud ainda não está configurada.";
+                "A ligação ao Supabase ainda não está configurada.";
             setDisabled(widget, true);
             return;
         }
@@ -383,7 +310,7 @@
             console.error("Não foi possível carregar a avaliação do produto.", error);
             if (widget.isConnected) {
                 widget.querySelector(".fran7-rating-note").textContent =
-                    "Não foi possível carregar a avaliação. Verifica as regras da coleção.";
+                    "Não foi possível carregar a avaliação. Verifica as permissões no Supabase.";
             }
         }
     }
@@ -460,7 +387,7 @@
         } catch (error) {
             console.error("Não foi possível guardar a avaliação do produto.", error);
             widget.querySelector(".fran7-rating-status").textContent =
-                error.message || "Não foi possível guardar a avaliação. Verifica a ligação e as regras da coleção avaliacao.";
+                error.message || "Não foi possível guardar a avaliação. Verifica a ligação e as permissões do Supabase.";
         } finally {
             setDisabled(widget, false);
         }

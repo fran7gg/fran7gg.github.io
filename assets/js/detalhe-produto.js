@@ -92,37 +92,26 @@
             return [];
         }
 
-        const baseUrl = String(
-            window.FRAN7_POCKETBASE_URL ||
-            window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-            ""
-        ).replace(/\/+$/, "");
-        if (!baseUrl) {
-            throw new Error("A URL do PocketBase não está configurada.");
-        }
-        if (typeof window.PocketBase !== "function") {
-            throw new Error("A biblioteca PocketBase não foi carregada.");
+        const result = await window.Fran7Supabase.getClient()
+            .from("fran7_variants")
+            .select("*")
+            .eq("produto_id", product.id);
+        if (result.error) {
+            throw result.error;
         }
 
-        const pb = new window.PocketBase(baseUrl);
-        const escapedId = product.id.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
-        const records = await pb.collection("variantes_produto").getFullList({
-            filter: `produto_id = "${escapedId}"`
-        });
-
-        return records.map(function(variant) {
+        return (result.data || []).map(function(variant) {
             if (typeof variant.cor !== "string" || !variant.cor.trim()) {
-                console.error("Variante PocketBase ignorada: falta uma cor válida.", variant.id);
+                console.error("Variante Supabase ignorada: falta uma cor válida.", variant.id);
                 return null;
             }
-            const imageName = typeof variant.imagem === "string" ? variant.imagem.trim() : "";
             return {
                 id: variant.id,
                 cor: variant.cor.trim(),
                 tamanho: typeof variant.tamanho === "string" ? variant.tamanho.trim() : "",
                 preco: variant.preco,
                 stock: variant.stock,
-                imagem: imageName ? pb.files.getURL(variant, imageName) : ""
+                imagem: typeof variant.imagem === "string" ? variant.imagem.trim() : ""
             };
         }).filter(Boolean);
     }

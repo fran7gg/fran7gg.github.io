@@ -1,19 +1,8 @@
 (function() {
     "use strict";
 
-    const POCKETBASE_URL = String(
-        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-        window.FRAN7_POCKETBASE_URL ||
-        ""
-    ).replace(/\/+$/, "");
-    const POCKETBASE_HOST = window.location.hostname || "";
-    const IS_GITHUB_PAGES = /(^|\.)github\.io$/i.test(POCKETBASE_HOST);
-    const CONFIGURATION_ERROR = IS_GITHUB_PAGES
-        ? "O PocketBase cloud ainda não está configurado. Define a URL pública em assets/js/fran7-checkout-config.js para ativar contas no site publicado."
-        : "O PocketBase não está configurado. Define a URL em assets/js/fran7-checkout-config.js.";
-    const COLLECTION = "usuarios_loja";
-    const AUTH_STORAGE_KEY = "fran7_loja_pocketbase_auth";
-    const SESSION_KEYS = [
+    const AUTH_STORAGE_KEY = "fran7_loja_supabase_auth";
+    const PROFILE_KEYS = [
         "usuarioFRAN7",
         "sessaoFRAN7",
         "cadastroFRAN7Concluido",
@@ -21,331 +10,342 @@
         "fran7_email",
         "fran7_telefone"
     ];
+    let supabaseClient = null;
+    let session = null;
+    let profile = null;
 
-    function criarFallbackAuth(message) {
-        return {
-            criarConta: async function() {
-                throw new Error(message);
-            },
-            entrar: async function() {
-                throw new Error(message);
-            },
-            solicitarRecuperacao: async function() {
-                throw new Error(message);
-            },
-            redefinirPalavraPasse: async function() {
-                throw new Error(message);
-            },
-            terminarSessao: function() {
-                SESSION_KEYS.forEach(function(key) {
-                    localStorage.removeItem(key);
-                });
-                localStorage.removeItem(AUTH_STORAGE_KEY);
-            },
-            guardarSessao: function() {
-                return null;
-            },
-            estaAutenticado: function() {
-                return false;
-            },
-            obterSessao: function() {
-                return null;
-            },
-            obterCliente: function() {
-                throw new Error(message);
+    function getClient() {
+        if (!supabaseClient) {
+            if (!window.Fran7Supabase?.getClient) {
+                throw new Error("O cliente Supabase não foi inicializado.");
             }
-        };
-    }
+            supabaseClient = window.Fran7Supabase.getClient();
+            supabaseClient.auth.onAuthStateChange(function(event, nextSession) {
+                session = nextSession;
+                if (!nextSession) {
+                    profile = null;
+                    clearLocalSession();
+                    notifyAuthChanged();
+                    return;
+                }
 
-    if (typeof window.PocketBase !== "function") {
-        window.Fran7PocketBaseAuth = criarFallbackAuth(
-            "A biblioteca PocketBase não foi carregada. Confirma a ligação ao servidor e que os scripts da autenticação foram carregados corretamente."
-        );
-    }
-
-    function tokenExpirado(token) {
-        if (!token) {
-            return true;
-        }
-
-        try {
-            const partes = token.split(".");
-            if (partes.length !== 3) {
-                return true;
-            }
-            const payload = JSON.parse(atob(
-                partes[1].replace(/-/g, "+").replace(/_/g, "/")
-            ));
-            return !Number.isFinite(payload.exp) || payload.exp * 1000 <= Date.now();
-        } catch (error) {
-            console.error("Não foi possível validar a sessão PocketBase da loja.", error);
-            return true;
-        }
-    }
-
-    function criarAuthStore() {
-        let token = "";
-        let record = null;
-        const callbacks = [];
-
-        function notificar() {
-            callbacks.slice().forEach(function(callback) {
-                callback(token, record);
+                profile = profileFromUser(nextSession.user);
+                saveLocalSession(nextSession.access_token, profile);
+                notifyAuthChanged();
+                window.setTimeout(function() {
+                    loadProfile(nextSession.user).catch(function(error) {
+                        console.error("Não foi possível carregar o perfil Supabase da loja.", error);
+                    });
+                }, 0);
             });
-            window.dispatchEvent(new CustomEvent("fran7-auth-changed", {
-                detail: { authenticated: Boolean(token && record) }
-            }));
         }
+        return supabaseClient;
+    }
 
-        function carregar() {
-            const saved = localStorage.getItem(AUTH_STORAGE_KEY);
-            if (!saved) {
-                return;
-            }
-            try {
-                const parsed = JSON.parse(saved);
-                token = typeof parsed.token === "string" ? parsed.token : "";
-                record = parsed.record && typeof parsed.record === "object"
-                    ? parsed.record
-                    : null;
-            } catch (error) {
-                console.error("A sessão PocketBase guardada para a loja está inválida.", error);
-                localStorage.removeItem(AUTH_STORAGE_KEY);
-            }
-        }
-
-        carregar();
-
+    function profileFromUser(user) {
+        const metadata = user?.user_metadata || {};
         return {
-            get token() {
-                return token;
-            },
-            get record() {
-                return record;
-            },
-            get model() {
-                return record;
-            },
-            get isValid() {
-                return !tokenExpirado(token);
-            },
-            get isSuperuser() {
-                return false;
-            },
-            get isAuthRecord() {
-                return this.isValid && Boolean(record);
-            },
-            save: function(nextToken, nextRecord) {
-                token = nextToken || "";
-                record = nextRecord || null;
-                if (token) {
-                    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
-                        token: token,
-                        record: record
-                    }));
-                } else {
-                    localStorage.removeItem(AUTH_STORAGE_KEY);
-                }
-                notificar();
-            },
-            clear: function() {
-                token = "";
-                record = null;
-                localStorage.removeItem(AUTH_STORAGE_KEY);
-                notificar();
-            },
-            onChange: function(callback, fireImmediately) {
-                callbacks.push(callback);
-                if (fireImmediately) {
-                    callback(token, record);
-                }
-                return function() {
-                    const index = callbacks.indexOf(callback);
-                    if (index !== -1) {
-                        callbacks.splice(index, 1);
-                    }
-                };
-            }
+            id: user?.id || "",
+            nome: String(metadata.nome || ""),
+            email: String(user?.email || ""),
+            telefone: String(metadata.telefone || ""),
+            aniversario: String(metadata.aniversario || "")
         };
     }
 
-    const pb = typeof window.PocketBase === "function" && POCKETBASE_URL
-        ? new window.PocketBase(POCKETBASE_URL, criarAuthStore())
-        : null;
-
-    function exigirPocketBase() {
-        if (!pb) {
-            throw new Error(CONFIGURATION_ERROR);
+    async function loadProfile(user) {
+        if (!user?.id) {
+            return profile;
         }
-        return pb;
+        const client = getClient();
+        const result = await client
+            .from("fran7_profiles")
+            .select("id,nome,telefone,aniversario")
+            .eq("id", user.id)
+            .maybeSingle();
+        if (result.error) {
+            throw result.error;
+        }
+        if (result.data) {
+            profile = Object.assign(profileFromUser(user), result.data);
+            saveLocalSession(session?.access_token || "", profile);
+            notifyAuthChanged();
+        }
+        return profile;
     }
 
-    function guardarSessao(record) {
-        const perfil = {
-            id: record.id,
-            nome: record.nome || "",
-            email: record.email || "",
-            telefone: record.telefone || "",
-            aniversario: record.aniversario || ""
-        };
+    function saveLocalSession(token, record) {
+        if (token && record?.id) {
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+                token: token,
+                record: record
+            }));
+        } else {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+        }
+        if (record?.id) {
+            guardarPerfil(record);
+        }
+    }
 
-        localStorage.setItem("usuarioFRAN7", JSON.stringify(perfil));
-        localStorage.setItem("fran7_nome", perfil.nome);
-        localStorage.setItem("fran7_email", perfil.email);
-        localStorage.setItem("fran7_telefone", perfil.telefone);
+    function guardarPerfil(record) {
+        const customer = profileFromUser({
+            id: record.id,
+            email: record.email,
+            user_metadata: record
+        });
+        localStorage.setItem("usuarioFRAN7", JSON.stringify(customer));
+        localStorage.setItem("fran7_nome", customer.nome);
+        localStorage.setItem("fran7_email", customer.email);
+        localStorage.setItem("fran7_telefone", customer.telefone);
         localStorage.setItem("sessaoFRAN7", "true");
         localStorage.setItem("cadastroFRAN7Concluido", "true");
-        return perfil;
+    }
+
+    function clearLocalSession() {
+        PROFILE_KEYS.forEach(function(key) {
+            localStorage.removeItem(key);
+        });
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+
+    function notifyAuthChanged() {
+        window.dispatchEvent(new CustomEvent("fran7-auth-changed", {
+            detail: { authenticated: estaAutenticado() }
+        }));
+    }
+
+    function cachedSession() {
+        try {
+            const stored = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null");
+            if (!stored || typeof stored.token !== "string" || !stored.record?.id) {
+                return null;
+            }
+            const payload = stored.token.split(".")[1];
+            if (!payload) {
+                return null;
+            }
+            const claims = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+            if (claims.sub !== stored.record.id ||
+                !Number.isFinite(claims.exp) ||
+                claims.exp * 1000 <= Date.now()) {
+                return null;
+            }
+            return stored;
+        } catch (error) {
+            console.error("A sessão Supabase guardada para a loja é inválida.", error);
+            clearLocalSession();
+            return null;
+        }
+    }
+
+    function estaAutenticado() {
+        const active = session || cachedSession();
+        return Boolean(active?.access_token || active?.token);
+    }
+
+    function obterSessao() {
+        const active = session;
+        if (active?.access_token && active.user?.id) {
+            return {
+                token: active.access_token,
+                record: profile || profileFromUser(active.user)
+            };
+        }
+        const cached = cachedSession();
+        return cached
+            ? { token: cached.token, record: cached.record }
+            : null;
+    }
+
+    async function verificarSessao() {
+        const result = await getClient().auth.getSession();
+        if (result.error) {
+            throw result.error;
+        }
+        session = result.data.session;
+        if (!session) {
+            profile = null;
+            clearLocalSession();
+            return false;
+        }
+        profile = profileFromUser(session.user);
+        saveLocalSession(session.access_token, profile);
+        await loadProfile(session.user);
+        return true;
     }
 
     function limparSessao() {
-        if (pb) {
-            pb.authStore.clear();
-        }
-        SESSION_KEYS.forEach(function(key) {
-            localStorage.removeItem(key);
-        });
-    }
-
-    function mensagemErro(error, operacao) {
-        if (operacao === "login" && error && error.status === 400) {
-            return "O e-mail ou a palavra-passe estão incorretos.";
-        }
-        if (error && error.status === 0) {
-            return "Não foi possível ligar ao PocketBase. Confirma que o servidor está ativo.";
-        }
-        if (error && error.status === 400) {
-            const details = error.data && error.data.data;
-            if (details && details.email) {
-                return "Este e-mail já está registado ou não é válido.";
-            }
-            if (details && details.password) {
-                return "A palavra-passe não cumpre os requisitos do PocketBase.";
-            }
-            return "Verifica os dados e tenta novamente.";
-        }
-        return "Não foi possível concluir a operação. Tenta novamente.";
+        session = null;
+        profile = null;
+        clearLocalSession();
     }
 
     async function criarConta(dados) {
-        const client = exigirPocketBase();
-        try {
-            await client.collection(COLLECTION).create({
-                email: dados.email,
-                password: dados.senha,
-                passwordConfirm: dados.senha,
-                nome: dados.nome,
-                telefone: dados.telefone,
-                aniversario: dados.aniversario,
-                consentimento: true,
-                datadoconsentimento: new Date().toISOString()
-            });
-        } catch (error) {
-            console.error("PocketBase: não foi possível criar a conta FRAN7.", error);
-            throw new Error(mensagemErro(error, "cadastro"));
+        const client = getClient();
+        const result = await client.auth.signUp({
+            email: String(dados.email || "").trim().toLowerCase(),
+            password: dados.senha,
+            options: {
+                emailRedirectTo: new URL("registo.html?modo=login", window.location.href).href,
+                data: {
+                    nome: String(dados.nome || "").trim(),
+                    telefone: String(dados.telefone || "").trim(),
+                    aniversario: String(dados.aniversario || "")
+                }
+            }
+        });
+        if (result.error) {
+            console.error("Supabase: não foi possível criar a conta FRAN7.", result.error);
+            throw new Error(result.error.message || "Não foi possível criar a conta. Verifica os dados e tenta novamente.");
         }
-
-        try {
-            const auth = await client.collection(COLLECTION).authWithPassword(
-                dados.email,
-                dados.senha
-            );
-            return guardarSessao(auth.record);
-        } catch (error) {
-            console.error("PocketBase: a conta foi criada, mas o login automático falhou.", error);
-            throw new Error(
-                "A conta foi criada, mas não foi possível iniciar sessão. Tenta entrar com o teu e-mail e palavra-passe."
-            );
+        if (result.data.session) {
+            session = result.data.session;
+            profile = profileFromUser(result.data.user);
+            await loadProfile(result.data.user);
+            saveLocalSession(session.access_token, profile);
         }
+        return profileFromUser(result.data.user);
     }
 
     async function entrar(email, senha) {
-        const client = exigirPocketBase();
-        try {
-            const auth = await client.collection(COLLECTION).authWithPassword(email, senha);
-            return guardarSessao(auth.record);
-        } catch (error) {
-            console.error("PocketBase: não foi possível iniciar sessão FRAN7.", error);
-            throw new Error(mensagemErro(error, "login"));
+        const result = await getClient().auth.signInWithPassword({
+            email: String(email || "").trim().toLowerCase(),
+            password: senha
+        });
+        if (result.error) {
+            console.error("Supabase: não foi possível iniciar sessão FRAN7.", result.error);
+            if (result.error.status === 400 || result.error.status === 401) {
+                throw new Error("O e-mail ou a palavra-passe estão incorretos.");
+            }
+            throw new Error(result.error.message || "Não foi possível iniciar sessão. Tenta novamente.");
         }
+        session = result.data.session;
+        profile = profileFromUser(result.data.user);
+        await loadProfile(result.data.user);
+        saveLocalSession(session.access_token, profile);
+        return profile;
     }
 
     async function solicitarRecuperacao(email) {
-        const client = exigirPocketBase();
-        const redirectUrl = new URL("redefinir-palavra-passe.html", window.location.href).href;
-        try {
-            await client.collection(COLLECTION).requestPasswordReset(
-                String(email || "").trim().toLowerCase(),
-                { redirectUrl: redirectUrl }
-            );
-        } catch (error) {
-            console.error("PocketBase: não foi possível solicitar a recuperação da palavra-passe.", error);
-            if (error && error.status === 0) {
-                throw new Error("Não foi possível ligar ao PocketBase. Confirma que o servidor está ativo e tenta novamente.");
-            }
-            if (error && error.status >= 500) {
-                throw new Error("Não foi possível enviar o e-mail de recuperação neste momento. Tenta novamente mais tarde ou contacta o suporte.");
-            }
-            if (error && error.status === 429) {
-                throw new Error("Foram feitos muitos pedidos. Aguarda alguns minutos antes de tentar novamente.");
-            }
-            throw new Error(
-                "Não foi possível enviar o e-mail de recuperação neste momento. Tenta novamente mais tarde ou contacta o suporte."
-            );
+        const redirectTo = new URL("redefinir-palavra-passe.html", window.location.href).href;
+        const result = await getClient().auth.resetPasswordForEmail(
+            String(email || "").trim().toLowerCase(),
+            { redirectTo: redirectTo }
+        );
+        if (result.error) {
+            console.error("Supabase: não foi possível solicitar a recuperação da palavra-passe.", result.error);
+            throw new Error("Não foi possível enviar o e-mail de recuperação. Confirma a configuração de e-mail do Supabase e tenta novamente.");
         }
     }
 
     async function redefinirPalavraPasse(token, password, passwordConfirm) {
-        const client = exigirPocketBase();
-        try {
-            await client.collection(COLLECTION).confirmPasswordReset(
-                token,
-                password,
-                passwordConfirm
-            );
-        } catch (error) {
-            console.error("PocketBase: não foi possível redefinir a palavra-passe.", error);
-            if (error && error.status === 400) {
+        if (password !== passwordConfirm) {
+            throw new Error("As palavras-passe não coincidem.");
+        }
+        const client = getClient();
+        if (token) {
+            const result = await client.auth.verifyOtp({
+                token_hash: token,
+                type: "recovery"
+            });
+            if (result.error) {
                 throw new Error("O link expirou ou é inválido. Solicita um novo link de recuperação.");
             }
-            throw new Error("Não foi possível redefinir a palavra-passe. Tenta novamente mais tarde.");
+            session = result.data.session;
+        } else {
+            const result = await client.auth.getSession();
+            if (result.error || !result.data.session) {
+                throw new Error("O link expirou ou é inválido. Solicita um novo link de recuperação.");
+            }
+            session = result.data.session;
         }
+        const result = await client.auth.updateUser({ password: password });
+        if (result.error) {
+            console.error("Supabase: não foi possível redefinir a palavra-passe.", result.error);
+            throw new Error(result.error.message || "Não foi possível redefinir a palavra-passe.");
+        }
+        await client.auth.signOut();
     }
 
-    function terminarSessao() {
+    async function terminarSessao() {
+        const client = getClient();
+        const result = await client.auth.signOut();
+        if (result.error) {
+            console.error("Supabase: não foi possível terminar a sessão.", result.error);
+            throw result.error;
+        }
         limparSessao();
+        notifyAuthChanged();
     }
 
-    if (pb && pb.authStore.isValid) {
-        guardarSessao(pb.authStore.record);
-    } else if (pb) {
-        pb.authStore.clear();
-        SESSION_KEYS.forEach(function(key) {
-            localStorage.removeItem(key);
+    async function excluirConta(password) {
+        const client = getClient();
+        const current = session || (await client.auth.getSession()).data.session;
+        if (!current?.user?.email) {
+            throw new Error("Inicia sessão novamente antes de eliminar a conta.");
+        }
+        const reauthenticated = await client.auth.signInWithPassword({
+            email: current.user.email,
+            password: password
         });
+        if (reauthenticated.error ||
+            reauthenticated.data.user?.id !== current.user.id) {
+            throw new Error("A palavra-passe está incorreta. Confirma-a e tenta novamente.");
+        }
+
+        const deletion = await client.functions.invoke("fran7-delete-account", {
+            method: "POST"
+        });
+        if (deletion.error) {
+            console.error("Supabase não conseguiu eliminar a conta FRAN7.", deletion.error);
+            throw new Error("Não foi possível eliminar a conta. Confirma se a função de eliminação foi publicada.");
+        }
+
+        const signOut = await client.auth.signOut({ scope: "local" });
+        if (signOut.error) {
+            console.error("A conta foi eliminada, mas não foi possível limpar a sessão local.", signOut.error);
+        }
+        limparSessao();
+        notifyAuthChanged();
     }
 
-    window.Fran7PocketBaseAuth = {
+    window.Fran7Auth = {
         criarConta: criarConta,
         entrar: entrar,
         solicitarRecuperacao: solicitarRecuperacao,
         redefinirPalavraPasse: redefinirPalavraPasse,
+        excluirConta: excluirConta,
         terminarSessao: terminarSessao,
-        guardarSessao: guardarSessao,
-        estaAutenticado: function() {
-            return Boolean(pb && pb.authStore.isValid);
-        },
-        obterSessao: function() {
-            if (!pb || !pb.authStore.isValid || !pb.authStore.record?.id) {
-                return null;
-            }
-            return {
-                token: pb.authStore.token,
-                record: pb.authStore.record
-            };
-        },
-        obterCliente: function() {
-            return exigirPocketBase();
-        }
+        guardarSessao: guardarPerfil,
+        estaAutenticado: estaAutenticado,
+        obterSessao: obterSessao,
+        verificarSessao: verificarSessao,
+        obterCliente: getClient
     };
+
+    if (window.Fran7Supabase?.isConfigured()) {
+        try {
+            getClient().auth.getSession().then(function(result) {
+                if (result.error) {
+                    throw result.error;
+                }
+                session = result.data.session;
+                if (session) {
+                    profile = profileFromUser(session.user);
+                    saveLocalSession(session.access_token, profile);
+                    loadProfile(session.user).catch(function(error) {
+                        console.error("Não foi possível carregar o perfil Supabase da loja.", error);
+                    });
+                } else {
+                    clearLocalSession();
+                }
+                notifyAuthChanged();
+            }).catch(function(error) {
+                console.error("Não foi possível recuperar a sessão Supabase.", error);
+            });
+        } catch (error) {
+            console.error("Não foi possível inicializar a autenticação Supabase.", error);
+        }
+    }
 })();

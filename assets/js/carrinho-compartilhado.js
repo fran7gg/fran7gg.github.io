@@ -716,7 +716,7 @@
                 (result.pdfGerado ? "A fatura foi descarregada." : "Não foi possível gerar o PDF."));
         } catch (error) {
             console.error("Não foi possível registar o pedido FRAN7:", error);
-            mostrarAviso("Não foi possível registar o pedido no PocketBase. " +
+            mostrarAviso("Não foi possível registar o pedido no Supabase. " +
                 "Confirma a ligação e tenta novamente. " + (error.message || ""));
         } finally {
             button.disabled = false;

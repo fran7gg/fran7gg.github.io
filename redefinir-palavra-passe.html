@@ -135,14 +135,18 @@
         <a class="back-link" href="registo.html?modo=login">Voltar ao login</a>
     </main>
 
-    <script src="assets/js/fran7-checkout-config.js?v=20261031-2"></script>
-    <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-    <script src="assets/js/pocketbase-auth.js?v=20261031-5"></script>
+    <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/fran7-supabase.js"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261104-1"></script>
     <script>
         (function() {
             "use strict";
 
-            const token = new URLSearchParams(window.location.search).get("token") || "";
+            const parameters = new URLSearchParams(window.location.search);
+            const token = parameters.get("token_hash") || parameters.get("token") || "";
+            const recoveryLink = Boolean(token) ||
+                (new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery");
             const form = document.getElementById("formRedefinir");
             const status = document.getElementById("estado");
 
@@ -152,7 +156,7 @@
                 status.hidden = false;
             }
 
-            if (!token) {
+            if (!recoveryLink) {
                 showStatus("Este link de recuperação é inválido ou está incompleto. Solicita um novo link.", true);
             } else {
                 form.hidden = false;
@@ -177,7 +181,7 @@
                 submit.textContent = "A GUARDAR…";
                 status.hidden = true;
                 try {
-                    await window.Fran7PocketBaseAuth.redefinirPalavraPasse(
+                    await window.Fran7Auth.redefinirPalavraPasse(
                         token,
                         password,
                         confirmation

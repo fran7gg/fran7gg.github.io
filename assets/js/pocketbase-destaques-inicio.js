@@ -1,14 +1,7 @@
 (function() {
     "use strict";
 
-    const COLLECTION = "produtos_loja";
-    const VARIANTS_COLLECTION = "variantes_produto";
     const CATEGORY = "destaques";
-    const baseUrl = String(
-        window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-        window.FRAN7_POCKETBASE_URL ||
-        ""
-    ).replace(/\/+$/, "");
     const grid = document.querySelector("#produtos .produtos-grid");
 
     function mostrarEstado(message) {
@@ -67,8 +60,7 @@
     }
 
     function obterImagemUrl(record, collection, fileName) {
-        return baseUrl + "/api/files/" + collection + "/" +
-            encodeURIComponent(record.id) + "/" + encodeURIComponent(fileName);
+        return fileName;
     }
 
     function criarCartao(record, variants) {
@@ -94,7 +86,7 @@
             };
         }).filter(function(variant) {
             if (!variant.cor) {
-                console.error("Variante ignorada: preenche a cor no PocketBase.", variant.id);
+                console.error("Variante ignorada: preenche a cor no Supabase.", variant.id);
                 return false;
             }
             return true;
@@ -200,61 +192,23 @@
         if (!grid) {
             return;
         }
-        if (!baseUrl) {
-            mostrarEstado("A ligação ao PocketBase cloud ainda não está configurada.");
-            return;
-        }
         mostrarEstado("A carregar destaques...");
 
-        const response = await fetch(
-            baseUrl + "/api/collections/" + COLLECTION + "/records?perPage=500"
-        );
-        if (!response.ok) {
-            throw new Error("PocketBase respondeu " + response.status + ".");
+        const result = await window.Fran7Supabase.getClient()
+            .from("fran7_products")
+            .select("*, fran7_variants(*)")
+            .eq("ativo", true)
+            .contains("categoria", [CATEGORY])
+            .order("created_at", { ascending: false });
+        if (result.error) {
+            throw result.error;
         }
-        const result = await response.json();
-        if (!Array.isArray(result.items)) {
-            throw new TypeError("A resposta do PocketBase não contém uma lista de produtos.");
-        }
-
-        const variantResponse = await fetch(
-            baseUrl + "/api/collections/" + VARIANTS_COLLECTION + "/records?perPage=500"
-        );
-        if (!variantResponse.ok) {
-            throw new Error("A coleção de variantes respondeu " + variantResponse.status + ".");
-        }
-        const variantResult = await variantResponse.json();
-        if (!Array.isArray(variantResult.items)) {
-            throw new TypeError("A resposta do PocketBase não contém uma lista de variantes.");
-        }
-
-        const records = result.items;
-        const recordById = new Map(records.map(function(record) {
-            return [record.id, record];
-        }));
-        const products = records.filter(function(record) {
-            return normalizarCategoria(record.categoria).includes(CATEGORY);
-        });
-        const variantsByProduct = new Map();
-        variantResult.items.forEach(function(variant) {
-            if (!recordById.has(variant.produto_id)) {
-                return;
-            }
-            const product = recordById.get(variant.produto_id);
-            if (!normalizarCategoria(product.categoria).includes(CATEGORY)) {
-                return;
-            }
-            if (!variantsByProduct.has(product.id)) {
-                variantsByProduct.set(product.id, []);
-            }
-            variantsByProduct.get(product.id).push(variant);
-        });
+        const products = result.data || [];
         const cards = products.map(function(record) {
-            const variants = variantsByProduct.get(record.id);
-            return criarCartao(record, variants || []);
+            return criarCartao(record, record.fran7_variants || []);
         }).filter(Boolean);
         if (!cards.length) {
-            mostrarEstado("Ainda não há produtos em destaque. No PocketBase, marca a categoria \"destaques\" nos produtos que queres mostrar aqui.");
+            mostrarEstado("Ainda não há produtos em destaque no Supabase.");
             return;
         }
         grid.replaceChildren.apply(grid, cards);
@@ -264,7 +218,7 @@
     }
 
     carregarDestaques().catch(function(error) {
-        console.error("Não foi possível carregar os destaques do PocketBase.", error);
-        mostrarEstado("Não foi possível carregar os destaques. Abre o site pelo servidor local e verifica a ligação ao PocketBase.");
+        console.error("Não foi possível carregar os destaques do Supabase.", error);
+        mostrarEstado("Não foi possível carregar os destaques. Verifica a ligação ao Supabase.");
     });
 })();

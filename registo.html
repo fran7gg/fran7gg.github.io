@@ -1430,10 +1430,11 @@
          JAVASCRIPT
     ========================= -->
 
-         <script src="assets/js/fran7-checkout-config.js?v=20261031-2"></script>
+         <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
          <script src="assets/js/fran7-sessao.js"></script>
-         <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-         <script src="assets/js/pocketbase-auth.js?v=20261031-5"></script>
+         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+         <script src="assets/js/fran7-supabase.js"></script>
+         <script src="assets/js/pocketbase-auth.js?v=20261104-1"></script>
          <script>
 
         /* =========================
@@ -1583,7 +1584,7 @@
             button.textContent = "A ENVIAR…";
 
             try {
-                await window.Fran7PocketBaseAuth.solicitarRecuperacao(email);
+                await window.Fran7Auth.solicitarRecuperacao(email);
                 message.textContent =
                     "Se existir uma conta para este e-mail, receberás instruções para redefinir a palavra-passe.";
             } catch (error) {
@@ -2115,7 +2116,7 @@
 
             let cliente;
             try {
-                cliente = await window.Fran7PocketBaseAuth.criarConta({
+                cliente = await window.Fran7Auth.criarConta({
                     nome: nome,
                     email: email,
                     telefone: telefone,
@@ -2176,17 +2177,20 @@
                SUCESSO
             ========================= */
 
+            const autenticado = window.Fran7Auth.estaAutenticado();
             mostrarNotificacao(
-                "Conta criada com sucesso",
-                "Seja bem-vindo à FRAN7. A sua conta foi criada e você já está conectado.",
-                "IR PARA A FRAN7",
+                autenticado ? "Conta criada com sucesso" : "Confirma o teu e-mail",
+                autenticado
+                    ? "Seja bem-vindo à FRAN7. A sua conta foi criada e você já está conectado."
+                    : "A conta foi criada. Confirma o endereço de e-mail através do link enviado para iniciar sessão.",
+                autenticado ? "IR PARA A FRAN7" : "IR PARA O LOGIN",
                 function () {
-
                     fecharNotificacao();
-
-                    window.location.href =
-                        "inicio.html";
-
+                    if (autenticado) {
+                        window.location.href = "inicio.html";
+                    } else {
+                        mostrarFormularioLogin();
+                    }
                 },
                 false
             );
@@ -2266,7 +2270,7 @@
 
             let cliente;
             try {
-                cliente = await window.Fran7PocketBaseAuth.entrar(email, senha);
+                cliente = await window.Fran7Auth.entrar(email, senha);
             } catch (error) {
                 mostrarNotificacao(
                     "Não foi possível iniciar sessão",
@@ -2339,7 +2343,7 @@
 
         function sairDaConta() {
 
-            window.Fran7PocketBaseAuth.terminarSessao();
+            window.Fran7Auth.terminarSessao();
 
 
             fecharMenu();
@@ -2516,7 +2520,7 @@
 
     </script>
     <script src="assets/js/assistente-widget.js"></script>
-    <script src="assets/js/assistente-suporte.js?v=20261030-1"></script>
+    <script src="assets/js/assistente-suporte.js?v=20261104-1"></script>
 
 </body>
 </html>

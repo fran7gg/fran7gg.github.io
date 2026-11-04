@@ -1,7 +1,6 @@
 (function() {
     "use strict";
 
-    const COLLECTION = "banners_inicio";
     const AUTOPLAY_INTERVAL = 4500;
     const carousel = document.querySelector("[data-fran7-carousel]");
     if (!carousel) return;
@@ -39,7 +38,7 @@
         try {
             url = new URL(address, window.location.href);
         } catch (error) {
-            console.error("Botão do banner ignorado: o endereço no PocketBase não é válido.", destination, error);
+            console.error("Botão do banner ignorado: o endereço no Supabase não é válido.", destination, error);
             return;
         }
 
@@ -58,10 +57,10 @@
         parent.appendChild(button);
     }
 
-    function createSlide(record, index, baseUrl) {
+    function createSlide(record, index) {
         const imageName = typeof record.imagem === "string" ? record.imagem.trim() : "";
         if (!record.id || !imageName) {
-            console.error("Banner do PocketBase ignorado: falta o ID ou o ficheiro no campo imagem.", record.id);
+            console.error("Banner do Supabase ignorado: falta o ID ou o URL da imagem.", record.id);
             return null;
         }
 
@@ -73,8 +72,7 @@
         slide.setAttribute("aria-roledescription", "slide");
 
         const image = document.createElement("img");
-        image.src = baseUrl + "/api/files/" + COLLECTION + "/" +
-            encodeURIComponent(record.id) + "/" + encodeURIComponent(imageName);
+        image.src = imageName;
         image.alt = "Imagem da campanha FRAN7 " + (index + 1);
         image.loading = index === 0 ? "eager" : "lazy";
         if (index === 0) image.fetchPriority = "high";
@@ -100,7 +98,7 @@
         }
 
         image.addEventListener("error", function() {
-            console.error("Não foi possível carregar a imagem do banner do PocketBase.", record.id);
+            console.error("Não foi possível carregar a imagem do banner do Supabase.", record.id);
             slide.remove();
             const indicator = Array.from(
                 indicatorsContainer.querySelectorAll("[data-carousel-indicator]")
@@ -124,7 +122,7 @@
         if (!slides.length) {
             stopAutoplay();
             carousel.classList.add("is-unavailable");
-            status.textContent = "Não há imagens ativas na coleção banners_inicio do PocketBase.";
+            status.textContent = "Não há imagens ativas na coleção de banners do Supabase.";
             status.hidden = false;
             indicatorsContainer.hidden = true;
             return;
@@ -185,38 +183,19 @@
     reduceMotion.addEventListener("change", startAutoplay);
 
     async function loadBanners() {
-        const baseUrl = String(
-            window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl ||
-            window.FRAN7_POCKETBASE_URL ||
-            ""
-        ).replace(/\/+$/, "");
-
-        if (!baseUrl) {
-            showError("A ligação ao PocketBase não está configurada.", new Error("URL do PocketBase vazia."));
-            return;
-        }
-
         try {
-            const url = new URL(
-                baseUrl + "/api/collections/" + COLLECTION + "/records",
-                window.location.href
-            );
-            url.searchParams.set("filter", "activo = true");
-            url.searchParams.set("sort", "ordem");
-            url.searchParams.set("perPage", "50");
-
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error("PocketBase respondeu " + response.status + " ao carregar a coleção " + COLLECTION + ".");
+            const result = await window.Fran7Supabase.getClient()
+                .from("fran7_banners")
+                .select("*")
+                .eq("ativo", true)
+                .order("ordem", { ascending: true })
+                .limit(50);
+            if (result.error) {
+                throw result.error;
             }
 
-            const result = await response.json();
-            if (!Array.isArray(result.items)) {
-                throw new TypeError("A resposta do PocketBase não contém uma lista de banners.");
-            }
-
-            result.items.forEach(function(record, index) {
-                const slide = createSlide(record, index, baseUrl);
+            (result.data || []).forEach(function(record, index) {
+                const slide = createSlide(record, index);
                 if (!slide) return;
 
                 const indicator = document.createElement("button");
@@ -236,7 +215,7 @@
             startAutoplay();
         } catch (error) {
             showError(
-                "Não foi possível carregar as imagens da coleção banners_inicio do PocketBase.",
+                "Não foi possível carregar as imagens da coleção de banners do Supabase.",
                 error
             );
         }

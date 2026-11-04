@@ -1,30 +1,16 @@
 (function() {
     "use strict";
 
-    const hostname = window.location.hostname || "127.0.0.1";
-    
-    // Aceita localhost, 127.0.0.1, [::1] ou quando o ficheiro é aberto direto do disco (file://)
-    const isLocalhost = hostname === "localhost" ||
-        hostname === "127.0.0.1" ||
-        hostname === "[::1]" ||
-        window.location.protocol === "file:";
-
-    const protocol = window.location.protocol === "https:" ? "https:" : "http:";
     const existingConfig = window.FRAN7_CHECKOUT_CONFIG || {};
-    
-    // Define este endpoint HTTPS quando o servidor PocketBase estiver hospedado na nuvem.
-    const POCKETBASE_CLOUD_URL = "";
-
-    // URL padrão local para o desenvolvimento
-    const defaultLocalUrl = "http://127.0.0.1:8090";
-
-    const configuredPocketBaseUrl = window.FRAN7_POCKETBASE_URL ||
-        existingConfig.pocketBaseUrl ||
-        (isLocalhost ? defaultLocalUrl : POCKETBASE_CLOUD_URL);
+    window.FRAN7_SUPABASE_CONFIG = Object.assign({
+        url: "https://pqvnqloukcwwtavdyjry.supabase.co",
+        anonKey: "sb_publishable_D5ybr1mKrFX57o-6jXKxXw_hxvmLM8U"
+    }, window.FRAN7_SUPABASE_CONFIG || {});
+    const supabaseConfig = window.FRAN7_SUPABASE_CONFIG;
 
     const defaults = {
-        pocketBaseUrl: String(configuredPocketBaseUrl).replace(/\/+$/, ""),
-        collectionName: "encomendas",
+        supabaseUrl: String(supabaseConfig.url || "https://pqvnqloukcwwtavdyjry.supabase.co").replace(/\/+$/, ""),
+        supabaseAnonKey: String(supabaseConfig.anonKey || ""),
         whatsappNumber: "244973560521",
         invoicePrefix: "FT",
         brandName: "FRAN7",

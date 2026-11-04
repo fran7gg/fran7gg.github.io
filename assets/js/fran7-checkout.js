@@ -146,24 +146,22 @@
         return order;
     }
 
-    async function guardarNoPocketBase(order, token) {
-        const baseUrl = String(CONFIG.pocketBaseUrl || "").replace(/\/+$/, "");
-        const collection = encodeURIComponent(CONFIG.collectionName || "encomendas");
-        if (!baseUrl) throw new Error("Configura FRAN7_CHECKOUT_CONFIG.pocketBaseUrl antes de aceitar encomendas.");
-
-        const response = await fetch(baseUrl + "/api/collections/" + collection + "/records", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token
-            },
-            body: JSON.stringify(order)
-        });
-        const result = await response.json().catch(function() { return {}; });
-        if (!response.ok) {
-            throw new Error(result.message || "O PocketBase recusou o registo do pedido.");
+    async function guardarNoSupabase(order, userId) {
+        const result = await window.Fran7Supabase.getClient()
+            .from("fran7_orders")
+            .insert({
+                id_pedido: order.id_pedido,
+                user_id: userId,
+                estado: order.estado,
+                dados: order
+            })
+            .select("id")
+            .single();
+        if (result.error) {
+            console.error("Supabase recusou o registo da encomenda.", result.error);
+            throw new Error("Não foi possível guardar a encomenda no Supabase. Tenta novamente.");
         }
-        return result;
+        return result.data;
     }
 
     function guardarPedidoLocal(order) {
@@ -396,7 +394,7 @@
     }
 
     async function finalizar(items, details) {
-        const auth = window.Fran7PocketBaseAuth;
+        const auth = window.Fran7Auth;
         const session = auth?.estaAutenticado() ? auth.obterSessao() : null;
         if (!session?.token) {
             if (!window.Fran7Notify) {
@@ -419,7 +417,7 @@
         const whatsappWindow = window.open("about:blank", "_blank");
         const order = criarPedido(items, details || {});
         try {
-            await guardarNoPocketBase(order, session.token);
+            await guardarNoSupabase(order, session.record.id);
             guardarPedidoLocal(order);
         } catch (error) {
             if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();

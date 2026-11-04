@@ -96,19 +96,53 @@
         }
     }
 
-    async function subscreverRespostaSuporte(pb) {
+    async function subscreverRespostaSuporte(client) {
         if (!idMensagemSuporte) return;
         if (typeof canceladorRealtimeSuporte === "function") {
             await canceladorRealtimeSuporte();
         }
 
-        canceladorRealtimeSuporte = await pb.collection("suporte_mensagens").subscribe(
-            idMensagemSuporte,
-            function (evento) {
-                if (evento.action !== "update" || !evento.record?.resposta) return;
-                mostrarRespostaHumana(evento.record.resposta, evento.record.agente_nome);
-            }
-        );
+        const channel = client.channel("fran7-support-" + idMensagemSuporte)
+            .on("postgres_changes", {
+                event: "UPDATE",
+                schema: "public",
+                table: "fran7_support_messages",
+                filter: "id=eq." + idMensagemSuporte
+            }, function(event) {
+                if (!event.new?.resposta) return;
+                mostrarRespostaHumana(event.new.resposta, "Atendimento");
+            })
+            .subscribe();
+        canceladorRealtimeSuporte = async function() {
+            await client.removeChannel(channel);
+        };
+    }
+
+    async function guardarMensagemSuporte(nome, contacto, textoMensagem) {
+        const client = window.Fran7Supabase.getClient();
+        const authResult = await client.auth.getSession();
+        if (authResult.error) throw authResult.error;
+        const user = authResult.data.session?.user;
+        if (!user) {
+            throw new Error("Inicia sessão para enviar uma mensagem ao atendimento.");
+        }
+        const data = {
+            user_id: user.id,
+            nome_cliente: String(nome || "Cliente").trim() || "Cliente",
+            email_cliente: String(user.email || "").trim(),
+            contacto: String(contacto || user.email || "").trim(),
+            mensagem: String(textoMensagem || "").trim(),
+            estado: "aberta"
+        };
+        if (!data.contacto || !data.mensagem) {
+            throw new Error("Contacto e mensagem são obrigatórios.");
+        }
+        const result = await client.from("fran7_support_messages")
+            .insert(data)
+            .select("id")
+            .single();
+        if (result.error) throw result.error;
+        return { client: client, record: result.data, message: data.mensagem };
     }
 
     function pedeTodosOsProdutos(texto) {
@@ -140,34 +174,20 @@
         adicionarMensagem(MENSAGEM_SUPORTE_UNICA, "bot");
 
         try {
-            if (!window.Fran7PocketBaseAuth?.obterCliente) {
-                throw new Error("O PocketBase da loja não está disponível.");
+            if (!window.Fran7Supabase?.isConfigured()) {
+                throw new Error("A ligação ao Supabase ainda não está configurada.");
             }
-            const pb = window.Fran7PocketBaseAuth.obterCliente();
-            const data = {
-                cliente_nome: String(nome || "Visitante").trim() || "Visitante",
-                contacto: String(contacto || "").trim(),
-                mensagem: String(textoMensagem || "").trim(),
-                status: "pendente"
-            };
-            if (!data.contacto || !data.mensagem) {
-                throw new Error("Contacto e mensagem são obrigatórios.");
-            }
-            if (pb.authStore.isValid && pb.authStore.record?.id) {
-                data.user = pb.authStore.record.id;
-            }
-            const record = await pb.collection("suporte_mensagens").create(data);
+            const saved = await guardarMensagemSuporte(nome, contacto, textoMensagem);
+            const client = saved.client;
+            const record = saved.record;
             idMensagemSuporte = record.id;
-            textoConversaSuporte = data.mensagem;
+            textoConversaSuporte = saved.message;
             ultimaRespostaSuporte = "";
-            await subscreverRespostaSuporte(pb);
+            await subscreverRespostaSuporte(client);
             return record;
         } catch (error) {
-            console.warn("O pedido de suporte não pôde ser registado no PocketBase:", error);
-            const mensagemErro = error && error.status === 403
-                ? "O suporte está temporariamente indisponível porque a coleção suporte_mensagens não tem permissão para criar mensagens. Ajusta as regras do PocketBase para permitir a criação pública e tenta novamente."
-                : "Não foi possível enviar a mensagem para o suporte. Tenta novamente mais tarde.";
-            adicionarMensagem(mensagemErro, "bot");
+            console.warn("O pedido de suporte não pôde ser registado no Supabase:", error);
+            adicionarMensagem(error.message || "Não foi possível enviar a mensagem para o suporte. Tenta novamente mais tarde.", "bot");
             return null;
         }
     }
@@ -179,19 +199,22 @@
         if (modoHumano && idMensagemSuporte) {
             textoConversaSuporte += "\n" + question;
             try {
-                const pb = window.Fran7PocketBaseAuth.obterCliente();
-                await pb.collection("suporte_mensagens").update(idMensagemSuporte, {
-                    mensagem: textoConversaSuporte,
-                    status: "pendente"
-                });
+                const sessao = window.Fran7Auth?.obterSessao?.();
+                const saved = await guardarMensagemSuporte(
+                    sessao?.record?.nome || "Cliente",
+                    sessao?.record?.telefone || sessao?.record?.email || "",
+                    question
+                );
+                idMensagemSuporte = saved.record.id;
+                await subscreverRespostaSuporte(saved.client);
             } catch (error) {
-                console.warn("Não foi possível actualizar o pedido de suporte:", error);
+                console.warn("Não foi possível enviar a mensagem ao suporte:", error);
             }
             return true;
         }
 
         await pedirPermissaoNotificacao();
-        const sessao = window.Fran7PocketBaseAuth?.obterSessao?.();
+        const sessao = window.Fran7Auth?.obterSessao?.();
         const nome = String(sessao?.record?.nome || sessao?.record?.name || "Visitante").trim() || "Visitante";
         const contacto = String(sessao?.record?.telefone || sessao?.record?.email || "Não informado").trim() || "Não informado";
         await enviarMensagemSuporte(nome, contacto, question);

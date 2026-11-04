@@ -35,8 +35,8 @@
     <meta name="twitter:image" content="https://fran7gg.github.io/assets/images/logo.png.png">
     <meta name="twitter:image:alt" content="Logótipo da FRAN7">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-    <script src="assets/js/fran7-sessao.js"></script>
-    <script src="assets/js/proteger-inicio.js?v=20261031-2"></script>
+    <script src="assets/js/fran7-sessao.js?v=20261104-1"></script>
+    <script src="assets/js/proteger-inicio.js?v=20261104-1"></script>
     <script src="assets/js/entrada-site.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css?v=20261030-4">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261031-2">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
     <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261031-9">
-    <script defer src="assets/js/hero-carousel.js?v=20261031-7"></script>
+    <script defer src="assets/js/hero-carousel.js?v=20261104-1"></script>
 
     <style>
 
@@ -3480,7 +3480,7 @@
             Peças selecionadas da FRAN7.
         </p>
 
-        <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques do PocketBase...</p></div>
+        <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques do Supabase...</p></div>
 
     </section>
 
@@ -4986,7 +4986,7 @@
                     (result.pdfGerado ? " A fatura foi descarregada." : " O PDF não pôde ser gerado."), { title: "Pedido registado" });
             } catch (error) {
                 console.error("Não foi possível registar o pedido FRAN7:", error);
-                await window.Fran7Notify.alert("Não foi possível guardar o pedido no PocketBase. " +
+                await window.Fran7Notify.alert("Não foi possível guardar o pedido no Supabase. " +
                     "Confirma a ligação e tenta novamente. " + (error.message || ""), { title: "Falha no checkout" });
             } finally {
                 button.disabled = false;
@@ -5073,7 +5073,7 @@
                     : "Não informado";
             const exclusaoConta = document.getElementById("perfilEliminarConta");
             if (exclusaoConta) {
-                exclusaoConta.hidden = !window.Fran7PocketBaseAuth?.estaAutenticado();
+                exclusaoConta.hidden = !window.Fran7Auth?.estaAutenticado();
             }
 
 
@@ -5228,7 +5228,7 @@
             const status = document.getElementById("perfilEliminarEstado");
             const submitButton = form.querySelector('button[type="submit"]');
             const password = passwordInput.value;
-            const auth = window.Fran7PocketBaseAuth;
+            const auth = window.Fran7Auth;
 
             status.hidden = true;
             status.textContent = "";
@@ -5243,10 +5243,7 @@
                 return;
             }
 
-            const currentSession = auth.obterSessao();
-            const userId = currentSession?.record?.id;
-            const email = currentSession?.record?.email;
-            if (!userId || !email) {
+            if (!auth.obterSessao()?.record?.id) {
                 status.textContent = "Não foi possível confirmar os dados da conta. Inicia sessão novamente.";
                 status.hidden = false;
                 return;
@@ -5254,19 +5251,8 @@
 
             submitButton.disabled = true;
             submitButton.textContent = "A CONFIRMAR…";
-            let confirmingPassword = true;
-
             try {
-                const client = auth.obterCliente();
-                const collection = client.collection("usuarios_loja");
-                const confirmed = await collection.authWithPassword(email, password);
-                if (!confirmed.record || confirmed.record.id !== userId) {
-                    throw new Error("A sessão confirmada não corresponde à conta atual.");
-                }
-
-                confirmingPassword = false;
-                await collection.delete(userId);
-                auth.terminarSessao();
+                await auth.excluirConta(password);
                 passwordInput.value = "";
                 passwordInput.disabled = true;
                 submitButton.textContent = "CONTA ELIMINADA";
@@ -5277,13 +5263,7 @@
                 }, 1800);
             } catch (error) {
                 console.error("Não foi possível eliminar a conta FRAN7.", error);
-                if (confirmingPassword && error && error.status === 400) {
-                    status.textContent = "A palavra-passe está incorreta. Confirma-a e tenta novamente.";
-                } else if (error && error.status === 403) {
-                    status.textContent = "O PocketBase não permite eliminar esta conta. Confirma a regra Delete da coleção usuarios_loja.";
-                } else {
-                    status.textContent = "Não foi possível eliminar a conta. Verifica a ligação ao PocketBase e tenta novamente.";
-                }
+                status.textContent = error.message || "Não foi possível eliminar a conta. Tenta novamente.";
                 status.hidden = false;
                 submitButton.disabled = false;
                 submitButton.textContent = "Eliminar conta permanentemente";
@@ -5468,17 +5448,18 @@
 
     </script>
     <script src="assets/js/fran7-notificacoes.js"></script>
-    <script src="assets/js/fran7-checkout-config.js?v=20261031-2"></script>
-    <script src="assets/js/fran7-checkout.js?v=20261031-2"></script>
-    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261027-3"></script>
+    <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/fran7-supabase.js"></script>
+    <script src="assets/js/fran7-checkout.js?v=20261104-1"></script>
+    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261104-1"></script>
     <script src="assets/js/favoritos.js?v=20261027-1"></script>
-    <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-    <script src="assets/js/pocketbase-auth.js?v=20261031-5"></script>
-    <script src="assets/js/classificacao-estrelas.js?v=20261027-1"></script>
-    <script src="assets/js/detalhe-produto.js?v=20261031-1"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261104-1"></script>
+    <script src="assets/js/classificacao-estrelas.js?v=20261104-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261104-1"></script>
     <script src="assets/js/informacoes-modal.js"></script>
     <script src="assets/js/assistente-widget.js?v=20261028-3"></script>
-    <script src="assets/js/assistente-suporte.js?v=20261030-1"></script>
+    <script src="assets/js/assistente-suporte.js?v=20261104-1"></script>
 
 </body>
 </html>

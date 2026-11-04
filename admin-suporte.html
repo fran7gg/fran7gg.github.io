@@ -19,6 +19,7 @@
         .header-msg span { padding: 5px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
         .status-pendente { background: #b36b00; }
         .status-respondido { background: #16783a; }
+        .status-aberta { background: #b36b00; }
         .status-falha { background: #8a2727; }
         .card-msg p { margin: 0; line-height: 1.5; }
         .resposta-atual { color: #aaa; font-size: 14px; }
@@ -107,13 +108,15 @@
             </div>
             <button id="ativar-notificacoes" type="button">Ativar notificações e som</button>
             <div id="mensagens-suporte">
-                <div class="estado">A carregar mensagens do PocketBase…</div>
+                <div class="estado">A carregar mensagens do Supabase…</div>
             </div>
         </div>
     </main>
 
-    <script src="assets/js/fran7-checkout-config.js?v=20261031-2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.26.2/dist/pocketbase.umd.js"></script>
+    <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/fran7-supabase.js"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261104-1"></script>
     <script>
     
         (function () {
@@ -129,24 +132,20 @@
             const painel = document.getElementById("painel-suporte");
             const sair = document.getElementById("sair-suporte");
             const ativarNotificacoes = document.getElementById("ativar-notificacoes");
-            const baseUrl = String(window.FRAN7_CHECKOUT_CONFIG?.pocketBaseUrl || "").replace(/\/+$/, "");
-            let pb = null;
+            let perfilAdmin = null;
             let audioContext = null;
 
-            function obterPocketBase() {
-                if (!pb) {
-                    pb = new window.PocketBase(baseUrl);
-                }
-                return pb;
+            function obterSupabase() {
+                return window.Fran7Supabase.getClient();
             }
 
             function estaAutenticado() {
-                return Boolean(obterPocketBase().authStore.isValid);
+                return Boolean(perfilAdmin && window.Fran7Auth?.estaAutenticado());
             }
 
             function nomeAgenteAtual() {
-                const record = obterPocketBase().authStore.record || {};
-                return String(record.nome || record.name || record.email || "Agente").trim() || "Agente";
+                const record = window.Fran7Auth?.obterSessao()?.record || {};
+                return String(record.nome || record.email || "Admin").trim() || "Admin";
             }
 
             function nomeCampoPerfil(chave) {
@@ -193,7 +192,7 @@
             }
 
             function mostrarPerfil() {
-                const record = obterPocketBase().authStore.record || {};
+                const record = window.Fran7Auth?.obterSessao()?.record || {};
                 const nome = nomeAgenteAtual();
                 const email = String(record.email || "").trim();
                 const avatar = document.getElementById("perfil-avatar");
@@ -237,7 +236,6 @@
                 if (campoSenha?.message) return campoSenha.message;
                 if (campoSenha && typeof campoSenha === "string") return campoSenha;
                 if (error?.status === 400) return "E-mail ou palavra-passe inválidos.";
-                if (error?.status === 404) return "A coleção agentes_suporte não foi encontrada.";
                 return "Não foi possível criar ou iniciar a conta. Confirme os dados e tente novamente.";
             }
 
@@ -250,12 +248,21 @@
                 loginAviso.textContent = "Entrando…";
 
                 try {
-                    const pb = obterPocketBase();
-                    try {
-                        await pb.collection("agentes_suporte").authWithPassword(email, senha);
-                    } catch (erroAgente) {
-                        await pb.collection("_superusers").authWithPassword(email, senha);
+                    await window.Fran7Auth.entrar(email, senha);
+                    const authSession = window.Fran7Auth.obterSessao();
+                    const result = await obterSupabase()
+                        .from("fran7_profiles")
+                        .select("role")
+                        .eq("id", authSession.record.id)
+                        .single();
+                    if (result.error) {
+                        throw result.error;
                     }
+                    if (result.data.role !== "admin") {
+                        await window.Fran7Auth.terminarSessao();
+                        throw new Error("Esta conta ainda não tem permissões de administrador.");
+                    }
+                    perfilAdmin = result.data;
                     loginAviso.textContent = "";
                     mostrarPainel();
                     await carregarMensagens();
@@ -263,7 +270,7 @@
                     await pedirPermissaoNotificacao();
                 } catch (error) {
                     console.error("Não foi possível autenticar no painel:", error);
-                    loginAviso.textContent = mensagemErroAutenticacao(error);
+                    loginAviso.textContent = error.message || mensagemErroAutenticacao(error);
                 } finally {
                     botao.disabled = false;
                 }
@@ -271,39 +278,7 @@
 
             async function criarContaAgente(evento) {
                 evento.preventDefault();
-                const nome = document.getElementById("agente-nome").value.trim();
-                const email = document.getElementById("agente-email").value.trim();
-                const senha = document.getElementById("agente-senha").value;
-                const confirmarSenha = document.getElementById("agente-senha-confirmar").value;
-                const botao = criarContaForm.querySelector("button");
-
-                if (senha !== confirmarSenha) {
-                    criarContaAviso.textContent = "As palavras-passe não coincidem.";
-                    return;
-                }
-
-                botao.disabled = true;
-                criarContaAviso.textContent = "Criando conta…";
-                try {
-                    const pb = obterPocketBase();
-                    await pb.collection("agentes_suporte").create({
-                        nome: nome,
-                        email: email,
-                        password: senha,
-                        passwordConfirm: confirmarSenha
-                    });
-                    await pb.collection("agentes_suporte").authWithPassword(email, senha);
-                    criarContaAviso.textContent = "";
-                    mostrarPainel();
-                    await carregarMensagens();
-                    await iniciarRealtime();
-                    await pedirPermissaoNotificacao();
-                } catch (error) {
-                    console.error("Não foi possível criar a conta do agente:", error);
-                    criarContaAviso.textContent = mensagemErroAutenticacao(error);
-                } finally {
-                    botao.disabled = false;
-                }
+                criarContaAviso.textContent = "Cria a conta em Supabase Authentication e atribui-lhe a função admin no perfil antes de iniciar sessão.";
             }
 
             async function pedirPermissaoNotificacao() {
@@ -367,10 +342,10 @@
 
                 card.innerHTML = `
                     <div class="header-msg">
-                        <strong>${escaparHtml(msg.cliente_nome || "Cliente")}</strong>
-                        <span class="status-${escaparHtml(msg.status || "pendente")}">${escaparHtml(String(msg.status || "pendente").toUpperCase())}</span>
+                        <strong>${escaparHtml(msg.nome_cliente || "Cliente")}</strong>
+                            <span class="status-${escaparHtml(msg.estado || "aberta")}">${escaparHtml(String(msg.estado || "aberta").toUpperCase())}</span>
                     </div>
-                    <p><strong>Contacto:</strong> ${escaparHtml(msg.contacto || "Não informado")}</p>
+                        <p><strong>Contacto:</strong> ${escaparHtml(msg.contacto || msg.email_cliente || "Não informado")}</p>
                     <p><strong>Mensagem:</strong> ${escaparHtml(msg.mensagem || "")}</p>
                     <p class="resposta-atual"><strong>Resposta atual:</strong> ${msg.resposta ? `${escaparHtml(msg.resposta)} (por ${escaparHtml(msg.agente_nome || "Atendimento")})` : "Ainda sem resposta"}</p>
                     <textarea id="resp-${escaparHtml(msg.id)}" placeholder="Escreva aqui a sua resposta...">${escaparHtml(msg.resposta || "")}</textarea>
@@ -384,15 +359,18 @@
             }
 
             async function carregarMensagens() {
-                if (!baseUrl || typeof window.PocketBase !== "function") {
-                    mostrarEstado("A ligação ao PocketBase não está configurada.", true);
+                if (!window.Fran7Supabase?.isConfigured()) {
+                    mostrarEstado("A ligação ao Supabase não está configurada.", true);
                     return;
                 }
 
                 try {
-                    const mensagens = await obterPocketBase().collection("suporte_mensagens").getFullList({
-                        sort: "-created"
-                    });
+                    const result = await obterSupabase()
+                        .from("fran7_support_messages")
+                        .select("*")
+                        .order("created_at", { ascending: false });
+                    if (result.error) throw result.error;
+                    const mensagens = result.data || [];
 
                     container.innerHTML = "";
                     if (!mensagens.length) {
@@ -404,7 +382,7 @@
                     });
                 } catch (error) {
                     console.error("Não foi possível carregar o suporte:", error);
-                    mostrarEstado("Não foi possível carregar as mensagens. Confirme as regras de leitura da coleção suporte_mensagens.", true);
+                    mostrarEstado("Não foi possível carregar as mensagens. Confirme as permissões no Supabase.", true);
                 }
             }
 
@@ -423,41 +401,47 @@
                 botao.disabled = true;
                 aviso.textContent = "Enviando resposta…";
                 try {
-                    await obterPocketBase().collection("suporte_mensagens").update(id, {
+                    const result = await obterSupabase()
+                        .from("fran7_support_messages")
+                        .update({
                         resposta: resposta,
-                        agente_nome: agenteNome,
-                        status: "respondido"
-                    });
+                        estado: "respondido",
+                        updated_at: new Date().toISOString()
+                    })
+                        .eq("id", id);
+                    if (result.error) throw result.error;
                     aviso.textContent = "Resposta enviada e mensagem marcada como respondida.";
                     card.querySelector(".header-msg span").className = "status-respondido";
                     card.querySelector(".header-msg span").textContent = "RESPONDIDO";
                     card.querySelector(".resposta-atual").innerHTML = `<strong>Resposta atual:</strong> ${escaparHtml(resposta)} (por ${escaparHtml(agenteNome)})`;
                 } catch (error) {
                     console.error("Não foi possível responder:", error);
-                    aviso.textContent = "Não foi possível guardar a resposta. Confirme as regras de atualização do PocketBase.";
+                    aviso.textContent = "Não foi possível guardar a resposta. Confirme as permissões do Supabase.";
                 } finally {
                     botao.disabled = false;
                 }
             }
 
             async function iniciarRealtime() {
-                if (!baseUrl || typeof window.PocketBase !== "function") return;
-
                 try {
-                    await obterPocketBase().collection("suporte_mensagens").subscribe("*", function (evento) {
-                        if (evento.action !== "create") return;
+                    await obterSupabase().channel("fran7-admin-support")
+                        .on("postgres_changes", {
+                            event: "INSERT",
+                            schema: "public",
+                            table: "fran7_support_messages"
+                        }, function(event) {
                         tocarSomSMS();
-                        const nome = evento.record?.cliente_nome || "Cliente";
-                        const mensagem = evento.record?.mensagem || "Nova mensagem de suporte.";
+                        const nome = event.new?.nome_cliente || "Cliente";
+                        const mensagem = event.new?.mensagem || "Nova mensagem de suporte.";
                         if (Notification.permission === "granted") {
                             new Notification("Nova mensagem de suporte — " + nome, {
                                 body: mensagem,
-                                tag: "suporte-" + evento.record.id,
+                                tag: "suporte-" + event.new.id,
                                 icon: "assets/images/logo.png.png"
                             });
                         }
                         carregarMensagens();
-                    });
+                        }).subscribe();
                 } catch (error) {
                     console.error("Não foi possível activar o Realtime do suporte:", error);
                 }
@@ -505,7 +489,10 @@
             botaoMostrarLogin.addEventListener("click", function () { mostrarAcesso(false); });
             botaoMostrarCriar.addEventListener("click", function () { mostrarAcesso(true); });
             sair.addEventListener("click", function () {
-                obterPocketBase().authStore.clear();
+                window.Fran7Auth.terminarSessao().catch(function(error) {
+                    console.error("Não foi possível terminar a sessão do painel.", error);
+                });
+                perfilAdmin = null;
                 perfilPopup.hidden = true;
                 perfilAbrir.setAttribute("aria-expanded", "false");
                 painel.hidden = true;
@@ -513,14 +500,24 @@
                 loginForm.hidden = false;
                 criarContaForm.hidden = true;
                 loginAviso.textContent = "Sessão terminada.";
-                obterPocketBase().collection("suporte_mensagens").unsubscribe("*");
             });
 
-            if (estaAutenticado()) {
+            obterSupabase().auth.getSession().then(async function(result) {
+                if (result.error) throw result.error;
+                if (!result.data.session) return;
+                const profileResult = await obterSupabase()
+                    .from("fran7_profiles")
+                    .select("role")
+                    .eq("id", result.data.session.user.id)
+                    .single();
+                if (profileResult.error || profileResult.data.role !== "admin") return;
+                perfilAdmin = profileResult.data;
                 mostrarPainel();
-                carregarMensagens();
-                iniciarRealtime();
-            }
+                await carregarMensagens();
+                await iniciarRealtime();
+            }).catch(function(error) {
+                console.error("Não foi possível restaurar a sessão do painel.", error);
+            });
         
         })();
     </script>

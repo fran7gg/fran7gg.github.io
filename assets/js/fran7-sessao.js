@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    const AUTH_STORAGE_KEY = "fran7_loja_pocketbase_auth";
+    const AUTH_STORAGE_KEY = "fran7_loja_supabase_auth";
 
     function estaAutenticado() {
         try {
@@ -21,7 +21,7 @@
             const claims = JSON.parse(atob(
                 payload.replace(/-/g, "+").replace(/_/g, "/")
             ));
-            return claims.id === userId &&
+            return (claims.sub === userId || claims.id === userId) &&
                 Number.isFinite(claims.exp) &&
                 claims.exp * 1000 > Date.now();
         } catch (error) {
