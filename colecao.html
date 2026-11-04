@@ -386,6 +386,7 @@
     </header>
 
     <nav class="navegacao-colecoes" aria-label="Coleções FRAN7">
+        <a href="colecao.html?categoria=destaques" data-categoria-link="destaques">DESTAQUES</a>
         <a href="colecao.html?categoria=homens" data-categoria-link="homens">HOMENS</a>
         <a href="colecao.html?categoria=mulheres" data-categoria-link="mulheres">MULHERES</a>
         <a href="colecao.html?categoria=criancas" data-categoria-link="criancas">CRIANÇAS</a>
@@ -399,6 +400,12 @@
 
     <script>
         const colecoes = {
+            destaques: {
+                titulo: "DESTAQUES",
+                etiqueta: "FRAN7 COLLECTION",
+                descricao: "Descobre as peças em destaque da FRAN7.",
+                capa: "foto1.png"
+            },
             homens: {
                 titulo: "HOMENS",
                 etiqueta: "FRAN7 PERFORMANCE",
@@ -458,7 +465,7 @@
     <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/fran7-supabase.js"></script>
-    <script src="assets/js/pocketbase-colecao.js?v=20261104-1"></script>
+    <script src="assets/js/pocketbase-colecao.js?v=20261104-2"></script>
     <script src="assets/js/fran7-notificacoes.js"></script>
     <script src="assets/js/fran7-checkout.js?v=20261104-1"></script>
     <script src="assets/js/favoritos.js?v=20261027-1"></script>

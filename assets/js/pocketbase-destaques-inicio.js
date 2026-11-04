@@ -59,10 +59,6 @@
         return Number.isFinite(price) ? price : 0;
     }
 
-    function obterImagemUrl(record, collection, fileName) {
-        return fileName;
-    }
-
     function criarCartao(record, variants) {
         const name = typeof record.texto === "string" ? record.texto.trim() : "";
         const imageName = typeof record.imagem === "string" ? record.imagem.trim() : "";
@@ -71,7 +67,7 @@
             return null;
         }
 
-        const productImage = obterImagemUrl(record, COLLECTION, imageName);
+        const productImage = imageName;
         const productVariants = variants.map(function(variant) {
             const variantImageName = typeof variant.imagem === "string" ? variant.imagem.trim() : "";
             return {
@@ -81,8 +77,6 @@
                 preco: variant.preco,
                 stock: variant.stock,
                 imagem: variantImageName
-                    ? obterImagemUrl(variant, VARIANTS_COLLECTION, variantImageName)
-                    : ""
             };
         }).filter(function(variant) {
             if (!variant.cor) {

@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    const CATEGORY_VALUES = ["homens", "mulheres", "criancas"];
+    const CATEGORY_VALUES = ["homens", "mulheres", "criancas", "destaques"];
     const PRODUCTS_PER_PAGE = 24;
     const category = new URLSearchParams(window.location.search).get("categoria");
     const grid = document.querySelector(".produtos-grid");
