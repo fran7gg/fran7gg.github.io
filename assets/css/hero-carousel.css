@@ -37,7 +37,8 @@
     visibility: visible;
 }
 
-.fran7-carousel-slide img {
+.fran7-carousel-slide img,
+.fran7-carousel-slide video {
     display: block;
     width: 100%;
     height: 100%;

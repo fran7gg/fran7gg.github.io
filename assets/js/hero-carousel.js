@@ -57,10 +57,23 @@
         parent.appendChild(button);
     }
 
+    function isVideoUrl(source) {
+        try {
+            const url = new URL(source, window.location.href);
+            if (url.protocol !== "http:" && url.protocol !== "https:") {
+                throw new TypeError("Só são aceites endereços HTTP ou HTTPS.");
+            }
+            return /\.(mp4|webm|ogv)$/i.test(url.pathname);
+        } catch (error) {
+            console.error("Banner do Supabase ignorado: o endereço da mídia não é válido.", source, error);
+            return null;
+        }
+    }
+
     function createSlide(record, index) {
-        const imageName = typeof record.imagem === "string" ? record.imagem.trim() : "";
-        if (!record.id || !imageName) {
-            console.error("Banner do Supabase ignorado: falta o ID ou o URL da imagem.", record.id);
+        const mediaUrl = typeof record.imagem === "string" ? record.imagem.trim() : "";
+        if (!record.id || !mediaUrl) {
+            console.error("Banner do Supabase ignorado: falta o ID ou o URL da mídia.", record.id);
             return null;
         }
 
@@ -71,12 +84,25 @@
         slide.setAttribute("role", "group");
         slide.setAttribute("aria-roledescription", "slide");
 
-        const image = document.createElement("img");
-        image.src = imageName;
-        image.alt = "Imagem da campanha FRAN7 " + (index + 1);
-        image.loading = index === 0 ? "eager" : "lazy";
-        if (index === 0) image.fetchPriority = "high";
-        slide.appendChild(image);
+        const videoUrl = isVideoUrl(mediaUrl);
+        if (videoUrl === null) return null;
+        let media;
+        if (videoUrl) {
+            media = document.createElement("video");
+            media.src = mediaUrl;
+            media.muted = true;
+            media.playsInline = true;
+            media.preload = index === 0 ? "auto" : "none";
+            media.controls = reduceMotion.matches;
+            media.setAttribute("aria-label", "Vídeo da campanha FRAN7 " + (index + 1));
+        } else {
+            media = document.createElement("img");
+            media.src = mediaUrl;
+            media.alt = "Imagem da campanha FRAN7 " + (index + 1);
+            media.loading = index === 0 ? "eager" : "lazy";
+            if (index === 0) media.fetchPriority = "high";
+        }
+        slide.appendChild(media);
 
         const eyebrow = typeof record.etiqueta === "string" ? record.etiqueta.trim() : "";
         const title = typeof record.titulo === "string" ? record.titulo.trim() : "";
@@ -97,8 +123,8 @@
             slide.appendChild(caption);
         }
 
-        image.addEventListener("error", function() {
-            console.error("Não foi possível carregar a imagem do banner do Supabase.", record.id);
+        media.addEventListener("error", function() {
+            console.error("Não foi possível carregar a mídia do banner do Supabase.", record.id);
             slide.remove();
             const indicator = Array.from(
                 indicatorsContainer.querySelectorAll("[data-carousel-indicator]")
@@ -107,6 +133,7 @@
             });
             if (indicator) indicator.remove();
             updateCarousel();
+            startAutoplay();
         }, { once: true });
 
         return slide;
@@ -122,7 +149,7 @@
         if (!slides.length) {
             stopAutoplay();
             carousel.classList.add("is-unavailable");
-            status.textContent = "Não há imagens ativas na coleção de banners do Supabase.";
+            status.textContent = "Não há banners ativos na coleção do Supabase.";
             status.hidden = false;
             indicatorsContainer.hidden = true;
             return;
@@ -138,13 +165,35 @@
             slide.setAttribute("aria-hidden", String(!active));
             slide.setAttribute("aria-label", (slideIndex + 1) + " de " + slides.length);
             slide.inert = !active;
+
+            const video = slide.querySelector("video");
+            if (!video) return;
+
+            video.controls = active && reduceMotion.matches;
+            if (active && !reduceMotion.matches) {
+                video.play().catch(function(error) {
+                    console.error("Não foi possível reproduzir automaticamente o vídeo do banner.", error);
+                    if (slides[activeIndex] === slide) {
+                        video.controls = true;
+                        if (slides.length > 1) {
+                            timer = window.setTimeout(function() {
+                                showSlide(activeIndex + 1);
+                                startAutoplay();
+                            }, AUTOPLAY_INTERVAL);
+                        }
+                    }
+                });
+            } else {
+                video.pause();
+                if (video.readyState > 0) video.currentTime = 0;
+            }
         });
 
         indicators.forEach(function(indicator, indicatorIndex) {
             const active = indicatorIndex === activeIndex;
             indicator.dataset.carouselIndicator = String(indicatorIndex);
             indicator.setAttribute("aria-current", String(active));
-            indicator.setAttribute("aria-label", "Mostrar imagem " + (indicatorIndex + 1) + " de " + slides.length);
+            indicator.setAttribute("aria-label", "Mostrar banner " + (indicatorIndex + 1) + " de " + slides.length);
         });
 
         status.hidden = true;
@@ -159,16 +208,37 @@
     }
 
     function stopAutoplay() {
-        window.clearInterval(timer);
+        window.clearTimeout(timer);
         timer = null;
+        if (activeVideo && activeVideoEndHandler) {
+            activeVideo.removeEventListener("ended", activeVideoEndHandler);
+        }
+        activeVideo = null;
+        activeVideoEndHandler = null;
     }
+
+    let activeVideo = null;
+    let activeVideoEndHandler = null;
 
     function startAutoplay() {
         stopAutoplay();
         if (slides.length < 2 || reduceMotion.matches || document.hidden) return;
 
-        timer = window.setInterval(function() {
+        const activeSlide = slides[activeIndex];
+        const video = activeSlide && activeSlide.querySelector("video");
+        if (video) {
+            activeVideo = video;
+            activeVideoEndHandler = function() {
+                showSlide(activeIndex + 1);
+                startAutoplay();
+            };
+            video.addEventListener("ended", activeVideoEndHandler, { once: true });
+            return;
+        }
+
+        timer = window.setTimeout(function() {
             showSlide(activeIndex + 1);
+            startAutoplay();
         }, AUTOPLAY_INTERVAL);
     }
 
@@ -179,8 +249,22 @@
         startAutoplay();
     });
 
-    document.addEventListener("visibilitychange", startAutoplay);
-    reduceMotion.addEventListener("change", startAutoplay);
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+            stopAutoplay();
+            slides.forEach(function(slide) {
+                const video = slide.querySelector("video");
+                if (video) video.pause();
+            });
+        } else {
+            updateCarousel();
+            startAutoplay();
+        }
+    });
+    reduceMotion.addEventListener("change", function() {
+        updateCarousel();
+        startAutoplay();
+    });
 
     async function loadBanners() {
         try {
@@ -204,7 +288,7 @@
                 indicator.dataset.carouselIndicator = String(track.children.length);
                 indicator.dataset.carouselRecord = record.id;
                 indicator.setAttribute("aria-current", "false");
-                indicator.setAttribute("aria-label", "Mostrar imagem " + (track.children.length + 1));
+                indicator.setAttribute("aria-label", "Mostrar banner " + (track.children.length + 1));
 
                 track.appendChild(slide);
                 indicatorsContainer.appendChild(indicator);
@@ -215,7 +299,7 @@
             startAutoplay();
         } catch (error) {
             showError(
-                "Não foi possível carregar as imagens da coleção de banners do Supabase.",
+                "Não foi possível carregar a coleção de banners do Supabase.",
                 error
             );
         }
