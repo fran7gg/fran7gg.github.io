@@ -70,15 +70,12 @@
 }
 
 .fran7-favorites-count.animar-contador-favoritos {
-    animation: fran7-favorites-count-pop 700ms cubic-bezier(.2, .8, .2, 1);
+    animation: fran7-favorites-count-bob 900ms ease-in-out infinite;
 }
 
-@keyframes fran7-favorites-count-pop {
-    0% { transform: scale(1); }
-    22% { transform: translateY(-5px) scale(1.7) rotate(-8deg); }
-    45% { transform: translateY(1px) scale(.85) rotate(6deg); }
-    70% { transform: translateY(-2px) scale(1.25) rotate(-3deg); }
-    100% { transform: scale(1); }
+@keyframes fran7-favorites-count-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }
 
 .fran7-cart-count {

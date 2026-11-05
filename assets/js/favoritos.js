@@ -50,24 +50,12 @@
 
     function atualizarContador(element, quantidade, deveAnimar) {
         const valor = String(quantidade);
-        const mudou = element.textContent !== valor;
         element.textContent = valor;
 
-        if (
-            !deveAnimar ||
-            !mudou ||
-            quantidade === 0 ||
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ) {
-            return;
-        }
-
-        element.classList.remove("animar-contador-favoritos");
-        void element.offsetWidth;
-        element.classList.add("animar-contador-favoritos");
-        element.addEventListener("animationend", function removerAnimacao() {
-            element.classList.remove("animar-contador-favoritos");
-        }, { once: true });
+        const animar = deveAnimar &&
+            quantidade > 0 &&
+            !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        element.classList.toggle("animar-contador-favoritos", animar);
     }
 
     function atualizarInterface() {
