@@ -18,8 +18,9 @@
     width: min(980px, 100%);
     max-height: calc(100dvh - 48px);
     overflow-y: auto;
-    background: Canvas;
-    color: CanvasText;
+    color-scheme: light;
+    background: #fff;
+    color: #171717;
     box-shadow: 0 24px 80px rgba(0, 0, 0, .4);
 }
 
