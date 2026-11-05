@@ -113,10 +113,26 @@
     box-shadow: 0 10px 24px rgba(255, 255, 255, .2);
 }
 
+.notificacao-parceria.animar-contador-favoritos,
+.fran7-favorites-count.animar-contador-favoritos {
+    animation: fran7-favorites-count-pop 700ms cubic-bezier(.2, .8, .2, 1);
+}
+
+@keyframes fran7-favorites-count-pop {
+    0% { transform: scale(1); }
+    22% { transform: translateY(-5px) scale(1.7) rotate(-8deg); }
+    45% { transform: translateY(1px) scale(.85) rotate(6deg); }
+    70% { transform: translateY(-2px) scale(1.25) rotate(-3deg); }
+    100% { transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .fran7-notice-overlay,
     .fran7-notice-dialog,
-    .fran7-notice-button {
+    .fran7-notice-button,
+    .notificacao-parceria.animar-contador-favoritos,
+    .fran7-favorites-count.animar-contador-favoritos {
         transition: none;
+        animation: none;
     }
 }

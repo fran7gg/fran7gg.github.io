@@ -48,33 +48,26 @@
         }
     }
 
-    function atualizarContador(element, quantidade) {
+    function atualizarContador(element, quantidade, deveAnimar) {
         const valor = String(quantidade);
         const mudou = element.textContent !== valor;
         element.textContent = valor;
 
         if (
+            !deveAnimar ||
             !mudou ||
             quantidade === 0 ||
-            typeof element.animate !== "function" ||
             window.matchMedia("(prefers-reduced-motion: reduce)").matches
         ) {
             return;
         }
 
-        element.animate(
-            [
-                { transform: "scale(1)" },
-                { transform: "translateY(-4px) scale(1.65) rotate(-8deg)", filter: "brightness(1.35)" },
-                { transform: "translateY(1px) scale(.9) rotate(6deg)" },
-                { transform: "translateY(-2px) scale(1.25) rotate(-3deg)" },
-                { transform: "scale(1)" }
-            ],
-            {
-                duration: 650,
-                easing: "cubic-bezier(.2, .8, .2, 1)"
-            }
-        );
+        element.classList.remove("animar-contador-favoritos");
+        void element.offsetWidth;
+        element.classList.add("animar-contador-favoritos");
+        element.addEventListener("animationend", function removerAnimacao() {
+            element.classList.remove("animar-contador-favoritos");
+        }, { once: true });
     }
 
     function atualizarInterface() {
@@ -82,14 +75,15 @@
         const contador = document.getElementById("contadorFavoritos");
         const sharedCount = document.getElementById("fran7FavoritesCount");
         const icone = document.getElementById("iconeCoracaoTopo");
+        const animateCount = Boolean(contador || sharedCount);
 
         if (sharedCount) {
             sharedCount.hidden = favoritos.length === 0;
-            atualizarContador(sharedCount, favoritos.length);
+            atualizarContador(sharedCount, favoritos.length, animateCount);
         }
         if (contador) {
             contador.classList.toggle("visivel", favoritos.length > 0);
-            atualizarContador(contador, favoritos.length);
+            atualizarContador(contador, favoritos.length, animateCount);
         }
         if (icone) {
             icone.classList.toggle("com-favoritos", favoritos.length > 0);
