@@ -61,7 +61,7 @@
 .fran7-product-image-stage {
     display: block;
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 2;
     padding: 0;
     overflow: hidden;
     border: 0;
@@ -72,7 +72,7 @@
 .fran7-product-main-placeholder {
     display: grid;
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 2;
     place-items: center;
     object-fit: contain;
     background: #fff;
@@ -82,7 +82,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     transition: transform .7s cubic-bezier(.2, .75, .25, 1);
 }
 
