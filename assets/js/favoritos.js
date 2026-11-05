@@ -65,11 +65,13 @@
         element.animate(
             [
                 { transform: "scale(1)" },
-                { transform: "scale(1.4)" },
+                { transform: "translateY(-4px) scale(1.65) rotate(-8deg)", filter: "brightness(1.35)" },
+                { transform: "translateY(1px) scale(.9) rotate(6deg)" },
+                { transform: "translateY(-2px) scale(1.25) rotate(-3deg)" },
                 { transform: "scale(1)" }
             ],
             {
-                duration: 380,
+                duration: 650,
                 easing: "cubic-bezier(.2, .8, .2, 1)"
             }
         );
@@ -82,12 +84,12 @@
         const icone = document.getElementById("iconeCoracaoTopo");
 
         if (sharedCount) {
-            atualizarContador(sharedCount, favoritos.length);
             sharedCount.hidden = favoritos.length === 0;
+            atualizarContador(sharedCount, favoritos.length);
         }
         if (contador) {
-            atualizarContador(contador, favoritos.length);
             contador.classList.toggle("visivel", favoritos.length > 0);
+            atualizarContador(contador, favoritos.length);
         }
         if (icone) {
             icone.classList.toggle("com-favoritos", favoritos.length > 0);
