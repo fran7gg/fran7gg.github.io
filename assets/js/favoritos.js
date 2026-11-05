@@ -48,6 +48,33 @@
         }
     }
 
+    function atualizarContador(element, quantidade) {
+        const valor = String(quantidade);
+        const mudou = element.textContent !== valor;
+        element.textContent = valor;
+
+        if (
+            !mudou ||
+            quantidade === 0 ||
+            typeof element.animate !== "function" ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+            return;
+        }
+
+        element.animate(
+            [
+                { transform: "scale(1)" },
+                { transform: "scale(1.4)" },
+                { transform: "scale(1)" }
+            ],
+            {
+                duration: 380,
+                easing: "cubic-bezier(.2, .8, .2, 1)"
+            }
+        );
+    }
+
     function atualizarInterface() {
         const favoritos = carregarFavoritos();
         const contador = document.getElementById("contadorFavoritos");
@@ -55,11 +82,11 @@
         const icone = document.getElementById("iconeCoracaoTopo");
 
         if (sharedCount) {
-            sharedCount.textContent = String(favoritos.length);
+            atualizarContador(sharedCount, favoritos.length);
             sharedCount.hidden = favoritos.length === 0;
         }
         if (contador) {
-            contador.textContent = String(favoritos.length);
+            atualizarContador(contador, favoritos.length);
             contador.classList.toggle("visivel", favoritos.length > 0);
         }
         if (icone) {
