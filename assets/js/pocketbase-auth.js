@@ -17,7 +17,7 @@
     function getClient() {
         if (!supabaseClient) {
             if (!window.Fran7Supabase?.getClient) {
-                throw new Error("O cliente Supabase não foi inicializado.");
+                throw new Error("O serviço está temporariamente indisponível. Tenta novamente mais tarde.");
             }
             supabaseClient = window.Fran7Supabase.getClient();
             supabaseClient.auth.onAuthStateChange(function(event, nextSession) {
@@ -197,7 +197,7 @@
         });
         if (result.error) {
             console.error("Supabase: não foi possível criar a conta FRAN7.", result.error);
-            throw new Error(result.error.message || "Não foi possível criar a conta. Verifica os dados e tenta novamente.");
+            throw new Error("Não foi possível criar a conta. Verifica os dados e tenta novamente.");
         }
         if (result.data.session) {
             session = result.data.session;
@@ -218,7 +218,7 @@
             if (result.error.status === 400 || result.error.status === 401) {
                 throw new Error("O e-mail ou a palavra-passe estão incorretos.");
             }
-            throw new Error(result.error.message || "Não foi possível iniciar sessão. Tenta novamente.");
+            throw new Error("Não foi possível iniciar sessão. Confirma os dados e tenta novamente mais tarde.");
         }
         session = result.data.session;
         profile = profileFromUser(result.data.user);
@@ -235,7 +235,7 @@
         );
         if (result.error) {
             console.error("Supabase: não foi possível solicitar a recuperação da palavra-passe.", result.error);
-            throw new Error("Não foi possível enviar o e-mail de recuperação. Confirma a configuração de e-mail do Supabase e tenta novamente.");
+            throw new Error("Não foi possível enviar o e-mail de recuperação. Tenta novamente mais tarde ou contacta o suporte.");
         }
     }
 
@@ -263,7 +263,7 @@
         const result = await client.auth.updateUser({ password: password });
         if (result.error) {
             console.error("Supabase: não foi possível redefinir a palavra-passe.", result.error);
-            throw new Error(result.error.message || "Não foi possível redefinir a palavra-passe.");
+            throw new Error("Não foi possível redefinir a palavra-passe. Tenta novamente mais tarde.");
         }
         await client.auth.signOut();
     }
@@ -273,7 +273,7 @@
         const result = await client.auth.signOut();
         if (result.error) {
             console.error("Supabase: não foi possível terminar a sessão.", result.error);
-            throw result.error;
+            throw new Error("Não foi possível terminar a sessão. Tenta novamente mais tarde.");
         }
         limparSessao();
         notifyAuthChanged();
@@ -299,7 +299,7 @@
         });
         if (deletion.error) {
             console.error("Supabase não conseguiu eliminar a conta FRAN7.", deletion.error);
-            throw new Error("Não foi possível eliminar a conta. Confirma se a função de eliminação foi publicada.");
+            throw new Error("Não foi possível eliminar a conta. Tenta novamente mais tarde ou contacta o suporte.");
         }
 
         const signOut = await client.auth.signOut({ scope: "local" });

@@ -202,7 +202,7 @@
             return criarCartao(record, record.fran7_variants || []);
         }).filter(Boolean);
         if (!cards.length) {
-            mostrarEstado("Ainda não há produtos em destaque no Supabase.");
+            mostrarEstado("Ainda não há produtos em destaque.");
             return;
         }
         grid.replaceChildren.apply(grid, cards);
@@ -213,6 +213,6 @@
 
     carregarDestaques().catch(function(error) {
         console.error("Não foi possível carregar os destaques do Supabase.", error);
-        mostrarEstado("Não foi possível carregar os destaques. Verifica a ligação ao Supabase.");
+        mostrarEstado("Não foi possível carregar os destaques. Tenta novamente mais tarde ou contacta o suporte.");
     });
 })();

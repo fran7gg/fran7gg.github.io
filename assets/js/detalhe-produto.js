@@ -535,8 +535,7 @@
             colorOptions.replaceChildren();
             colorOptions.hidden = true;
             colorLabel.hidden = true;
-            availability.textContent = "Erro ao carregar cores: " +
-                (error instanceof Error ? error.message : String(error));
+            availability.textContent = "Não foi possível carregar as opções deste produto. Tenta novamente mais tarde.";
             addButton.disabled = true;
         }
     }

@@ -26,7 +26,7 @@
     <meta property="og:description" content="Conheça a nova coleção e estilo único da FRAN7.">
     <meta property="og:url" content="https://fran7gg.github.io/">
     <meta property="og:image" content="https://fran7gg.github.io/elmy.jpeg">
-    <meta property="og:image:alt" content="Logótipo da FRAN7">
+    <meta property="og:image:alt" content="FRAN7 — Grief &amp; Glory">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1254">
     <meta property="og:image:height" content="1254">
@@ -35,7 +35,7 @@
     <meta name="twitter:title" content="FRAN7 | Grief &amp; Glory">
     <meta name="twitter:description" content="Conheça a nova coleção e estilo único da FRAN7.">
     <meta name="twitter:image" content="https://fran7gg.github.io/elmy.jpeg">
-    <meta name="twitter:image:alt" content="Logótipo da FRAN7">
+    <meta name="twitter:image:alt" content="FRAN7 — Grief &amp; Glory">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="assets/js/fran7-sessao.js?v=20261104-1"></script>
     <script src="assets/js/proteger-inicio.js?v=20261104-1"></script>
@@ -43,7 +43,7 @@
     <link rel="stylesheet" href="assets/css/assistente.css?v=20261030-4">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css?v=20261105-4">
-    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261106-1">
+    <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261107-1">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
     <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261105-1">
     <link rel="stylesheet" href="assets/css/catalogo-banner.css?v=20261107-2">
@@ -3487,7 +3487,7 @@
 
     <section class="fran7-carousel" id="inicio" data-fran7-carousel aria-roledescription="carrossel" aria-label="Banner FRAN7">
         <div class="fran7-carousel-track" data-carousel-track></div>
-        <p class="fran7-carousel-status" data-carousel-status role="status" hidden></p>
+        <p class="fran7-carousel-status" data-carousel-status role="status">A carregar imagens...</p>
         <div class="fran7-carousel-indicators" data-carousel-indicators aria-label="Escolher imagem" hidden></div>
     </section>
 
@@ -3508,7 +3508,7 @@
             Peças selecionadas da FRAN7.
         </p>
 
-        <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques do Supabase...</p></div>
+        <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques...</p></div>
 
     </section>
 
@@ -5000,8 +5000,8 @@
                     (result.pdfGerado ? " A fatura foi descarregada." : " O PDF não pôde ser gerado."), { title: "Pedido registado" });
             } catch (error) {
                 console.error("Não foi possível registar o pedido FRAN7:", error);
-                await window.Fran7Notify.alert("Não foi possível guardar o pedido no Supabase. " +
-                    "Confirma a ligação e tenta novamente. " + (error.message || ""), { title: "Falha no checkout" });
+                await window.Fran7Notify.alert("Não foi possível guardar o pedido. " +
+                    "Tenta novamente mais tarde ou contacta o suporte.", { title: "Falha no checkout" });
             } finally {
                 button.disabled = false;
                 button.textContent = "FINALIZAR COMPRA";
@@ -5274,7 +5274,7 @@
                 }, 1800);
             } catch (error) {
                 console.error("Não foi possível eliminar a conta FRAN7.", error);
-                status.textContent = error.message || "Não foi possível eliminar a conta. Tenta novamente.";
+                status.textContent = "Não foi possível eliminar a conta. Tenta novamente mais tarde ou contacta o suporte.";
                 status.hidden = false;
                 submitButton.disabled = false;
                 submitButton.textContent = "Eliminar conta permanentemente";
@@ -5460,19 +5460,19 @@
     </script>
     <script src="assets/js/fran7-notificacoes.js"></script>
     <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
-    <script src="assets/js/fran7-checkout.js?v=20261104-1"></script>
+    <script src="assets/js/fran7-checkout.js?v=20261106-1"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/js/fran7-supabase.js"></script>
-    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261104-2"></script>
+    <script src="assets/js/fran7-supabase.js?v=20261106-1"></script>
+    <script src="assets/js/fran7-banner-catalogo.js?v=20261107-1"></script>
+    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261106-1"></script>
     <script src="assets/js/favoritos.js?v=20261105-4"></script>
-    <script src="assets/js/pocketbase-auth.js?v=20261104-1"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261106-1"></script>
     <script src="assets/js/fran7-comentarios-produto.js?v=20261104-1"></script>
-    <script src="assets/js/classificacao-estrelas.js?v=20261104-1"></script>
-    <script src="assets/js/detalhe-produto.js?v=20261104-1"></script>
+    <script src="assets/js/classificacao-estrelas.js?v=20261106-1"></script>
+    <script src="assets/js/detalhe-produto.js?v=20261106-1"></script>
     <script src="assets/js/informacoes-modal.js"></script>
     <script src="assets/js/assistente-widget.js?v=20261028-3"></script>
-    <script src="assets/js/assistente-suporte.js?v=20261104-1"></script>
+    <script src="assets/js/assistente-suporte.js?v=20261106-1"></script>
 
 </body>
 </html>
-    <script src="assets/js/fran7-banner-catalogo.js?v=20261107-1"></script>

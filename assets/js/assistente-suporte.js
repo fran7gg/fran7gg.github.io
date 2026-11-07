@@ -175,7 +175,7 @@
 
         try {
             if (!window.Fran7Supabase?.isConfigured()) {
-                throw new Error("A ligação ao Supabase ainda não está configurada.");
+                throw new Error("O serviço está temporariamente indisponível.");
             }
             const saved = await guardarMensagemSuporte(nome, contacto, textoMensagem);
             const client = saved.client;
@@ -187,7 +187,7 @@
             return record;
         } catch (error) {
             console.warn("O pedido de suporte não pôde ser registado no Supabase:", error);
-            adicionarMensagem(error.message || "Não foi possível enviar a mensagem para o suporte. Tenta novamente mais tarde.", "bot");
+            adicionarMensagem("Não foi possível enviar a mensagem. Tenta novamente mais tarde ou contacta-nos pelos outros canais de apoio.", "bot");
             return null;
         }
     }
@@ -406,8 +406,7 @@
             console.error("FRAN7 AI:", error);
             typing.remove();
             adicionarMensagem(
-                "Não consegui contactar a FRAN7 AI neste momento. " +
-                    (error instanceof Error ? error.message : "Tenta novamente mais tarde."),
+                "Não foi possível contactar o serviço neste momento. Tenta novamente mais tarde.",
                 "bot"
             );
         } finally {

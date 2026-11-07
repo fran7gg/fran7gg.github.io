@@ -259,10 +259,10 @@
             status.id = "pocketbaseStatus";
             status.setAttribute("role", "status");
             status.style.cssText = "grid-column: 1 / -1; text-align: center;";
-            status.textContent = "Alguns produtos não puderam ser carregados. Verifica a ligação ao Supabase.";
+            status.textContent = "Alguns produtos não puderam ser carregados. Tenta novamente mais tarde.";
             grid.appendChild(status);
         } else {
-            mostrarEstado("Não foi possível carregar os produtos. Verifica a ligação ao Supabase e tenta novamente.");
+            mostrarEstado("Não foi possível carregar os produtos. Tenta novamente mais tarde ou contacta o suporte.");
         }
     });
 })();

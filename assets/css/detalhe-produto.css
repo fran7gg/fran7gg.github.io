@@ -540,31 +540,17 @@
     .fran7-product-color-options {
         justify-content: flex-start;
         gap: 8px;
-        min-height: 0;
-        padding: 4px 2px;
+        min-height: 104px;
+        padding: 12px 4px 4px;
     }
 
     .fran7-product-color-swatch {
-        width: auto;
-        min-width: 46px;
-        min-height: 42px;
-        gap: 4px;
-        padding: 5px 8px;
-        border-radius: 6px;
+        width: 58px;
+        min-height: 76px;
+        gap: 6px;
+        padding: 14px 5px 7px;
+        border-radius: 2px 2px 6px 6px;
         font-size: 9px;
-        animation: none;
-        transform: none;
-    }
-
-    .fran7-product-color-swatch::before,
-    .fran7-product-color-swatch::after {
-        display: none;
-    }
-
-    .fran7-product-color-options.has-selection .fran7-product-color-swatch:not([aria-pressed="true"]),
-    .fran7-product-color-options.has-selection .fran7-product-color-swatch[aria-pressed="true"],
-    .fran7-product-color-swatch[aria-pressed="true"] {
-        transform: none;
     }
 
     .fran7-product-more {

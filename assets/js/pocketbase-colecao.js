@@ -297,10 +297,10 @@
             const status = document.createElement("p");
             status.className = "estado-colecao";
             status.setAttribute("role", "status");
-            status.textContent = "Alguns produtos não puderam ser carregados. Confirma a ligação e as permissões no Supabase.";
+            status.textContent = "Alguns produtos não puderam ser carregados. Tenta novamente mais tarde.";
             grid.appendChild(status);
         } else {
-            mostrarEstado("Não foi possível carregar esta coleção. Confirma a ligação e as permissões no Supabase.");
+            mostrarEstado("Não foi possível carregar esta coleção. Tenta novamente mais tarde ou contacta o suporte.");
         }
     });
 })();

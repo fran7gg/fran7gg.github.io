@@ -159,7 +159,7 @@
             .single();
         if (result.error) {
             console.error("Supabase recusou o registo da encomenda.", result.error);
-            throw new Error("Não foi possível guardar a encomenda no Supabase. Tenta novamente.");
+            throw new Error("Não foi possível guardar a encomenda. Tenta novamente mais tarde.");
         }
         return result.data;
     }

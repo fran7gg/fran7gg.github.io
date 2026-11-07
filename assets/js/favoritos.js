@@ -48,30 +48,19 @@
         }
     }
 
-    function atualizarContador(element, quantidade, deveAnimar) {
-        const valor = String(quantidade);
-        element.textContent = valor;
-
-        const animar = deveAnimar &&
-            quantidade > 0 &&
-            !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        element.classList.toggle("animar-contador-favoritos", animar);
-    }
-
     function atualizarInterface() {
         const favoritos = carregarFavoritos();
         const contador = document.getElementById("contadorFavoritos");
         const sharedCount = document.getElementById("fran7FavoritesCount");
         const icone = document.getElementById("iconeCoracaoTopo");
-        const animateCount = Boolean(contador || sharedCount);
 
         if (sharedCount) {
+            sharedCount.textContent = String(favoritos.length);
             sharedCount.hidden = favoritos.length === 0;
-            atualizarContador(sharedCount, favoritos.length, animateCount);
         }
         if (contador) {
+            contador.textContent = String(favoritos.length);
             contador.classList.toggle("visivel", favoritos.length > 0);
-            atualizarContador(contador, favoritos.length, animateCount);
         }
         if (icone) {
             icone.classList.toggle("com-favoritos", favoritos.length > 0);

@@ -321,7 +321,7 @@
             startAutoplay();
         } catch (error) {
             showError(
-                "Não foi possível carregar a coleção de banners do Supabase.",
+                "Não foi possível carregar as imagens. Tenta novamente mais tarde.",
                 error
             );
         }

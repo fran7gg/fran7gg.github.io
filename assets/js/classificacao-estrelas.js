@@ -166,8 +166,8 @@
             });
             if (matchingProducts.length !== 1) {
                 widget.querySelector(".fran7-rating-note").textContent = matchingProducts.length > 1
-                    ? "Há vários produtos com este nome no Supabase. Usa um nome único para ligar a classificação."
-                    : "Produto não encontrado no catálogo do Supabase.";
+                    ? "Não foi possível associar a avaliação a este produto."
+                    : "Este produto não está disponível para avaliação de momento.";
                 return;
             }
 
@@ -185,7 +185,7 @@
             console.error("Não foi possível ligar o produto à coleção do Supabase.", error);
             if (widget.isConnected) {
                 widget.querySelector(".fran7-rating-note").textContent =
-                    "Não foi possível procurar o produto. Verifica a ligação e as permissões de leitura.";
+                    "Não foi possível carregar as avaliações. Tenta novamente mais tarde.";
             }
         } finally {
             delete widget.dataset.resolving;
@@ -273,9 +273,9 @@
         }
         if (!window.Fran7Supabase?.isConfigured()) {
             widget.querySelector(".fran7-rating-summary-text").textContent =
-                "Avaliações cloud indisponíveis";
+                "Avaliações indisponíveis";
             widget.querySelector(".fran7-rating-note").textContent =
-                "A ligação ao Supabase ainda não está configurada.";
+                "As avaliações estão temporariamente indisponíveis. Tenta novamente mais tarde.";
             setDisabled(widget, true);
             return;
         }
@@ -310,7 +310,7 @@
             console.error("Não foi possível carregar a avaliação do produto.", error);
             if (widget.isConnected) {
                 widget.querySelector(".fran7-rating-note").textContent =
-                    "Não foi possível carregar a avaliação. Verifica as permissões no Supabase.";
+                    "Não foi possível carregar a tua avaliação. Tenta novamente mais tarde.";
             }
         }
     }
@@ -387,7 +387,7 @@
         } catch (error) {
             console.error("Não foi possível guardar a avaliação do produto.", error);
             widget.querySelector(".fran7-rating-status").textContent =
-                error.message || "Não foi possível guardar a avaliação. Verifica a ligação e as permissões do Supabase.";
+                "Não foi possível guardar a avaliação. Tenta novamente mais tarde ou contacta o suporte.";
         } finally {
             setDisabled(widget, false);
         }

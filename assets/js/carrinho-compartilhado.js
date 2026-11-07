@@ -716,8 +716,7 @@
                 (result.pdfGerado ? "A fatura foi descarregada." : "Não foi possível gerar o PDF."));
         } catch (error) {
             console.error("Não foi possível registar o pedido FRAN7:", error);
-            mostrarAviso("Não foi possível registar o pedido no Supabase. " +
-                "Confirma a ligação e tenta novamente. " + (error.message || ""));
+            mostrarAviso("Não foi possível registar o pedido. Tenta novamente mais tarde ou contacta o suporte.");
         } finally {
             button.disabled = false;
             button.textContent = "FINALIZAR COMPRA";
