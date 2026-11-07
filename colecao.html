@@ -171,6 +171,21 @@
             gap: 22px;
         }
 
+        .banner-colecao {
+            grid-column: 1 / -1;
+            overflow: hidden;
+            border-radius: 18px;
+            background: #111;
+        }
+
+        .banner-colecao img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 5;
+            object-fit: cover;
+            object-position: center 42%;
+        }
+
         .estado-colecao {
             grid-column: 1 / -1;
             margin: 24px 0;
@@ -273,6 +288,10 @@
             .produtos-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 14px;
+            }
+
+            .banner-colecao img {
+                aspect-ratio: 16 / 9;
             }
 
             .produto-info {
@@ -410,19 +429,25 @@
                 titulo: "HOMENS",
                 etiqueta: "FRAN7 PERFORMANCE",
                 descricao: "Descobre os modelos FRAN7 e consulta connosco os tamanhos e a disponibilidade antes de fazer o teu pedido.",
-                capa: "assets/images/a3.jpeg"
+                capa: "assets/images/a3.jpeg",
+                bannerCategoria: "homens",
+                bannerAlt: "Atleta FRAN7 a preparar-se para uma corrida"
             },
             mulheres: {
                 titulo: "MULHERES",
                 etiqueta: "FRAN7 COLLECTION",
                 descricao: "Explora os modelos FRAN7. Fala connosco para confirmar os tamanhos, o corte e a disponibilidade de cada peça.",
-                capa: "assets/images/mulheres.jpeg"
+                capa: "assets/images/mulheres.jpeg",
+                bannerCategoria: "mulheres",
+                bannerAlt: "Conjunto desportivo FRAN7 para mulher"
             },
             criancas: {
                 titulo: "CRIANÇAS",
                 etiqueta: "FRAN7 JUNIOR",
                 descricao: "Uma coleção para os pequenos atletas. Consulta connosco os tamanhos infantis e a disponibilidade antes de fazer o pedido.",
-                capa: "assets/images/a1.jpeg"
+                capa: "assets/images/a1.jpeg",
+                bannerCategoria: "criancas",
+                bannerAlt: "Crianças a praticar ténis com roupa FRAN7"
             }
         };
 
@@ -465,7 +490,7 @@
     <script src="assets/js/fran7-checkout-config.js?v=20261104-1"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/fran7-supabase.js"></script>
-    <script src="assets/js/pocketbase-colecao.js?v=20261104-2"></script>
+    <script src="assets/js/pocketbase-colecao.js?v=20261107-2"></script>
     <script src="assets/js/fran7-notificacoes.js"></script>
     <script src="assets/js/fran7-checkout.js?v=20261104-1"></script>
     <script src="assets/js/favoritos.js?v=20261105-4"></script>

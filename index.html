@@ -46,7 +46,8 @@
     <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261106-1">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
     <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261105-1">
-    <script defer src="assets/js/hero-carousel.js?v=20261105-1"></script>
+    <link rel="stylesheet" href="assets/css/catalogo-banner.css?v=20261107-2">
+    <script defer src="assets/js/hero-carousel.js?v=20261107-2"></script>
 
     <style>
 
@@ -3487,25 +3488,37 @@
     ===================================================== -->
 
     <section
-        class="catalogo"
+        class="catalogo catalogo-banner"
         id="catalogo"
+        data-fran7-catalog-banner
+        hidden
     >
 
-        <h2 class="titulo">
-            DESCUBRA A FRAN7
-        </h2>
-
-        <p>
-            Explora os nossos produtos e descobre
-            os próximos lançamentos da FRAN7.
-        </p>
-
-        <a
-            href="catalogo.html"
-            class="botao"
+        <img
+            class="catalogo-banner-imagem"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            hidden
         >
-            VER CATÁLOGO
-        </a>
+
+        <div class="catalogo-banner-conteudo">
+            <h2 class="titulo">
+                DESCUBRA A FRAN7
+            </h2>
+
+            <p>
+                Explora os nossos produtos e descobre
+                os próximos lançamentos da FRAN7.
+            </p>
+
+            <a
+                href="catalogo.html"
+                class="botao"
+            >
+                VER CATÁLOGO
+            </a>
+        </div>
 
     </section>
 
@@ -5463,3 +5476,4 @@
 
 </body>
 </html>
+    <script src="assets/js/fran7-banner-catalogo.js?v=20261107-1"></script>

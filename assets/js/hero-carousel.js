@@ -268,14 +268,36 @@
 
     async function loadBanners() {
         try {
-            const result = await window.Fran7Supabase.getClient()
+            const supabase = window.Fran7Supabase.getClient();
+            let result = await supabase
                 .from("fran7_banners")
                 .select("*")
                 .eq("ativo", true)
+                .eq("categoria", "banner_1")
                 .order("ordem", { ascending: true })
                 .limit(50);
             if (result.error) {
-                throw result.error;
+                const missingCategoryColumn =
+                    result.error.code === "42703" ||
+                    result.error.code === "PGRST204" ||
+                    (String(result.error.message || "").toLowerCase().includes("categoria") &&
+                        String(result.error.message || "").toLowerCase().includes("schema cache"));
+                if (!missingCategoryColumn) {
+                    throw result.error;
+                }
+
+                console.warn(
+                    "A coluna categoria ainda não existe em fran7_banners. A carregar os banners antigos; aplica a migração de categorias para separar as áreas."
+                );
+                result = await supabase
+                    .from("fran7_banners")
+                    .select("*")
+                    .eq("ativo", true)
+                    .order("ordem", { ascending: true })
+                    .limit(50);
+                if (result.error) {
+                    throw result.error;
+                }
             }
 
             (result.data || []).forEach(function(record, index) {
@@ -288,7 +310,7 @@
                 indicator.dataset.carouselIndicator = String(track.children.length);
                 indicator.dataset.carouselRecord = record.id;
                 indicator.setAttribute("aria-current", "false");
-                indicator.setAttribute("aria-label", "Mostrar banner " + (track.children.length + 1));
+                indicator.setAttribute("aria-label", "Mostrar imagem " + (track.children.length + 1));
 
                 track.appendChild(slide);
                 indicatorsContainer.appendChild(indicator);

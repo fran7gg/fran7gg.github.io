@@ -184,13 +184,57 @@
         return article;
     }
 
+    function criarBannerColecao(collection, record) {
+        const banner = document.createElement("aside");
+        banner.className = "banner-colecao";
+
+        const image = document.createElement("img");
+        image.src = record.imagem;
+        image.alt = collection.bannerAlt || "Coleção FRAN7 " + collection.titulo;
+        image.loading = "lazy";
+        image.decoding = "async";
+        banner.appendChild(image);
+
+        return banner;
+    }
+
     async function carregarColecao() {
         if (!grid || !CATEGORY_VALUES.includes(category)) {
             return;
         }
 
+        const collection = window.FRAN7_COLLECTION_PAGE;
         mostrarEstado("A carregar produtos de " + category + "...");
         const supabase = window.Fran7Supabase.getClient();
+        let bannerRecord = null;
+        if (collection.bannerCategoria) {
+            try {
+                const bannerResult = await supabase
+                    .from("fran7_banners")
+                    .select("id, imagem")
+                    .eq("categoria", collection.bannerCategoria)
+                    .eq("ativo", true)
+                    .order("ordem", { ascending: true })
+                    .limit(1)
+                    .maybeSingle();
+                if (bannerResult.error) {
+                    throw bannerResult.error;
+                }
+                if (bannerResult.data && typeof bannerResult.data.imagem === "string" &&
+                    bannerResult.data.imagem.trim()) {
+                    bannerRecord = bannerResult.data;
+                } else {
+                    console.warn(
+                        "Não há banner ativo com a categoria " + collection.bannerCategoria + " em fran7_banners."
+                    );
+                }
+            } catch (error) {
+                console.error(
+                    "Não foi possível carregar o banner da coleção " + collection.bannerCategoria + ".",
+                    error
+                );
+            }
+        }
         let page = 1;
         let totalPages = 1;
         const cards = [];
@@ -213,7 +257,7 @@
             });
 
             const pageCards = products.map(function(record) {
-                return criarCard(record, window.FRAN7_COLLECTION_PAGE, record.fran7_variants || []);
+                return criarCard(record, collection, record.fran7_variants || []);
             }).filter(Boolean);
 
             if (page === 1) {
@@ -228,6 +272,9 @@
                     image.fetchPriority = "high";
                 }
                 grid.appendChild(card);
+                if (cardIndex === 3 && bannerRecord) {
+                    grid.appendChild(criarBannerColecao(collection, bannerRecord));
+                }
             });
             cards.push.apply(cards, pageCards);
             totalPages = Math.ceil((result.count || 0) / PRODUCTS_PER_PAGE);
@@ -235,7 +282,7 @@
         } while (page <= totalPages);
 
         if (!cards.length) {
-            mostrarEstado("Os produtos desta coleção precisam de nome e imagem válidos no Supabase.");
+            mostrarEstado("Não há produtos disponíveis nesta coleção de momento.");
             return;
         }
 

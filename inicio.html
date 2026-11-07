@@ -46,7 +46,8 @@
     <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261106-1">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
     <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261105-1">
-    <script defer src="assets/js/hero-carousel.js?v=20261105-1"></script>
+    <link rel="stylesheet" href="assets/css/catalogo-banner.css?v=20261107-2">
+    <script defer src="assets/js/hero-carousel.js?v=20261107-2"></script>
 
     <style>
 
@@ -3157,7 +3158,7 @@
         }
 
         #produtos .produtos-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             align-items: start;
             gap: clamp(16px, 2.4vw, 30px);
         }
@@ -3275,6 +3276,12 @@
             }
         }
 
+        @media (min-width: 751px) and (max-width: 1100px) {
+            #produtos .produtos-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="assets/css/tema-automatico.css">
     <link rel="stylesheet" href="assets/css/preloader-shimmer.css?v=20261030-1">
@@ -3299,23 +3306,6 @@
                 class="loading-logo"
             >
         </div>
-
-        <details class="perfil-exclusao-conta" id="perfilEliminarConta" hidden>
-            <summary>Eliminar a minha conta</summary>
-            <p>A conta e os dados de perfil serão eliminados. Esta ação é permanente. Poderão ser mantidos registos de encomendas quando necessário.</p>
-            <form id="formEliminarConta" onsubmit="eliminarContaPerfil(event)">
-                <label for="perfilEliminarPalavraPasse">Confirma com a tua palavra-passe</label>
-                <input
-                    id="perfilEliminarPalavraPasse"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                >
-                <button type="submit">Eliminar conta permanentemente</button>
-                <p class="perfil-exclusao-estado" id="perfilEliminarEstado" role="status" aria-live="polite" hidden></p>
-            </form>
-        </details>
 
     </div>
 
@@ -3527,25 +3517,37 @@
     ===================================================== -->
 
     <section
-        class="catalogo"
+        class="catalogo catalogo-banner"
         id="catalogo"
+        data-fran7-catalog-banner
+        hidden
     >
 
-        <h2 class="titulo">
-            DESCUBRA A FRAN7
-        </h2>
-
-        <p>
-            Explora os nossos produtos e descobre
-            os próximos lançamentos da FRAN7.
-        </p>
-
-        <a
-            href="catalogo.html"
-            class="botao"
+        <img
+            class="catalogo-banner-imagem"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            hidden
         >
-            VER CATÁLOGO
-        </a>
+
+        <div class="catalogo-banner-conteudo">
+            <h2 class="titulo">
+                DESCUBRA A FRAN7
+            </h2>
+
+            <p>
+                Explora os nossos produtos e descobre
+                os próximos lançamentos da FRAN7.
+            </p>
+
+            <a
+                href="catalogo.html"
+                class="botao"
+            >
+                VER CATÁLOGO
+            </a>
+        </div>
 
     </section>
 
@@ -3955,6 +3957,23 @@
                 </div>
 
             </div>
+
+            <details class="perfil-exclusao-conta" id="perfilEliminarConta" hidden>
+                <summary>Eliminar a minha conta</summary>
+                <p>A conta e os dados de perfil serão eliminados. Esta ação é permanente. Poderão ser mantidos registos de encomendas quando necessário.</p>
+                <form id="formEliminarConta" onsubmit="eliminarContaPerfil(event)">
+                    <label for="perfilEliminarPalavraPasse">Confirma com a tua palavra-passe</label>
+                    <input
+                        id="perfilEliminarPalavraPasse"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <button type="submit">Eliminar conta permanentemente</button>
+                    <p class="perfil-exclusao-estado" id="perfilEliminarEstado" role="status" aria-live="polite" hidden></p>
+                </form>
+            </details>
 
         </div>
 
@@ -5456,3 +5475,4 @@
 
 </body>
 </html>
+    <script src="assets/js/fran7-banner-catalogo.js?v=20261107-1"></script>
