@@ -53,6 +53,10 @@
         });
     }
 
+    function tamanhoObrigatorio(item) {
+        return temTamanhosRegistados(item) && !tamanhoAutomatico(item.nome);
+    }
+
     function chaveItem(item) {
         return [item.productId || item.nome, item.cor, item.tamanho].join("|");
     }
@@ -284,8 +288,8 @@
     function focarCampoEmFalta() {
         const itemEmFalta = items.find(function(item) {
             return !item.cor ||
-                (!item.tamanho ||
-                    (temTamanhosRegistados(item) && !encontrarVariante(item, item.tamanho)));
+                (tamanhoObrigatorio(item) &&
+                    (!item.tamanho || !encontrarVariante(item, item.tamanho)));
         });
 
         if (itemEmFalta) {
@@ -295,7 +299,9 @@
                 });
 
             if (itemElement) {
-                    const option = itemEmFalta.cor ? "tamanho" : "cor";
+                    const option = itemEmFalta.cor && tamanhoObrigatorio(itemEmFalta)
+                        ? "tamanho"
+                        : "cor";
                     const input = itemElement.querySelector(
                         '[data-cart-option="' + option + '"]'
                     );
@@ -459,83 +465,89 @@
                         color.textContent = "Cor: " + (item.cor || colors[0] || "—");
                         options.appendChild(color);
                     }
-                    const sizeLabel = document.createElement("div");
-                    sizeLabel.className = "fran7-cart-field";
-                    const sizeCaption = document.createElement("label");
-                    sizeCaption.textContent = "Tamanho";
-                    const input = document.createElement("input");
-                    const sizeList = document.createElement("datalist");
-                    sizeList.id = "fran7-cart-sizes-" + index;
-                    input.type = "text";
-                    input.dataset.cartOption = "tamanho";
-                    input.placeholder = "Escreve o teu tamanho";
-                    input.autocomplete = "off";
-                    input.value = item.tamanho || "";
-                    input.setAttribute("list", sizeList.id);
-                    sizeCaption.htmlFor = sizeList.id + "-input";
-                    input.id = sizeCaption.htmlFor;
                     const colorVariants = variantesDaCor(item);
                     const hasRegisteredSizes = colorVariants.some(function(variant) {
                         return variant.tamanho.trim() !== "";
                     });
-                    const stockedColorVariant = colorVariants.find(function(variant) {
-                        return Number(variant.stock) > 0;
-                    });
-                    const sizes = Array.from(new Map(colorVariants
-                        .filter(function(variant) { return variant.tamanho.trim() !== ""; })
-                        .map(function(variant) {
-                        return [variant.tamanho, variant];
-                    })).values());
-                    sizes.forEach(function(variant) {
-                        const option = document.createElement("option");
-                        option.value = variant.tamanho;
-                        option.label = Number(variant.stock) > 0
-                            ? variant.tamanho + " · " + Number(variant.stock) + " disponíveis"
-                            : variant.tamanho + " · Sem stock";
-                        if (Number(variant.stock) > 0) {
-                            sizeList.appendChild(option);
-                        }
-                    });
-                    input.disabled = colors.length > 1 && !item.cor;
-                    input.addEventListener("input", function() {
-                        const typedSize = input.value.trim();
-                        const variant = colorVariants.find(function(entry) {
-                            return entry.tamanho.trim().toLocaleLowerCase("pt") ===
-                                typedSize.toLocaleLowerCase("pt") &&
-                                Number(entry.stock) > 0;
+                    if (hasRegisteredSizes && !tamanhoAutomatico(item.nome)) {
+                        const sizeLabel = document.createElement("div");
+                        sizeLabel.className = "fran7-cart-field";
+                        const sizeCaption = document.createElement("label");
+                        sizeCaption.textContent = "Tamanho";
+                        const input = document.createElement("input");
+                        const sizeList = document.createElement("datalist");
+                        sizeList.id = "fran7-cart-sizes-" + index;
+                        input.type = "text";
+                        input.dataset.cartOption = "tamanho";
+                        input.placeholder = "Escreve o teu tamanho";
+                        input.autocomplete = "off";
+                        input.value = item.tamanho || "";
+                        input.setAttribute("list", sizeList.id);
+                        sizeCaption.htmlFor = sizeList.id + "-input";
+                        input.id = sizeCaption.htmlFor;
+                        const sizes = Array.from(new Map(colorVariants
+                            .filter(function(variant) { return variant.tamanho.trim() !== ""; })
+                            .map(function(variant) {
+                                return [variant.tamanho, variant];
+                            })).values());
+                        sizes.forEach(function(variant) {
+                            const option = document.createElement("option");
+                            option.value = variant.tamanho;
+                            option.label = Number(variant.stock) > 0
+                                ? variant.tamanho + " · " + Number(variant.stock) + " disponíveis"
+                                : variant.tamanho + " · Sem stock";
+                            if (Number(variant.stock) > 0) {
+                                sizeList.appendChild(option);
+                            }
                         });
-                        const selectedVariant = variant ||
-                            (!hasRegisteredSizes ? stockedColorVariant : null);
-                        item.tamanho = variant?.tamanho || typedSize;
-                        item.preco = selectedVariant
-                            ? (obterPreco(selectedVariant.preco) ||
-                                (!hasRegisteredSizes ? item.preco : 0))
-                            : 0;
-                        item.imagem = selectedVariant?.imagem || item.imagemBase || item.imagem;
-                        price.textContent = selectedVariant
-                            ? formatarPreco(item.preco * item.quantidade)
-                            : (typedSize && hasRegisteredSizes
-                                ? "Tamanho indisponível"
-                                : "Preço a confirmar");
-                        const itemImage = card.querySelector(".fran7-cart-item-image");
-                        if (itemImage && itemImage.tagName === "IMG" && item.imagem) {
-                            itemImage.src = item.imagem;
-                        }
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-                        atualizarResumo();
-                    });
-                    input.addEventListener("change", guardarCarrinho);
-                    sizeLabel.append(sizeCaption, input, sizeList);
-                    options.appendChild(sizeLabel);
+                        input.disabled = colors.length > 1 && !item.cor;
+                        input.addEventListener("input", function() {
+                            const typedSize = input.value.trim();
+                            const variant = colorVariants.find(function(entry) {
+                                return entry.tamanho.trim().toLocaleLowerCase("pt") ===
+                                    typedSize.toLocaleLowerCase("pt") &&
+                                    Number(entry.stock) > 0;
+                            });
+                            const selectedVariant = variant;
+                            item.tamanho = variant?.tamanho || typedSize;
+                            item.preco = selectedVariant
+                                ? obterPreco(selectedVariant.preco)
+                                : 0;
+                            item.imagem = selectedVariant?.imagem || item.imagemBase || item.imagem;
+                            price.textContent = selectedVariant
+                                ? formatarPreco(item.preco * item.quantidade)
+                                : (typedSize
+                                    ? "Tamanho indisponível"
+                                    : "Escolhe um tamanho");
+                            const itemImage = card.querySelector(".fran7-cart-item-image");
+                            if (itemImage && itemImage.tagName === "IMG" && item.imagem) {
+                                itemImage.src = item.imagem;
+                            }
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+                            atualizarResumo();
+                        });
+                        input.addEventListener("change", guardarCarrinho);
+                        sizeLabel.append(sizeCaption, input, sizeList);
+                        options.appendChild(sizeLabel);
+                    } else {
+                        const sizeNote = document.createElement("p");
+                        sizeNote.className = "fran7-cart-item-color";
+                        sizeNote.textContent = tamanhoAutomatico(item.nome)
+                            ? "Tamanho: " + (item.tamanho || "Único")
+                            : "Tamanho: Não aplicável";
+                        options.appendChild(sizeNote);
+                    }
                 } else {
                     options.appendChild(criarCampo("Cor", "Ex.: Preto, branco...", item.cor, function(value) {
                         items[index].cor = value;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
                     }));
-                    options.appendChild(criarCampo("Tamanho", "Ex.: M, L, XL...", item.tamanho, function(value) {
+                    const sizeField = criarCampo("Tamanho", "Ex.: M, L, XL... (se aplicável)", item.tamanho, function(value) {
                         items[index].tamanho = value;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-                    }));
+                    });
+                    sizeField.querySelector("label").textContent = "Tamanho (opcional)";
+                    options.appendChild(sizeField);
                 }
                 details.appendChild(options);
 
@@ -671,11 +683,10 @@
         const city = document.getElementById("fran7CartCity").value.trim();
         const note = document.getElementById("fran7CartNote").value.trim();
         const itemEmFalta = items.find(function(item) {
-            return !item.cor || (!tamanhoAutomatico(item.nome) && !item.tamanho);
+            return !item.cor || (tamanhoObrigatorio(item) && !item.tamanho);
         });
         const tamanhoIndisponivel = items.find(function(item) {
-            return temTamanhosRegistados(item) &&
-                !tamanhoAutomatico(item.nome) &&
+            return tamanhoObrigatorio(item) &&
                 item.tamanho &&
                 !encontrarVariante(item, item.tamanho);
         });
@@ -687,7 +698,7 @@
 
         if (itemEmFalta || !city || !location) {
             mostrarAviso(itemEmFalta
-                ? "Preenche a cor e o tamanho de cada produto. Chapéus e meias usam tamanho X."
+                ? "Preenche a cor e, quando aplicável, o tamanho de cada produto."
                 : (!city ? "Preenche a cidade de entrega." : "Preenche a localização de entrega."));
             return;
         }
