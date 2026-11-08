@@ -4159,6 +4159,10 @@
             });
         }
 
+        function tamanhoObrigatorioCarrinho(item) {
+            return temTamanhosCarrinho(item) && !tamanhoAutomatico(item.nome);
+        }
+
         function chaveCarrinho(item) {
             return [
                 item.productId || item.nome,
@@ -4388,9 +4392,8 @@
         function focarOpcaoEmFalta() {
             const faltante = carrinho.find(function(item) {
                 return !item.cor ||
-                    (!tamanhoAutomatico(item.nome) &&
-                        (!item.tamanho ||
-                            (temTamanhosCarrinho(item) && !encontrarVarianteCarrinho(item, item.tamanho))));
+                    (tamanhoObrigatorioCarrinho(item) &&
+                        (!item.tamanho || !encontrarVarianteCarrinho(item, item.tamanho)));
             });
             if (faltante) {
                 const card = Array.from(
@@ -4402,8 +4405,11 @@
                         faltante.tamanho
                     ].join("|");
                 });
+                const opcao = faltante.cor && tamanhoObrigatorioCarrinho(faltante)
+                    ? "tamanho"
+                    : "cor";
                 const input = card && card.querySelector(
-                    !faltante.cor ? '[data-cart-option="cor"]' : '[data-cart-option="tamanho"]'
+                    '[data-cart-option="' + opcao + '"]'
                 );
                 if (input) input.focus();
                 return;
@@ -4614,81 +4620,80 @@
                             opcoes.appendChild(color);
                         }
 
-                        const sizeLabel = document.createElement("label");
-                        sizeLabel.textContent = "Tamanho";
-                        const sizeInput = document.createElement("input");
-                        const sizeList = document.createElement("datalist");
-                        sizeList.id = "tamanhosDisponiveis-" + index;
-                        sizeInput.type = "text";
-                        sizeInput.dataset.cartOption = "tamanho";
-                        sizeInput.required = true;
-                        sizeInput.placeholder = "Escreve o teu tamanho";
-                        sizeInput.autocomplete = "off";
-                        sizeInput.setAttribute("list", sizeList.id);
-                        sizeInput.value = item.tamanho || "";
                         const colorVariants = variantesDaCorCarrinho(item);
                         const hasRegisteredSizes = colorVariants.some(function(variant) {
                             return variant.tamanho.trim() !== "";
                         });
-                        const stockedColorVariant = colorVariants.find(function(variant) {
-                            return Number(variant.stock) > 0;
-                        });
-                        const sizes = Array.from(new Map(colorVariants
-                            .filter(function(variant) { return variant.tamanho.trim() !== ""; })
-                            .map(function(variant) {
-                            return [variant.tamanho, variant];
-                        })).values());
-                        sizes.forEach(function(variant) {
-                            const option = document.createElement("option");
-                            option.value = variant.tamanho;
-                            option.label = Number(variant.stock) > 0
-                                ? variant.tamanho + " · " + Number(variant.stock) + " disponíveis"
-                                : variant.tamanho + " · Sem stock";
-                            if (Number(variant.stock) > 0) {
-                                sizeList.appendChild(option);
-                            }
-                        });
-                        sizeInput.disabled = colors.length > 1 && !item.cor;
-                        sizeInput.addEventListener("input", function() {
-                            const tamanhoEscrito = sizeInput.value.trim();
-                            const variant = colorVariants.find(function(entry) {
-                                return entry.tamanho.trim().toLocaleLowerCase("pt") ===
-                                    tamanhoEscrito.toLocaleLowerCase("pt") &&
-                                    Number(entry.stock) > 0;
+                        if (hasRegisteredSizes && !tamanhoAutomatico(item.nome)) {
+                            const sizeLabel = document.createElement("label");
+                            sizeLabel.textContent = "Tamanho";
+                            const sizeInput = document.createElement("input");
+                            const sizeList = document.createElement("datalist");
+                            sizeList.id = "tamanhosDisponiveis-" + index;
+                            sizeInput.type = "text";
+                            sizeInput.dataset.cartOption = "tamanho";
+                            sizeInput.required = true;
+                            sizeInput.placeholder = "Escreve o teu tamanho";
+                            sizeInput.autocomplete = "off";
+                            sizeInput.setAttribute("list", sizeList.id);
+                            sizeInput.value = item.tamanho || "";
+                            const sizes = Array.from(new Map(colorVariants
+                                .filter(function(variant) { return variant.tamanho.trim() !== ""; })
+                                .map(function(variant) {
+                                    return [variant.tamanho, variant];
+                                })).values());
+                            sizes.forEach(function(variant) {
+                                const option = document.createElement("option");
+                                option.value = variant.tamanho;
+                                option.label = Number(variant.stock) > 0
+                                    ? variant.tamanho + " · " + Number(variant.stock) + " disponíveis"
+                                    : variant.tamanho + " · Sem stock";
+                                if (Number(variant.stock) > 0) {
+                                    sizeList.appendChild(option);
+                                }
                             });
-                            const selectedVariant = variant ||
-                                (!hasRegisteredSizes ? stockedColorVariant : null);
-                            item.tamanho = variant?.tamanho || tamanhoEscrito;
-                            item.preco = selectedVariant
-                                ? (obterPrecoCarrinho(selectedVariant.preco) ||
-                                    (!hasRegisteredSizes ? item.preco : 0))
-                                : 0;
-                            item.imagem = selectedVariant?.imagem || item.imagemBase || item.imagem;
-                            preco.textContent = selectedVariant
-                                ? formatarPreco(item.preco * item.quantidade)
-                                : (tamanhoEscrito && hasRegisteredSizes
-                                    ? "Tamanho indisponível"
-                                    : "Consultar preço");
-                            const imagemProduto = caixaImagem.querySelector("img");
-                            if (imagemProduto && item.imagem) {
-                                imagemProduto.src = item.imagem;
-                            }
-                            localStorage.setItem(CHAVE_CARRINHO, JSON.stringify(carrinho));
-                            atualizarResumoCarrinho();
-                        });
-                        sizeInput.addEventListener("change", guardarCarrinho);
-                        sizeLabel.append(sizeInput, sizeList);
-                        opcoes.appendChild(sizeLabel);
+                            sizeInput.disabled = colors.length > 1 && !item.cor;
+                            sizeInput.addEventListener("input", function() {
+                                const tamanhoEscrito = sizeInput.value.trim();
+                                const variant = colorVariants.find(function(entry) {
+                                    return entry.tamanho.trim().toLocaleLowerCase("pt") ===
+                                        tamanhoEscrito.toLocaleLowerCase("pt") &&
+                                        Number(entry.stock) > 0;
+                                });
+                                item.tamanho = variant?.tamanho || tamanhoEscrito;
+                                item.preco = variant ? obterPrecoCarrinho(variant.preco) : 0;
+                                item.imagem = variant?.imagem || item.imagemBase || item.imagem;
+                                preco.textContent = variant
+                                    ? formatarPreco(item.preco * item.quantidade)
+                                    : (tamanhoEscrito ? "Tamanho indisponível" : "Escolhe um tamanho");
+                                const imagemProduto = caixaImagem.querySelector("img");
+                                if (imagemProduto && item.imagem) {
+                                    imagemProduto.src = item.imagem;
+                                }
+                                localStorage.setItem(CHAVE_CARRINHO, JSON.stringify(carrinho));
+                                atualizarResumoCarrinho();
+                            });
+                            sizeInput.addEventListener("change", guardarCarrinho);
+                            sizeLabel.append(sizeInput, sizeList);
+                            opcoes.appendChild(sizeLabel);
+                        } else {
+                            const sizeNote = document.createElement("p");
+                            sizeNote.className = "carrinho-item-cor";
+                            sizeNote.textContent = tamanhoAutomatico(item.nome)
+                                ? "Tamanho: " + (item.tamanho || "Único")
+                                : "Tamanho: Não aplicável";
+                            opcoes.appendChild(sizeNote);
+                        }
                     } else {
                         ["cor", "tamanho"].forEach(function(opcao) {
                             const label = document.createElement("label");
-                            label.textContent = opcao === "cor" ? "Cor" : "Tamanho";
+                            label.textContent = opcao === "cor" ? "Cor" : "Tamanho (opcional)";
                             const input = document.createElement("input");
                             input.type = "text";
                             input.dataset.cartOption = opcao;
                             input.value = item[opcao] || "";
                             input.placeholder = opcao === "cor" ? "Ex.: Preto" : "Ex.: M, L, XL";
-                            input.required = true;
+                            input.required = opcao === "cor";
                             if (opcao === "tamanho" && tamanhoAutomatico(item.nome)) {
                                 input.value = "X";
                                 input.disabled = true;
@@ -4895,17 +4900,16 @@
             const localizacao = document.getElementById("carrinhoLocalizacao").value.trim();
             const comentario = document.getElementById("carrinhoComentario").value.trim();
             const itemEmFalta = carrinho.find(function(item) {
-                return !item.cor || (!tamanhoAutomatico(item.nome) && !item.tamanho);
+                return !item.cor || (tamanhoObrigatorioCarrinho(item) && !item.tamanho);
             });
             const tamanhoIndisponivel = carrinho.find(function(item) {
-                return temTamanhosCarrinho(item) &&
-                    !tamanhoAutomatico(item.nome) &&
+                return tamanhoObrigatorioCarrinho(item) &&
                     item.tamanho &&
                     !encontrarVarianteCarrinho(item, item.tamanho);
             });
 
             if (itemEmFalta) {
-                await window.Fran7Notify.alert("Preenche a cor e o tamanho de cada produto. Chapéus e meias usam tamanho X.", { title: "Faltam opções" });
+                await window.Fran7Notify.alert("Preenche a cor e, quando aplicável, o tamanho de cada produto.", { title: "Faltam opções" });
                 focarOpcaoEmFalta();
                 return;
             }
