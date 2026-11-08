@@ -131,8 +131,7 @@
             nome_cliente: String(nome || "Cliente").trim() || "Cliente",
             email_cliente: String(user.email || "").trim(),
             contacto: String(contacto || user.email || "").trim(),
-            mensagem: String(textoMensagem || "").trim(),
-            estado: "aberta"
+            mensagem: String(textoMensagem || "").trim()
         };
         if (!data.contacto || !data.mensagem) {
             throw new Error("Contacto e mensagem são obrigatórios.");

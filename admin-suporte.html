@@ -42,6 +42,7 @@
         .alternar-acesso button.ativo { background: var(--sucesso); color: #07160d; }
         .painel-suporte[hidden] { display: none; }
         .gestao-admin { display: grid; gap: 12px; margin: 0 0 24px; padding: 18px; border: 1px solid var(--borda); border-radius: 12px; background: var(--painel); }
+        .gestao-admin[hidden] { display: none; }
         .gestao-admin h2 { margin: 0; font-size: 18px; }
         .gestao-admin p { margin: 0; color: #aaa; line-height: 1.5; }
         #lista-contas { display: grid; gap: 10px; }
@@ -51,8 +52,13 @@
         .conta-admin-dados span { margin-top: 4px; color: #aaa; font-size: 13px; }
         .conta-admin button { width: auto; flex: 0 0 auto; }
         .conta-admin button.remover-admin { background: #482626; color: #fff; }
+        .conta-admin-acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+        .conta-admin-acoes button { width: auto; flex: 0 0 auto; }
+        .conta-admin-acoes button.secundario { background: #333; color: #fff; }
         #atualizar-contas { width: auto; justify-self: start; background: #333; color: #fff; }
         @media (max-width: 520px) { .conta-admin { align-items: stretch; flex-direction: column; } .conta-admin button { width: 100%; } }
+        .whatsapp-link { display: inline-flex; width: fit-content; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 8px; background: var(--sucesso); color: #07160d; font-weight: 700; text-decoration: none; }
+        .whatsapp-link[hidden] { display: none; }
         .perfil-agente { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; background: var(--painel); }
         .perfil-abrir { display: flex; min-width: 0; flex: 1; align-items: center; gap: 12px; padding: 0; border: 0; background: transparent; color: var(--texto); text-align: left; }
         .perfil-abrir:hover .perfil-avatar { filter: brightness(1.08); }
@@ -81,15 +87,17 @@
             <button id="mostrar-criar" type="button">Criar conta</button>
         </div>
         <form id="login-suporte">
-            <input id="admin-email" type="email" autocomplete="username" placeholder="E-mail do agente" required>
+            <input id="admin-email" type="email" autocomplete="username" placeholder="E-mail da conta" required>
             <div class="campo-senha">
                 <input id="admin-senha" type="password" autocomplete="current-password" placeholder="Palavra-passe" required>
                 <button class="mostrar-senha" type="button" data-campo-senha="admin-senha" aria-label="Mostrar palavra-passe" aria-pressed="false">👁</button>
             </div>
             <button type="submit">Entrar no painel</button>
             <span class="aviso" id="login-aviso" aria-live="polite"></span>
+            <a class="whatsapp-link" id="pedir-acesso-login" href="https://wa.me/244973468037" target="_blank" rel="noopener noreferrer" hidden>Pedir acesso pelo WhatsApp</a>
         </form>
         <form id="criar-conta-suporte" hidden>
+            <p class="aviso">Cria uma conta e depois pede a ativação pelo WhatsApp <strong>+244 973 468 037</strong>. Só terás acesso às mensagens depois da aprovação de um administrador.</p>
             <input id="agente-nome" type="text" autocomplete="name" placeholder="Nome do agente" required>
             <input id="agente-email" type="email" autocomplete="email" placeholder="E-mail do agente" required>
             <div class="campo-senha">
@@ -100,8 +108,9 @@
                 <input id="agente-senha-confirmar" type="password" autocomplete="new-password" minlength="8" placeholder="Confirmar palavra-passe" required>
                 <button class="mostrar-senha" type="button" data-campo-senha="agente-senha-confirmar" aria-label="Mostrar confirmação da palavra-passe" aria-pressed="false">👁</button>
             </div>
-            <button type="submit">Criar conta e entrar</button>
+            <button type="submit">Criar conta</button>
             <span class="aviso" id="criar-conta-aviso" aria-live="polite"></span>
+            <a class="whatsapp-link" id="pedir-acesso-whatsapp" href="https://wa.me/244973468037" target="_blank" rel="noopener noreferrer" hidden>Pedir acesso pelo WhatsApp</a>
         </form>
         <div class="painel-suporte" id="painel-suporte" hidden>
             <div class="perfil-agente">
@@ -121,7 +130,7 @@
             <button id="ativar-notificacoes" type="button">Ativar notificações e som</button>
             <section class="gestao-admin" aria-labelledby="gestao-admin-titulo">
                 <h2 id="gestao-admin-titulo">Contas e administradores</h2>
-                <p>As contas precisam de se registar primeiro. Aqui podes conceder ou retirar acesso de administrador.</p>
+                <p>Depois de confirmares o pedido do agente pelo WhatsApp, ativa aqui o acesso limitado ao suporte. Reserva o acesso de administrador para quem gere a loja.</p>
                 <button id="atualizar-contas" type="button">Atualizar lista</button>
                 <div id="lista-contas" aria-live="polite">
                     <div class="estado">A carregar contas…</div>
@@ -154,7 +163,7 @@
             const ativarNotificacoes = document.getElementById("ativar-notificacoes");
             const listaContas = document.getElementById("lista-contas");
             const atualizarContas = document.getElementById("atualizar-contas");
-            let perfilAdmin = null;
+            let perfilAcesso = null;
             let audioContext = null;
 
             function obterSupabase() {
@@ -162,7 +171,7 @@
             }
 
             function estaAutenticado() {
-                return Boolean(perfilAdmin && window.Fran7Auth?.estaAutenticado());
+                return Boolean(perfilAcesso && window.Fran7Auth?.estaAutenticado());
             }
 
             function nomeAgenteAtual() {
@@ -248,8 +257,31 @@
             function mostrarAcesso(modoCriacao) {
                 loginForm.hidden = modoCriacao;
                 criarContaForm.hidden = !modoCriacao;
+                document.getElementById("pedir-acesso-login").hidden = true;
                 botaoMostrarLogin.classList.toggle("ativo", !modoCriacao);
                 botaoMostrarCriar.classList.toggle("ativo", modoCriacao);
+            }
+
+            function configurarPedidoWhatsApp(link, nome, email) {
+                const texto = [
+                    "Olá! Quero pedir autorização para ser agente de suporte FRAN7.",
+                    "Nome: " + String(nome || "").trim(),
+                    "E-mail da conta: " + String(email || "").trim(),
+                    "Criei a conta na página de suporte."
+                ].join("\n");
+                link.href = "https://wa.me/244973468037?text=" + encodeURIComponent(texto);
+                link.hidden = false;
+            }
+
+            async function mostrarPainelAutorizado(perfil) {
+                perfilAcesso = perfil;
+                mostrarPainel();
+                const gestao = document.querySelector(".gestao-admin");
+                const eAdmin = perfil.role === "admin";
+                gestao.hidden = !eAdmin;
+                await carregarMensagens();
+                if (eAdmin) await carregarContas();
+                await iniciarRealtime();
             }
 
             function mensagemErroAutenticacao(error) {
@@ -280,16 +312,21 @@
                     if (result.error) {
                         throw result.error;
                     }
-                    if (result.data.role !== "admin") {
+                    if (result.data.role !== "admin" && result.data.role !== "support_agent") {
+                        const record = window.Fran7Auth.obterSessao()?.record || {};
+                        configurarPedidoWhatsApp(
+                            document.getElementById("pedir-acesso-login"),
+                            record.nome,
+                            authSession.record.email
+                        );
                         await window.Fran7Auth.terminarSessao();
-                        throw new Error("Esta conta ainda não tem permissões de administrador.");
+                        loginAviso.textContent =
+                            "Esta conta ainda não está autorizada. Pede aprovação pelo WhatsApp; o acesso será ativado por um administrador.";
+                        return;
                     }
-                    perfilAdmin = result.data;
+                    result.data.email = authSession.record.email;
                     loginAviso.textContent = "";
-                    mostrarPainel();
-                    await carregarMensagens();
-                    await carregarContas();
-                    await iniciarRealtime();
+                    await mostrarPainelAutorizado(result.data);
                     await pedirPermissaoNotificacao();
                 } catch (error) {
                     console.error("Não foi possível autenticar no painel:", error);
@@ -301,7 +338,40 @@
 
             async function criarContaAgente(evento) {
                 evento.preventDefault();
-                criarContaAviso.textContent = "Cria a conta através do registo da loja e depois atribui-lhe a função de administrador.";
+                const nome = document.getElementById("agente-nome").value.trim();
+                const email = document.getElementById("agente-email").value.trim();
+                const senha = document.getElementById("agente-senha").value;
+                const confirmacao = document.getElementById("agente-senha-confirmar").value;
+                const botao = criarContaForm.querySelector('button[type="submit"]');
+                const pedido = document.getElementById("pedir-acesso-whatsapp");
+                pedido.hidden = true;
+                if (senha !== confirmacao) {
+                    criarContaAviso.textContent = "As palavras-passe não coincidem.";
+                    return;
+                }
+
+                botao.disabled = true;
+                criarContaAviso.textContent = "A criar a conta…";
+                try {
+                    await window.Fran7Auth.criarConta({
+                        nome: nome,
+                        email: email,
+                        senha: senha
+                    });
+                    configurarPedidoWhatsApp(pedido, nome, email);
+                    document.getElementById("admin-email").value = email;
+                    if (window.Fran7Auth.estaAutenticado()) {
+                        await window.Fran7Auth.terminarSessao();
+                    }
+                    criarContaAviso.textContent =
+                        "Conta criada. Envia o pedido pelo WhatsApp e aguarda a aprovação de um administrador.";
+                } catch (error) {
+                    console.error("Não foi possível criar a conta de agente.", error);
+                    criarContaAviso.textContent = error.message ||
+                        "Não foi possível criar a conta. Confirma os dados e tenta novamente.";
+                } finally {
+                    botao.disabled = false;
+                }
             }
 
             async function pedirPermissaoNotificacao() {
@@ -343,12 +413,6 @@
                     oscilador.start(inicio);
                     oscilador.stop(inicio + 0.11);
                 });
-            }
-
-            function escaparHtml(value) {
-                const node = document.createElement("div");
-                node.textContent = value == null ? "" : String(value);
-                return node.innerHTML;
             }
 
             function mostrarEstado(texto, erro) {
@@ -394,37 +458,73 @@
                         const email = document.createElement("span");
                         email.textContent = account.email || "E-mail não disponível";
                         const role = document.createElement("span");
-                        role.textContent = account.role === "admin" ? "Administrador" : "Cliente";
+                        role.textContent = account.role === "admin"
+                            ? "Administrador"
+                            : (account.role === "support_agent" ? "Agente de suporte" : "Cliente");
                         details.append(name, email, role);
 
-                        const action = document.createElement("button");
-                        action.type = "button";
-                        action.textContent = account.role === "admin"
-                            ? "Retirar administrador"
-                            : "Tornar administrador";
-                        if (account.role === "admin") action.classList.add("remover-admin");
-                        action.disabled = account.id === currentUserId;
-                        action.title = action.disabled
-                            ? "Não podes alterar a tua própria função."
-                            : "";
-                        action.addEventListener("click", function() {
-                            alterarFuncaoConta(account, action);
-                        });
-                        row.append(details, action);
+                        const actions = document.createElement("div");
+                        actions.className = "conta-admin-acoes";
+                        if (account.role === "admin") {
+                            adicionarAcaoConta(
+                                actions,
+                                account,
+                                currentUserId,
+                                "customer",
+                                "Retirar administrador",
+                                "remover-admin"
+                            );
+                        } else {
+                            adicionarAcaoConta(
+                                actions,
+                                account,
+                                currentUserId,
+                                account.role === "support_agent" ? "customer" : "support_agent",
+                                account.role === "support_agent"
+                                    ? "Retirar agente"
+                                    : "Ativar agente",
+                                account.role === "support_agent" ? "secundario" : ""
+                            );
+                            adicionarAcaoConta(
+                                actions,
+                                account,
+                                currentUserId,
+                                "admin",
+                                "Tornar administrador",
+                                "secundario"
+                            );
+                        }
+                        row.append(details, actions);
                         listaContas.appendChild(row);
                     });
                 } catch (error) {
                     console.error("Não foi possível carregar as contas para gestão.", error);
-                    mostrarEstadoContas("Não foi possível carregar as contas. Confirma a migração de gestão de administradores.", true);
+                    mostrarEstadoContas("Não foi possível carregar as contas. Confirma as migrações de gestão de contas e suporte.", true);
                 } finally {
                     atualizarContas.disabled = false;
                 }
             }
 
-            async function alterarFuncaoConta(account, button) {
-                const newRole = account.role === "admin" ? "customer" : "admin";
-                const action = newRole === "admin" ? "dar acesso de administrador a" : "retirar o acesso de administrador de";
-                if (!window.confirm("Queres " + action + " " + (account.email || "esta conta") + "?")) {
+            function adicionarAcaoConta(containerAcoes, account, currentUserId, newRole, label, className) {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.textContent = label;
+                if (className) button.classList.add(className);
+                button.disabled = account.id === currentUserId;
+                button.title = button.disabled
+                    ? "Não podes alterar a tua própria função."
+                    : "";
+                button.addEventListener("click", function() {
+                    alterarFuncaoConta(account, newRole, button);
+                });
+                containerAcoes.appendChild(button);
+            }
+
+            async function alterarFuncaoConta(account, newRole, button) {
+                const roleLabel = newRole === "admin"
+                    ? "administrador"
+                    : (newRole === "support_agent" ? "agente de suporte" : "cliente");
+                if (!window.confirm("Queres alterar " + (account.email || "esta conta") + " para " + roleLabel + "?")) {
                     return;
                 }
 
@@ -446,20 +546,61 @@
             function criarCard(msg) {
                 const card = document.createElement("article");
                 card.className = "card-msg";
+                const header = document.createElement("div");
+                header.className = "header-msg";
+                const customerName = document.createElement("strong");
+                customerName.textContent = msg.nome_cliente || "Cliente";
+                const state = document.createElement("span");
+                const states = {
+                    aberta: "ABERTA",
+                    respondido: "RESPONDIDO",
+                    pendente: "PENDENTE",
+                    falha: "FALHA"
+                };
+                const stateKey = Object.prototype.hasOwnProperty.call(states, msg.estado)
+                    ? msg.estado
+                    : "aberta";
+                state.className = "status-" + stateKey;
+                state.textContent = states[stateKey];
+                header.append(customerName, state);
 
-                card.innerHTML = `
-                    <div class="header-msg">
-                        <strong>${escaparHtml(msg.nome_cliente || "Cliente")}</strong>
-                            <span class="status-${escaparHtml(msg.estado || "aberta")}">${escaparHtml(String(msg.estado || "aberta").toUpperCase())}</span>
-                    </div>
-                        <p><strong>Contacto:</strong> ${escaparHtml(msg.contacto || msg.email_cliente || "Não informado")}</p>
-                    <p><strong>Mensagem:</strong> ${escaparHtml(msg.mensagem || "")}</p>
-                    <p class="resposta-atual"><strong>Resposta atual:</strong> ${msg.resposta ? `${escaparHtml(msg.resposta)} (por ${escaparHtml(msg.agente_nome || "Atendimento")})` : "Ainda sem resposta"}</p>
-                    <textarea id="resp-${escaparHtml(msg.id)}" placeholder="Escreva aqui a sua resposta...">${escaparHtml(msg.resposta || "")}</textarea>
-                    <button type="button" data-responder="${escaparHtml(msg.id)}">Enviar Resposta Humana</button>
-                    <span class="aviso" aria-live="polite"></span>`;
+                function criarCampoMensagem(label, value, className) {
+                    const paragraph = document.createElement("p");
+                    if (className) paragraph.className = className;
+                    const heading = document.createElement("strong");
+                    heading.textContent = label + ": ";
+                    paragraph.append(heading, document.createTextNode(String(value || "")));
+                    return paragraph;
+                }
 
-                card.querySelector("[data-responder]").addEventListener("click", function () {
+                const response = criarCampoMensagem(
+                    "Resposta atual",
+                    msg.resposta
+                        ? msg.resposta + " (por " + (msg.agente_nome || "Atendimento") + ")"
+                        : "Ainda sem resposta",
+                    "resposta-atual"
+                );
+                const textarea = document.createElement("textarea");
+                textarea.id = "resp-" + String(msg.id || "");
+                textarea.placeholder = "Escreva aqui a sua resposta...";
+                textarea.value = msg.resposta || "";
+                const reply = document.createElement("button");
+                reply.type = "button";
+                reply.dataset.responder = String(msg.id || "");
+                reply.textContent = "Enviar Resposta Humana";
+                const notice = document.createElement("span");
+                notice.className = "aviso";
+                notice.setAttribute("aria-live", "polite");
+                card.append(
+                    header,
+                    criarCampoMensagem("Contacto", msg.contacto || msg.email_cliente || "Não informado"),
+                    criarCampoMensagem("Mensagem", msg.mensagem || ""),
+                    response,
+                    textarea,
+                    reply,
+                    notice
+                );
+                reply.addEventListener("click", function () {
                     responderCliente(msg.id, card);
                 });
                 return card;
@@ -494,7 +635,7 @@
             }
 
             async function responderCliente(id, card) {
-                const respostaInput = document.getElementById("resp-" + id);
+                const respostaInput = card.querySelector("textarea");
                 const botao = card.querySelector("[data-responder]");
                 const aviso = card.querySelector(".aviso");
                 const agenteNome = nomeAgenteAtual();
@@ -515,12 +656,22 @@
                         estado: "respondido",
                         updated_at: new Date().toISOString()
                     })
-                        .eq("id", id);
+                        .eq("id", id)
+                        .select("id")
+                        .single();
                     if (result.error) throw result.error;
                     aviso.textContent = "Resposta enviada e mensagem marcada como respondida.";
-                    card.querySelector(".header-msg span").className = "status-respondido";
-                    card.querySelector(".header-msg span").textContent = "RESPONDIDO";
-                    card.querySelector(".resposta-atual").innerHTML = `<strong>Resposta atual:</strong> ${escaparHtml(resposta)} (por ${escaparHtml(agenteNome)})`;
+                    const state = card.querySelector(".header-msg span");
+                    state.className = "status-respondido";
+                    state.textContent = "RESPONDIDO";
+                    const response = card.querySelector(".resposta-atual");
+                    response.replaceChildren();
+                    const heading = document.createElement("strong");
+                    heading.textContent = "Resposta atual: ";
+                    response.append(
+                        heading,
+                        document.createTextNode(resposta + " (por " + agenteNome + ")")
+                    );
                 } catch (error) {
                     console.error("Não foi possível responder:", error);
                     aviso.textContent = "Não foi possível guardar a resposta. Tenta novamente mais tarde.";
@@ -600,7 +751,7 @@
                 window.Fran7Auth.terminarSessao().catch(function(error) {
                     console.error("Não foi possível terminar a sessão do painel.", error);
                 });
-                perfilAdmin = null;
+                perfilAcesso = null;
                 perfilPopup.hidden = true;
                 perfilAbrir.setAttribute("aria-expanded", "false");
                 painel.hidden = true;
@@ -615,15 +766,24 @@
                 if (!result.data.session) return;
                 const profileResult = await obterSupabase()
                     .from("fran7_profiles")
-                    .select("role")
+                    .select("role,email,nome")
                     .eq("id", result.data.session.user.id)
                     .single();
-                if (profileResult.error || profileResult.data.role !== "admin") return;
-                perfilAdmin = profileResult.data;
-                mostrarPainel();
-                await carregarMensagens();
-                await carregarContas();
-                await iniciarRealtime();
+                if (profileResult.error) throw profileResult.error;
+                if (profileResult.data.role !== "admin" &&
+                    profileResult.data.role !== "support_agent") {
+                    configurarPedidoWhatsApp(
+                        document.getElementById("pedir-acesso-login"),
+                        profileResult.data.nome,
+                        profileResult.data.email
+                    );
+                    await window.Fran7Auth.terminarSessao();
+                    loginAviso.textContent =
+                        "Esta conta ainda não está autorizada. Pede aprovação pelo WhatsApp; o acesso será ativado por um administrador.";
+                    return;
+                }
+                await mostrarPainelAutorizado(profileResult.data);
+                await pedirPermissaoNotificacao();
             }).catch(function(error) {
                 console.error("Não foi possível restaurar a sessão do painel.", error);
             });
