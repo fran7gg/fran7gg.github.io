@@ -74,6 +74,17 @@
         return profile;
     }
 
+    async function loadProfileWithoutBlockingAuth(user) {
+        try {
+            await loadProfile(user);
+        } catch (error) {
+            console.error(
+                "A sessão FRAN7 está ativa, mas não foi possível carregar o perfil do utilizador.",
+                error
+            );
+        }
+    }
+
     function saveLocalSession(token, record) {
         if (token && record?.id) {
             localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
@@ -171,7 +182,7 @@
         }
         profile = profileFromUser(session.user);
         saveLocalSession(session.access_token, profile);
-        await loadProfile(session.user);
+        await loadProfileWithoutBlockingAuth(session.user);
         return true;
     }
 
@@ -202,8 +213,8 @@
         if (result.data.session) {
             session = result.data.session;
             profile = profileFromUser(result.data.user);
-            await loadProfile(result.data.user);
             saveLocalSession(session.access_token, profile);
+            await loadProfileWithoutBlockingAuth(result.data.user);
         }
         return profileFromUser(result.data.user);
     }
@@ -215,6 +226,9 @@
         });
         if (result.error) {
             console.error("Supabase: não foi possível iniciar sessão FRAN7.", result.error);
+            if (result.error.code === "email_not_confirmed") {
+                throw new Error("Confirma primeiro o endereço de e-mail através do link enviado e tenta iniciar sessão novamente.");
+            }
             if (result.error.status === 400 || result.error.status === 401) {
                 throw new Error("O e-mail ou a palavra-passe estão incorretos.");
             }
@@ -222,8 +236,8 @@
         }
         session = result.data.session;
         profile = profileFromUser(result.data.user);
-        await loadProfile(result.data.user);
         saveLocalSession(session.access_token, profile);
+        await loadProfileWithoutBlockingAuth(result.data.user);
         return profile;
     }
 

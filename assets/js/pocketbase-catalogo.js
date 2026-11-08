@@ -170,12 +170,12 @@
         adicionar.dataset.cartName = nome;
         adicionar.dataset.cartImage = imagem;
         adicionar.dataset.cartPrice = String(valorPreco || 0);
-        adicionar.textContent = productVariants.length
-            ? "ESCOLHER OPÇÕES"
-            : semStock ? "SEM STOCK" : "ADICIONAR AO CARRINHO";
+        adicionar.textContent = semStock && productVariants.length === 0
+            ? "SEM STOCK"
+            : "ESCOLHER OPÇÕES";
         adicionar.setAttribute(
             "aria-label",
-            semStock ? nome + " sem stock" : "Adicionar " + nome + " ao carrinho"
+            semStock ? nome + " sem stock" : "Escolher opções para " + nome
         );
         adicionar.disabled = semStock && productVariants.length === 0;
 

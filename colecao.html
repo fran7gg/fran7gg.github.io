@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light">
     <script src="assets/js/fran7-sessao.js?v=20261104-1"></script>
-    <script src="assets/js/proteger-inicio.js?v=20261104-1"></script>
+    <script src="assets/js/proteger-inicio.js?v=20261107-1"></script>
     <title>Coleções | FRAN7</title>
     <meta name="description" content="Descobre as coleções FRAN7: peças feitas para acompanhar a tua história.">
     <meta name="robots" content="index, follow">
@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
     <link rel="stylesheet" href="assets/css/fran7-notificacoes.css?v=20261105-4">
     <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261107-1">
+    <link rel="stylesheet" href="assets/css/pesquisa-inicio.css?v=20261107-1">
     <style>
         :root {
             color-scheme: light;
@@ -414,7 +415,7 @@
     <main id="conteudoColecao"></main>
 
     <footer class="rodape">
-        © 2026 FRAN7. Todos os direitos reservados. | Grief &amp; Glory — Nascida do luto, feita para o legado.
+        © 2026 FRAN7. Todos os direitos reservados.
     </footer>
 
     <script>
@@ -480,8 +481,21 @@
                     </div>
                     <img class="imagem-capa" src="${colecao.capa}" alt="Coleção FRAN7 ${colecao.titulo.toLowerCase()}">
                 </section>
+                <form class="pesquisa-inicio" id="pesquisaProdutosForm" role="search">
+                    <label class="sr-only" for="pesquisaProdutos">Pesquisar produtos nesta coleção</label>
+                    <input
+                        type="search"
+                        id="pesquisaProdutos"
+                        name="pesquisa"
+                        placeholder="Pesquisar produtos nesta coleção..."
+                        autocomplete="off"
+                        aria-controls="produtosColecaoGrid"
+                    >
+                    <button type="submit">PESQUISAR</button>
+                </form>
+                <p class="pesquisa-inicio-estado" id="pesquisaProdutosEstado" role="status" aria-live="polite" hidden></p>
                 <p class="aviso-disponibilidade">Os tamanhos e a disponibilidade podem variar. Confirma os detalhes connosco antes do pedido.</p>
-                <section class="produtos-grid" aria-label="Modelos da coleção ${colecao.titulo}">
+                <section class="produtos-grid" id="produtosColecaoGrid" aria-label="Modelos da coleção ${colecao.titulo}">
                     <p class="estado-colecao" role="status">A carregar produtos...</p>
                 </section>
             `;
@@ -495,10 +509,12 @@
     <script src="assets/js/fran7-checkout.js?v=20261106-1"></script>
     <script src="assets/js/favoritos.js?v=20261105-4"></script>
     <script src="assets/js/carrinho-compartilhado.js?v=20261106-1"></script>
-    <script src="assets/js/pocketbase-auth.js?v=20261106-1"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261107-1"></script>
     <script src="assets/js/classificacao-estrelas.js?v=20261106-1"></script>
     <script src="assets/js/detalhe-produto.js?v=20261106-1"></script>
     <script src="assets/js/assistente-widget.js"></script>
     <script src="assets/js/assistente-suporte.js?v=20261106-1"></script>
+    <script src="assets/js/fran7-pesquisa-produtos.js?v=20261107-1"></script>
+    <script src="assets/js/fran7-busca-pagina-produtos.js?v=20261107-1"></script>
 </body>
 </html>

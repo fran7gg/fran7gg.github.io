@@ -168,14 +168,12 @@
         add.dataset.cartName = name;
         add.dataset.cartImage = image;
         add.dataset.cartPrice = String(priceNumber);
-        add.textContent = productVariants.length
-            ? "ESCOLHER OPÇÕES"
-            : isOutOfStock
+        add.textContent = isOutOfStock && productVariants.length === 0
             ? "SEM STOCK"
-            : reserve ? "RESERVAR" : "ADICIONAR AO CARRINHO";
+            : "ESCOLHER OPÇÕES";
         add.setAttribute("aria-label", isOutOfStock
             ? name + " sem stock"
-            : (reserve ? "Reservar " : "Adicionar ") + name + (reserve ? "" : " ao carrinho"));
+            : "Escolher opções para " + name);
         add.disabled = isOutOfStock && productVariants.length === 0;
 
         info.append(label, title);

@@ -25,7 +25,7 @@
                         <p class="fran7-product-description"></p>
                         <p class="fran7-product-note">Coleção Conceito — Detalhes em alta gramatura com assinatura interior "Grief &amp; Glory".</p>
                     </details>
-                    <button class="fran7-product-add" type="button">ADICIONAR À SACOLA</button>
+                    <button class="fran7-product-add" type="button">ESCOLHER OPÇÕES</button>
                 </div>
             </div>
         </section>
@@ -433,7 +433,7 @@
             selectedTag.classList.add("is-dropping");
         }
         addButton.disabled = availableVariants.length === 0;
-        addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
+        addButton.textContent = "ESCOLHER OPÇÕES";
     }
 
     function renderizarVariantes(product) {
@@ -508,7 +508,7 @@
                 currentProduct.name
             );
         }
-        addButton.textContent = currentProduct.reservar ? "RESERVAR" : "ADICIONAR À SACOLA";
+        addButton.textContent = "ESCOLHER OPÇÕES";
         selectedColor = currentProduct.variantColor;
         colorLabel.textContent = [
             selectedColor && "Cor: " + selectedColor,

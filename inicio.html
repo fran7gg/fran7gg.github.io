@@ -38,7 +38,7 @@
     <meta name="twitter:image:alt" content="FRAN7 — Grief &amp; Glory">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="assets/js/fran7-sessao.js?v=20261104-1"></script>
-    <script src="assets/js/proteger-inicio.js?v=20261104-1"></script>
+    <script src="assets/js/proteger-inicio.js?v=20261107-1"></script>
     <script src="assets/js/entrada-site.js"></script>
     <link rel="stylesheet" href="assets/css/assistente.css?v=20261030-4">
     <link rel="stylesheet" href="assets/css/frete-gratis.css">
@@ -3287,6 +3287,7 @@
     <link rel="stylesheet" href="assets/css/preloader-shimmer.css?v=20261030-1">
     <link rel="stylesheet" href="assets/css/botoes-outline.css">
     <link rel="stylesheet" href="assets/css/classificacao-estrelas.css?v=20261030-1">
+    <link rel="stylesheet" href="assets/css/pesquisa-inicio.css?v=20261107-1">
     <script src="assets/js/configuracoes.js"></script>
 
 </head>
@@ -3433,7 +3434,7 @@
 
         </button>
 
-        <a href="#produtos" class="header-search" aria-label="Ver produtos" title="Ver produtos">
+        <a href="#pesquisarProdutos" class="header-search" aria-label="Pesquisar produtos" title="Pesquisar produtos">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.8"/>
                 <path d="m15.5 15.5 4.3 4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -3500,15 +3501,29 @@
         id="produtos"
     >
 
-        <h2 class="titulo">
+        <form class="pesquisa-inicio" id="pesquisaInicio" role="search">
+            <label class="sr-only" for="pesquisarProdutos">Pesquisar produtos pelo nome</label>
+            <input
+                type="search"
+                id="pesquisarProdutos"
+                name="pesquisa"
+                placeholder="Pesquisar produtos pelo nome..."
+                autocomplete="off"
+                aria-controls="produtosGrid"
+            >
+            <button type="submit">PESQUISAR</button>
+        </form>
+        <p class="pesquisa-inicio-estado" id="pesquisaInicioEstado" role="status" aria-live="polite" hidden></p>
+
+        <h2 class="titulo" id="produtosTitulo">
             DESTAQUES
         </h2>
 
-        <p class="subtitulo">
+        <p class="subtitulo" id="produtosSubtitulo">
             Peças selecionadas da FRAN7.
         </p>
 
-        <div class="produtos-grid" aria-live="polite"><p class="estado-destaques">A carregar destaques...</p></div>
+        <div class="produtos-grid" id="produtosGrid" aria-live="polite"><p class="estado-destaques">A carregar destaques...</p></div>
 
     </section>
 
@@ -3571,90 +3586,6 @@
         </p>
 
         <div class="redes-conteudo">
-        <div class="redes-grid">
-
-            <a
-                href="https://instagram.com/fran7.official"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="rede rede-instagram"
-            >
-
-                <span class="icone">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <rect x="3" y="3" width="18" height="18" rx="5"/>
-                        <circle cx="12" cy="12" r="4"/>
-                        <circle cx="17.5" cy="6.8" r=".8" fill="currentColor" stroke="none"/>
-                    </svg>
-                </span>
-
-                <span>
-                    Instagram
-                </span>
-
-            </a>
-
-            <a
-                href="https://wa.me/244973560521"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="rede rede-whatsapp"
-            >
-
-                <span class="icone">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M20.2 11.7a8.2 8.2 0 0 1-12.1 7.2L3 20l1.2-4.8a8.2 8.2 0 1 1 16-3.5Z"/>
-                        <path d="M8.4 7.8c.3-.5.7-.5 1-.5.2 0 .4 0 .5.4l.8 1.8c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.4.8 1.2 1.5 2 1.9.3.2.5.2.7-.1l.8-.9c.2-.3.4-.3.7-.2l1.7.8c.3.2.5.2.5.5 0 .3-.2 1.2-.8 1.6-.5.4-1.2.6-2 .4-1-.2-2.2-.8-3.6-2-1.2-1.1-2-2.4-2.3-3.3-.3-.9.1-1.8.7-2.5Z"/>
-                    </svg>
-                </span>
-
-                <span>
-                    WhatsApp
-                </span>
-
-            </a>
-
-            <a
-                href="mailto:fran7officiall@gmail.com"
-                class="rede rede-email"
-            >
-
-                <span class="icone">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path class="gmail-yellow" d="M4 18V7"/>
-                        <path class="gmail-left" d="m4 7 8 6"/>
-                        <path class="gmail-green" d="m12 13 8-6"/>
-                        <path class="gmail-right" d="M20 7v11"/>
-                    </svg>
-                </span>
-
-                <span>
-                    Gmail
-                </span>
-
-            </a>
-
-            <a
-                href="https://www.youtube.com/@AdelinoSabino-ez5zp?themeRefresh=1"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="rede rede-youtube"
-            >
-
-                <span class="icone">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <rect x="2.5" y="5" width="19" height="14" rx="4"/>
-                        <path d="m10 9 5 3-5 3z"/>
-                    </svg>
-                </span>
-
-                <span>
-                    YouTube
-                </span>
-
-            </a>
-        </div>
-
         <section class="fran7-tribute-card" aria-labelledby="fran7-tribute-title">
   <div class="fran7-tribute-inner">
     <div class="fran7-tribute-badge">HOMENAGEM</div>
@@ -5464,9 +5395,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/fran7-supabase.js?v=20261106-1"></script>
     <script src="assets/js/fran7-banner-catalogo.js?v=20261107-1"></script>
-    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261106-1"></script>
+    <script src="assets/js/fran7-pesquisa-produtos.js?v=20261107-1"></script>
+    <script src="assets/js/pocketbase-destaques-inicio.js?v=20261107-1"></script>
     <script src="assets/js/favoritos.js?v=20261105-4"></script>
-    <script src="assets/js/pocketbase-auth.js?v=20261106-1"></script>
+    <script src="assets/js/pocketbase-auth.js?v=20261107-1"></script>
     <script src="assets/js/fran7-comentarios-produto.js?v=20261104-1"></script>
     <script src="assets/js/classificacao-estrelas.js?v=20261106-1"></script>
     <script src="assets/js/detalhe-produto.js?v=20261106-1"></script>

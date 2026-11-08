@@ -2,7 +2,19 @@
     "use strict";
 
     const CATEGORY = "destaques";
+    const productSearch = window.Fran7ProductSearch;
     const grid = document.querySelector("#produtos .produtos-grid");
+    const searchForm = document.getElementById("pesquisaInicio");
+    const searchInput = document.getElementById("pesquisarProdutos");
+    const searchStatus = document.getElementById("pesquisaInicioEstado");
+    const productsTitle = document.getElementById("produtosTitulo");
+    const productsSubtitle = document.getElementById("produtosSubtitulo");
+    const allProductsPageSize = 100;
+    let highlightedProducts = null;
+    let allProducts = null;
+    let allProductsPromise = null;
+    let searchSequence = 0;
+    let searchTimer = null;
 
     function mostrarEstado(message) {
         if (!grid) {
@@ -24,6 +36,18 @@
                     .normalize("NFD")
                     .replace(/[\u0300-\u036f]/g, "");
             });
+    }
+
+    function produtoCorresponde(record, query) {
+        const variantColors = (record.fran7_variants || []).map(function(variant) {
+            return variant.cor || "";
+        }).join(" ");
+        return productSearch.matches(query, [
+            record.texto,
+            record.descricao,
+            record.categoria,
+            variantColors
+        ].join(" "));
     }
 
     function formatarPreco(value) {
@@ -157,9 +181,9 @@
         const add = document.createElement("a");
         add.href = "#";
         add.className = "botao-produto";
-        add.textContent = productVariants.length
-            ? "ESCOLHER OPÇÕES"
-            : outOfStock ? "SEM STOCK" : "VER PRODUTO";
+        add.textContent = outOfStock && productVariants.length === 0
+            ? "SEM STOCK"
+            : "ESCOLHER OPÇÕES";
         if (outOfStock && productVariants.length === 0) {
             add.setAttribute("aria-disabled", "true");
             add.addEventListener("click", function(event) {
@@ -182,6 +206,161 @@
         return article;
     }
 
+    function renderizarProdutos(records, emptyMessage) {
+        const cards = records.map(function(record) {
+            return criarCartao(record, record.fran7_variants || []);
+        }).filter(Boolean);
+
+        if (!cards.length) {
+            mostrarEstado(emptyMessage);
+            return;
+        }
+
+        grid.replaceChildren.apply(grid, cards);
+        window.dispatchEvent(new CustomEvent("fran7-products-loaded", {
+            detail: { products: cards }
+        }));
+    }
+
+    async function carregarTodosProdutos() {
+        if (allProducts) {
+            return allProducts;
+        }
+        if (allProductsPromise) {
+            return allProductsPromise;
+        }
+
+        allProductsPromise = (async function() {
+            const client = window.Fran7Supabase.getClient();
+            const records = [];
+            let page = 0;
+            let totalCount = 0;
+
+            do {
+                const from = page * allProductsPageSize;
+                const to = from + allProductsPageSize - 1;
+                const result = await client
+                    .from("fran7_products")
+                    .select("*, fran7_variants(*)", { count: "exact" })
+                    .eq("ativo", true)
+                    .order("created_at", { ascending: false })
+                    .range(from, to);
+                if (result.error) {
+                    throw result.error;
+                }
+
+                const products = result.data || [];
+                records.push.apply(records, products);
+                totalCount = result.count || 0;
+                page += 1;
+            } while (page * allProductsPageSize < totalCount);
+
+            allProducts = records;
+            return allProducts;
+        })().catch(function(error) {
+            allProductsPromise = null;
+            throw error;
+        });
+
+        return allProductsPromise;
+    }
+
+    function atualizarUrlPesquisa(query) {
+        if (!window.history?.replaceState) {
+            return;
+        }
+        const url = new URL(window.location.href);
+        if (query) {
+            url.searchParams.set("pesquisa", query);
+        } else {
+            url.searchParams.delete("pesquisa");
+        }
+        window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    }
+
+    async function pesquisarProdutos(query, sequence) {
+        const normalizedQuery = productSearch.normalize(query);
+        if (!normalizedQuery) {
+            grid.removeAttribute("aria-busy");
+            searchStatus.hidden = true;
+            productsTitle.textContent = "DESTAQUES";
+            productsSubtitle.textContent = "Peças selecionadas da FRAN7.";
+            if (highlightedProducts) {
+                renderizarProdutos(highlightedProducts, "Ainda não há produtos em destaque.");
+            }
+            return;
+        }
+
+        productsTitle.textContent = "RESULTADOS DA PESQUISA";
+        productsSubtitle.textContent = "A pesquisar no catálogo completo da FRAN7.";
+        searchStatus.hidden = false;
+        searchStatus.textContent = "A procurar produtos...";
+        grid.setAttribute("aria-busy", "true");
+
+        try {
+            const products = await carregarTodosProdutos();
+            if (sequence !== searchSequence) {
+                return;
+            }
+            const matches = products.filter(function(product) {
+                return produtoCorresponde(product, normalizedQuery);
+            });
+            renderizarProdutos(matches, "Não encontrámos produtos com esse nome. Experimenta outros termos.");
+            searchStatus.textContent = matches.length === 1
+                ? "1 produto encontrado."
+                : matches.length + " produtos encontrados.";
+        } catch (error) {
+            if (sequence !== searchSequence) {
+                return;
+            }
+            console.error("Não foi possível pesquisar o catálogo de produtos.", error);
+            mostrarEstado("Não foi possível pesquisar os produtos. Tenta novamente mais tarde.");
+            searchStatus.textContent = "A pesquisa está temporariamente indisponível. Tenta novamente mais tarde.";
+        } finally {
+            if (sequence === searchSequence) {
+                grid.removeAttribute("aria-busy");
+            }
+        }
+    }
+
+    function iniciarPesquisa() {
+        if (!searchForm || !searchInput || !searchStatus || !productsTitle || !productsSubtitle) {
+            return;
+        }
+
+        function agendarPesquisa() {
+            const query = searchInput.value.trim();
+            const sequence = ++searchSequence;
+            atualizarUrlPesquisa(query);
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(function() {
+                pesquisarProdutos(query, sequence);
+            }, 180);
+        }
+
+        searchInput.addEventListener("input", agendarPesquisa);
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            window.clearTimeout(searchTimer);
+            agendarPesquisa();
+            searchInput.focus();
+        });
+        window.addEventListener("hashchange", function() {
+            if (window.location.hash === "#pesquisarProdutos") {
+                searchInput.focus({ preventScroll: true });
+            }
+        });
+        if (window.location.hash === "#pesquisarProdutos") {
+            searchInput.focus({ preventScroll: true });
+        }
+
+        const initialQuery = new URLSearchParams(window.location.search).get("pesquisa") || "";
+        if (initialQuery) {
+            searchInput.value = initialQuery;
+            agendarPesquisa();
+        }
+    }
+
     async function carregarDestaques() {
         if (!grid) {
             return;
@@ -197,22 +376,19 @@
         if (result.error) {
             throw result.error;
         }
-        const products = result.data || [];
-        const cards = products.map(function(record) {
-            return criarCartao(record, record.fran7_variants || []);
-        }).filter(Boolean);
-        if (!cards.length) {
-            mostrarEstado("Ainda não há produtos em destaque.");
-            return;
+        highlightedProducts = result.data || [];
+        if (!searchInput?.value.trim()) {
+            productsTitle.textContent = "DESTAQUES";
+            productsSubtitle.textContent = "Peças selecionadas da FRAN7.";
+            renderizarProdutos(highlightedProducts, "Ainda não há produtos em destaque.");
         }
-        grid.replaceChildren.apply(grid, cards);
-        window.dispatchEvent(new CustomEvent("fran7-products-loaded", {
-            detail: { products: cards }
-        }));
     }
 
+    iniciarPesquisa();
     carregarDestaques().catch(function(error) {
         console.error("Não foi possível carregar os destaques do Supabase.", error);
-        mostrarEstado("Não foi possível carregar os destaques. Tenta novamente mais tarde ou contacta o suporte.");
+        if (!searchInput?.value.trim()) {
+            mostrarEstado("Não foi possível carregar os destaques. Tenta novamente mais tarde ou contacta o suporte.");
+        }
     });
 })();

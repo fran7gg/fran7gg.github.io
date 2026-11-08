@@ -11,17 +11,22 @@
         }
         verificationInProgress = true;
         let authenticated = false;
+        let verificationSucceeded = false;
         try {
             const auth = window.Fran7Auth;
-            authenticated = auth?.verificarSessao
-                ? await auth.verificarSessao()
-                : Boolean(window.Fran7Session?.estaAutenticado());
+            if (auth?.verificarSessao) {
+                authenticated = await auth.verificarSessao();
+                verificationSucceeded = true;
+            } else if (window.Fran7Session?.estaAutenticado) {
+                authenticated = window.Fran7Session.estaAutenticado();
+                verificationSucceeded = true;
+            }
         } catch (error) {
             console.error("Não foi possível verificar a sessão FRAN7.", error);
         } finally {
             verificationInProgress = false;
         }
-        if (!authenticated) {
+        if (verificationSucceeded && !authenticated) {
             const paginaAtual = window.location.pathname.toLowerCase();
             const ePaginaIndex = paginaAtual === "/" ||
                 /(^|\/)index\.html$/.test(paginaAtual);
