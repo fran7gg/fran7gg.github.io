@@ -49,12 +49,6 @@
         return (CONFIG.invoicePrefix || "FT") + "-" + date.getFullYear() + "-" + unique;
     }
 
-    function calcularDesconto(quantidade) {
-        if (quantidade >= 3) return 2000;
-        if (quantidade === 2) return 1500;
-        return 0;
-    }
-
     function lerPerfilCliente() {
         let profile = {};
         try {
@@ -86,12 +80,11 @@
             };
         });
         const totalPending = products.some(function(item) { return item.total_item === null; });
-        const quantidadeTotal = products.reduce(function(sum, item) { return sum + item.quantidade; }, 0);
         const subtotal = products.reduce(function(sum, item) {
             return sum + (item.total_item || 0);
         }, 0);
-        const discount = calcularDesconto(quantidadeTotal);
-        const total = totalPending ? null : Math.max(0, subtotal - discount);
+        const quantidadeTotal = products.reduce(function(sum, item) { return sum + item.quantidade; }, 0);
+        const total = totalPending ? null : subtotal;
         const order = {
             id_pedido: gerarNumeroPedido(date),
             data_hora: date.toISOString(),
@@ -99,7 +92,6 @@
             produtos: products,
             quantidade_total: quantidadeTotal,
             valor_subtotal: subtotal,
-            desconto_quantidade: discount,
             frete_gratis: true,
             valor_total: total,
             total_pendente: totalPending,
@@ -120,7 +112,6 @@
             moeda: order.moeda,
             produtos: order.produtos,
             valor_subtotal: order.valor_subtotal,
-            desconto_quantidade: order.desconto_quantidade,
             frete_gratis: order.frete_gratis,
             valor_total: order.valor_total,
             remetente: {
@@ -322,9 +313,6 @@
             [order.total_pendente ? "SUBTOTAL PARCIAL" : "SUBTOTAL", formatPrice(order.valor_subtotal)],
             ["ENVIO PARA ANGOLA", "GRÁTIS"]
         ];
-        if (order.desconto_quantidade > 0) {
-            totals.push(["DESCONTO DE QUANTIDADE", "- " + formatPrice(order.desconto_quantidade)]);
-        }
         totals.push(["TOTAL FINAL", formatPrice(order.valor_total)]);
 
         if (y + totals.length * 7 + 37 > pageHeight - 20) {
@@ -464,7 +452,7 @@
                 "id_pedido", "data_hora", "nome_cliente", "email_cliente", "telefone_cliente",
                 "cidade", "bairro_localizacao", "comentario", "nome_produto", "imagem",
                 "tamanho", "cor", "quantidade", "preco_unitario", "total_item",
-                "valor_subtotal", "desconto_quantidade", "frete_gratis", "valor_total", "moeda", "estado"
+                "valor_subtotal", "frete_gratis", "valor_total", "moeda", "estado"
             ];
             const rows = [columns.join(",")];
             saved.forEach(function(order) {
@@ -474,7 +462,7 @@
                         order.telefone_cliente, order.cidade, order.bairro_localizacao,
                         order.comentario, item.nome, item.imagem, item.tamanho, item.cor,
                         item.quantidade, item.preco_unitario, item.total_item,
-                        order.valor_subtotal, order.desconto_quantidade, order.frete_gratis,
+                        order.valor_subtotal, order.frete_gratis,
                         order.valor_total, order.moeda, order.estado
                     ].map(csvCell).join(","));
                 });
@@ -497,7 +485,6 @@
         parsePrice: parsePrice,
         formatAmount: formatAmount,
         createOrder: criarPedido,
-        calculateDiscount: calcularDesconto,
         finalize: finalizar,
         exportOrders: exportOrders
     };

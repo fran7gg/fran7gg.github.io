@@ -3721,8 +3721,6 @@
                     <span>Entrega</span>
                     <span>Grátis</span>
                 </div>
-                <div class="carrinho-desconto-selo" id="carrinhoDescontoSelo" hidden></div>
-
                 <details class="carrinho-entrega">
                     <summary>Dados de entrega</summary>
                     <div class="carrinho-dados-entrega">
@@ -4467,7 +4465,6 @@
                     "carrinhoTotal"
                 );
             const subtotalElemento = document.getElementById("carrinhoSubtotal");
-            const descontoSelo = document.getElementById("carrinhoDescontoSelo");
 
             conteudo.innerHTML = "";
             document.getElementById("carrinhoCidade").value =
@@ -4489,7 +4486,6 @@
 
                 totalElemento.textContent = "0 Kz";
                 subtotalElemento.textContent = "0 Kz";
-                descontoSelo.hidden = true;
 
                 return;
 
@@ -4728,19 +4724,12 @@
                 "visivel"
             );
 
-            const desconto = window.Fran7Checkout
-                ? window.Fran7Checkout.calculateDiscount(quantidadeTotal)
-                : (quantidadeTotal >= 3 ? 2000 : quantidadeTotal === 2 ? 1500 : 0);
             subtotalElemento.textContent = totalPendente
                 ? formatarPreco(subtotal) + " + itens a confirmar"
                 : formatarPreco(subtotal);
-            descontoSelo.hidden = desconto === 0;
-            descontoSelo.textContent = quantidadeTotal >= 3
-                ? "Desconto máximo de quantidade aplicado!"
-                : "Desconto por volume aplicado!";
             totalElemento.textContent = totalPendente
                 ? "A confirmar"
-                : formatarPreco(Math.max(0, subtotal - desconto));
+                : formatarPreco(subtotal);
 
         }
 
@@ -4794,12 +4783,8 @@
             const totalPendente = carrinho.some(function(item) {
                 return !item.preco;
             });
-            const desconto = window.Fran7Checkout
-                ? window.Fran7Checkout.calculateDiscount(quantidadeTotal)
-                : (quantidadeTotal >= 3 ? 2000 : quantidadeTotal === 2 ? 1500 : 0);
             const contador = document.getElementById("contadorCarrinho");
             const subtotalElemento = document.getElementById("carrinhoSubtotal");
-            const descontoSelo = document.getElementById("carrinhoDescontoSelo");
             const totalElemento = document.getElementById("carrinhoTotal");
 
             if (contador) {
@@ -4810,16 +4795,10 @@
                     ? formatarPreco(subtotal) + " + itens a confirmar"
                     : formatarPreco(subtotal);
             }
-            if (descontoSelo) {
-                descontoSelo.hidden = desconto === 0;
-                descontoSelo.textContent = quantidadeTotal >= 3
-                    ? "Desconto máximo de quantidade aplicado!"
-                    : "Desconto por volume aplicado!";
-            }
             if (totalElemento) {
                 totalElemento.textContent = totalPendente
                     ? "A confirmar"
-                    : formatarPreco(Math.max(0, subtotal - desconto));
+                    : formatarPreco(subtotal);
             }
         }
 
@@ -5413,7 +5392,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/fran7-supabase.js?v=20261106-1"></script>
     <script src="assets/js/fran7-banner-catalogo.js?v=20261107-1"></script>
-    <script src="assets/js/fran7-checkout.js?v=20261106-1"></script>
+    <script src="assets/js/fran7-checkout.js?v=20261108-2"></script>
     <script src="assets/js/fran7-pesquisa-produtos.js?v=20261107-1"></script>
     <script src="assets/js/pocketbase-destaques-inicio.js?v=20261107-1"></script>
     <script src="assets/js/favoritos.js?v=20261105-4"></script>

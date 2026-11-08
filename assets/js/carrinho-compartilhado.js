@@ -571,7 +571,6 @@
     function atualizarResumo() {
         const count = document.getElementById("fran7CartCount");
         const subtotalElement = document.getElementById("fran7CartSubtotal");
-        const discountBadge = document.getElementById("fran7CartDiscountBadge");
         const totalElement = document.getElementById("fran7CartTotal");
         const totalQuantity = items.reduce(function(total, item) {
             return total + item.quantidade;
@@ -580,26 +579,16 @@
             return total + item.preco * item.quantidade;
         }, 0);
         const totalPending = items.some(function(item) { return !item.preco; });
-        const discount = window.Fran7Checkout
-            ? window.Fran7Checkout.calculateDiscount(totalQuantity)
-            : (totalQuantity >= 3 ? 2000 : totalQuantity === 2 ? 1500 : 0);
-
         if (count) count.textContent = String(totalQuantity);
         if (subtotalElement) {
             subtotalElement.textContent = totalPending
                 ? formatarPreco(subtotal) + " + itens a confirmar"
                 : formatarPreco(subtotal);
         }
-        if (discountBadge) {
-            discountBadge.hidden = discount === 0;
-            discountBadge.textContent = totalQuantity >= 3
-                ? "Desconto máximo de quantidade aplicado!"
-                : "Desconto por volume aplicado!";
-        }
         if (totalElement) {
             totalElement.textContent = totalPending
                 ? "A confirmar"
-                : formatarPreco(Math.max(0, subtotal - discount));
+                : formatarPreco(subtotal);
         }
     }
 
@@ -794,7 +783,6 @@
                         <span id="fran7CartSubtotal">0 Kz</span>
                     </div>
                     <div class="fran7-cart-summary-row"><span>Entrega</span><span>Grátis</span></div>
-                    <div class="fran7-cart-discount-badge" id="fran7CartDiscountBadge" hidden></div>
                     <div class="fran7-cart-total">
                         <span class="fran7-cart-total-label">
                             <span>TOTAL FINAL</span>
