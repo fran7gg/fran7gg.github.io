@@ -299,8 +299,17 @@
             }
 
             .produtos-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(6, minmax(140px, 1fr));
                 gap: 14px;
+                overflow-x: auto;
+                overscroll-behavior-x: contain;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-x pan-y;
+            }
+
+            .produto {
+                scroll-snap-align: start;
             }
 
             .banner-colecao img {
