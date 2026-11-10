@@ -7,7 +7,7 @@
     align-content: start;
     justify-items: center;
     overflow: clip;
-    padding: clamp(52px, 7vh, 78px) 24px 30px;
+    padding: clamp(52px, 7vh, 78px) 24px 0;
     isolation: isolate;
     background:
         radial-gradient(ellipse at 18% 83%, rgba(196, 222, 188, .76), transparent 38%),
@@ -42,7 +42,22 @@
 }
 
 .hero-editorial-copy,
-.hero-editorial-showcase,
+.hero-editorial-products-area {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 900px);
+}
+
+.hero-editorial-products-area {
+    display: grid;
+    justify-items: center;
+    width: calc(100% + 48px);
+    margin-top: 24px;
+    margin-inline: -24px;
+    padding: 12px 24px 30px;
+    background: #fff;
+}
+
 .hero-editorial-bottom {
     position: relative;
     z-index: 1;
@@ -77,11 +92,7 @@
     display: grid;
     grid-template-columns: 1fr minmax(230px, 400px) 1fr;
     align-items: center;
-    margin-top: 24px;
-    padding: 12px 14px 40px;
-    border-radius: 3px;
-    background: #fff;
-    box-shadow: 0 16px 38px rgba(48, 40, 35, .08);
+    padding: 0 14px 28px;
 }
 
 .hero-editorial-status {
@@ -130,7 +141,7 @@
     transition: opacity .25s ease, transform .35s ease;
 }
 
-.hero-editorial-product--side:first-child {
+.hero-editorial-product--side:first-of-type {
     justify-self: end;
     transform: rotate(-7deg) translateX(14px);
     animation-delay: .12s;
@@ -400,7 +411,7 @@
 @media (max-width: 700px) {
     .hero-editorial {
         min-height: 0;
-        padding: 52px 18px 26px;
+        padding: 52px 18px 0;
     }
 
     .hero-editorial-eyebrow {
@@ -421,14 +432,20 @@
     .hero-editorial-showcase {
         grid-template-columns: minmax(0, 1fr) minmax(140px, 58vw) minmax(0, 1fr);
         width: calc(100% + 24px);
+    }
+
+    .hero-editorial-products-area {
+        width: calc(100% + 36px);
         margin-top: 20px;
+        margin-inline: -18px;
+        padding: 12px 18px 26px;
     }
 
     .hero-editorial-product--side {
         max-width: none;
     }
 
-    .hero-editorial-product--side:first-child {
+    .hero-editorial-product--side:first-of-type {
         transform: rotate(-7deg) translateX(8px);
     }
 
@@ -481,6 +498,12 @@
 
 @media (max-width: 380px) {
     .hero-editorial {
+        padding-inline: 14px;
+    }
+
+    .hero-editorial-products-area {
+        width: calc(100% + 28px);
+        margin-inline: -14px;
         padding-inline: 14px;
     }
 
