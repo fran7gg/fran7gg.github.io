@@ -192,9 +192,19 @@
             image.onload = function() {
                 try {
                     const canvas = document.createElement("canvas");
-                    canvas.width = image.naturalWidth;
-                    canvas.height = image.naturalHeight;
-                    canvas.getContext("2d").drawImage(image, 0, 0);
+                    const crop = {
+                        x: image.naturalWidth * 0.22,
+                        y: image.naturalHeight * 0.36,
+                        width: image.naturalWidth * 0.56,
+                        height: image.naturalHeight * 0.25
+                    };
+                    canvas.width = crop.width;
+                    canvas.height = crop.height;
+                    canvas.getContext("2d").drawImage(
+                        image,
+                        crop.x, crop.y, crop.width, crop.height,
+                        0, 0, crop.width, crop.height
+                    );
                     resolve(canvas.toDataURL("image/png"));
                 } catch (error) {
                     resolve("");
@@ -218,8 +228,8 @@
         const formatPrice = function(price) { return price === null ? "A confirmar" : formatAmount(price); };
 
         function drawHeader() {
-            if (logo) doc.addImage(logo, "PNG", left, 12, 23, 18);
-            const titleX = logo ? left + 29 : left;
+            if (logo) doc.addImage(logo, "PNG", left, 14, 28, 14);
+            const titleX = logo ? left + 34 : left;
             doc.setTextColor(24, 24, 24);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(19);

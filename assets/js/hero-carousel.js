@@ -80,6 +80,7 @@
         const slide = document.createElement("figure");
         slide.className = "fran7-carousel-slide";
         slide.dataset.carouselSlide = "";
+        slide.dataset.carouselRecord = record.id;
         slide.setAttribute("aria-hidden", "true");
         slide.setAttribute("role", "group");
         slide.setAttribute("aria-roledescription", "slide");
@@ -142,6 +143,21 @@
     let activeIndex = 0;
     let timer = null;
     let slides = [];
+    let lastAnnouncedSlide = null;
+
+    function announceActiveSlide() {
+        const activeSlide = slides[activeIndex];
+        if (!activeSlide || activeSlide === lastAnnouncedSlide) return;
+
+        lastAnnouncedSlide = activeSlide;
+        document.dispatchEvent(new CustomEvent("fran7:carousel-change", {
+            detail: {
+                index: activeIndex,
+                total: slides.length,
+                slideId: activeSlide.dataset.carouselRecord
+            }
+        }));
+    }
 
     function updateCarousel() {
         slides = Array.from(track.querySelectorAll("[data-carousel-slide]"));
@@ -199,6 +215,7 @@
         status.hidden = true;
         indicatorsContainer.hidden = slides.length < 2;
         carousel.classList.remove("is-unavailable");
+        announceActiveSlide();
     }
 
     function showSlide(index) {
@@ -219,10 +236,11 @@
 
     let activeVideo = null;
     let activeVideoEndHandler = null;
+    let autoplayPaused = reduceMotion.matches;
 
     function startAutoplay() {
         stopAutoplay();
-        if (slides.length < 2 || reduceMotion.matches || document.hidden) return;
+        if (autoplayPaused || slides.length < 2 || reduceMotion.matches || document.hidden) return;
 
         const activeSlide = slides[activeIndex];
         const video = activeSlide && activeSlide.querySelector("video");
@@ -246,6 +264,20 @@
         const indicator = event.target.closest("[data-carousel-indicator]");
         if (!indicator) return;
         showSlide(Number(indicator.dataset.carouselIndicator));
+        startAutoplay();
+    });
+
+    document.addEventListener("fran7:carousel-autoplay", function(event) {
+        autoplayPaused = Boolean(event.detail && event.detail.paused);
+        if (autoplayPaused) {
+            stopAutoplay();
+            const activeSlide = slides[activeIndex];
+            const video = activeSlide && activeSlide.querySelector("video");
+            if (video) video.pause();
+            return;
+        }
+
+        updateCarousel();
         startAutoplay();
     });
 

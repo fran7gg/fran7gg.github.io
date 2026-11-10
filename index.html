@@ -9,10 +9,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light">
 
-    <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png">
-    <link rel="shortcut icon" type="image/png" href="./favicon-48.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=20261110-1">
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png?v=20261110-1">
+    <link rel="shortcut icon" type="image/png" href="./favicon-48.png?v=20261110-1">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=20261110-1">
 
     <title>FRAN7 | Grief &amp; Glory</title>
     <meta name="description" content="Conheça a nova coleção e estilo único da FRAN7.">
@@ -25,7 +25,7 @@
     <meta property="og:title" content="FRAN7 | Grief &amp; Glory">
     <meta property="og:description" content="Conheça a nova coleção e estilo único da FRAN7.">
     <meta property="og:url" content="https://fran7gg.github.io/">
-    <meta property="og:image" content="https://fran7gg.github.io/elmy.jpeg">
+    <meta property="og:image" content="https://fran7gg.github.io/FRAN7.JPG?v=20261110-1">
     <meta property="og:image:alt" content="FRAN7 — Grief &amp; Glory">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1254">
@@ -34,7 +34,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="FRAN7 | Grief &amp; Glory">
     <meta name="twitter:description" content="Conheça a nova coleção e estilo único da FRAN7.">
-    <meta name="twitter:image" content="https://fran7gg.github.io/elmy.jpeg">
+    <meta name="twitter:image" content="https://fran7gg.github.io/FRAN7.JPG?v=20261110-1">
     <meta name="twitter:image:alt" content="FRAN7 — Grief &amp; Glory">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="assets/js/fran7-sessao.js?v=20261104-1"></script>
@@ -46,8 +46,10 @@
     <link rel="stylesheet" href="assets/css/detalhe-produto.css?v=20261107-1">
     <link rel="stylesheet" href="assets/css/informacoes-modal.css">
     <link rel="stylesheet" href="assets/css/hero-carousel.css?v=20261105-1">
+    <link rel="stylesheet" href="assets/css/hero-editorial.css?v=20261110-1">
     <link rel="stylesheet" href="assets/css/catalogo-banner.css?v=20261107-2">
     <script defer src="assets/js/hero-carousel.js?v=20261107-2"></script>
+    <script defer src="assets/js/hero-editorial.js?v=20261110-1"></script>
 
     <style>
 
@@ -3486,7 +3488,48 @@
          INÍCIO
     ===================================================== -->
 
-    <section class="fran7-carousel" id="inicio" data-fran7-carousel aria-roledescription="carrossel" aria-label="Banner FRAN7">
+    <section class="hero-editorial" id="inicio" data-hero-editorial aria-labelledby="hero-editorial-title">
+        <div class="hero-editorial-copy">
+            <p class="hero-editorial-eyebrow">FRAN7 · Coleção essencial 2027</p>
+            <h1 class="hero-editorial-title" id="hero-editorial-title">Menos ruído.<br>Mais presença.</h1>
+            <p class="hero-editorial-description">Peças essenciais, pensadas para durar. Descobre uma nova forma de vestir a tua história.</p>
+        </div>
+
+        <div class="hero-editorial-showcase" aria-label="Escolhe um produto e variante" aria-busy="true">
+            <p class="hero-editorial-status" data-editorial-status role="status">A carregar produtos do Supabase...</p>
+            <button class="hero-editorial-product hero-editorial-product--side" type="button" data-editorial-side="previous" data-editorial-product="0" aria-label="Produto anterior" disabled>
+                <img alt="" hidden>
+            </button>
+            <button class="hero-editorial-product hero-editorial-product--featured" type="button" data-editorial-featured aria-label="Ampliar produto" disabled>
+                <img alt="" hidden>
+            </button>
+            <button class="hero-editorial-product hero-editorial-product--side" type="button" data-editorial-side="next" data-editorial-product="0" aria-label="Produto seguinte" disabled>
+                <img alt="" hidden>
+            </button>
+            <div class="hero-editorial-hint"><span aria-hidden="true">+</span> Toca para ver</div>
+        </div>
+
+        <div class="hero-editorial-bottom">
+            <div class="hero-editorial-caption" aria-live="off">
+                <small data-editorial-color></small>
+                <strong data-editorial-name></strong>
+            </div>
+            <div class="hero-editorial-actions">
+                <a class="hero-editorial-cta" href="#produtos">Explorar coleção <span aria-hidden="true">↗</span></a>
+                <button class="hero-editorial-toggle" type="button" data-editorial-toggle aria-pressed="false" aria-label="Pausar troca automática dos produtos">
+                    <span aria-hidden="true" data-editorial-toggle-icon>Ⅱ</span>
+                    <span data-editorial-toggle-label>Pausar</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="hero-editorial-lightbox" data-editorial-lightbox role="dialog" aria-modal="true" aria-label="Imagem ampliada" hidden>
+            <button class="hero-editorial-lightbox-close" type="button" data-editorial-close aria-label="Fechar imagem">&times;</button>
+            <img src="" alt="">
+        </div>
+    </section>
+
+    <section class="fran7-carousel" data-fran7-carousel aria-roledescription="carrossel" aria-label="Banner FRAN7">
         <div class="fran7-carousel-track" data-carousel-track></div>
         <p class="fran7-carousel-status" data-carousel-status role="status">A carregar imagens...</p>
         <div class="fran7-carousel-indicators" data-carousel-indicators aria-label="Escolher imagem" hidden></div>
