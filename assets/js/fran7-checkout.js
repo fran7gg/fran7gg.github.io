@@ -192,19 +192,9 @@
             image.onload = function() {
                 try {
                     const canvas = document.createElement("canvas");
-                    const crop = {
-                        x: image.naturalWidth * 0.22,
-                        y: image.naturalHeight * 0.36,
-                        width: image.naturalWidth * 0.56,
-                        height: image.naturalHeight * 0.25
-                    };
-                    canvas.width = crop.width;
-                    canvas.height = crop.height;
-                    canvas.getContext("2d").drawImage(
-                        image,
-                        crop.x, crop.y, crop.width, crop.height,
-                        0, 0, crop.width, crop.height
-                    );
+                    canvas.width = image.naturalWidth;
+                    canvas.height = image.naturalHeight;
+                    canvas.getContext("2d").drawImage(image, 0, 0);
                     resolve(canvas.toDataURL("image/png"));
                 } catch (error) {
                     resolve("");
@@ -228,15 +218,12 @@
         const formatPrice = function(price) { return price === null ? "A confirmar" : formatAmount(price); };
 
         function drawHeader() {
-            if (logo) doc.addImage(logo, "PNG", left, 14, 28, 14);
-            const titleX = logo ? left + 34 : left;
+            if (logo) doc.addImage(logo, "PNG", left, 14, 15, 15);
+            const titleX = logo ? left + 19 : left;
             doc.setTextColor(24, 24, 24);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(19);
-            doc.text(CONFIG.brandName || "FRAN7", titleX, 20);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.text(CONFIG.slogan || "Grief & Glory", titleX, 26);
+            doc.text(CONFIG.slogan || "Grief & Glory", titleX, 23);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(14);
             doc.text("FATURA / PEDIDO", right, 18, { align: "right" });
