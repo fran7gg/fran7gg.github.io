@@ -16,7 +16,7 @@
         brandName: "FRAN7",
         slogan: "Grief & Glory",
         supportEmail: "fran7officiall@gmail.com",
-        logoUrl: new URL("fran7-mark.png", window.location.href).href,
+        logoUrl: new URL("fran7-social.png", window.location.href).href,
         iban: "",
         multicaixaExpress: ""
     };

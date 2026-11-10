@@ -218,12 +218,7 @@
         const formatPrice = function(price) { return price === null ? "A confirmar" : formatAmount(price); };
 
         function drawHeader() {
-            if (logo) doc.addImage(logo, "PNG", left, 14, 15, 15);
-            const titleX = logo ? left + 19 : left;
-            doc.setTextColor(24, 24, 24);
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.text(CONFIG.slogan || "Grief & Glory", titleX, 23);
+            if (logo) doc.addImage(logo, "PNG", left, 14, 24, 24);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(14);
             doc.text("FATURA / PEDIDO", right, 18, { align: "right" });
