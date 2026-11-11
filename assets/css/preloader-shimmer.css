@@ -1,10 +1,10 @@
 ﻿#loading-screen {
-    background: #000000 !important;
+    background: #ffffff !important;
 }
 
 html body #loading-screen .loading-logo {
     display: block;
-    filter: brightness(0) invert(1) !important;
+    filter: brightness(0) !important;
     animation: fr7LogoPulse 1.8s ease-in-out infinite;
 }
 

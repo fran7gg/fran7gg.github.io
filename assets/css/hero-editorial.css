@@ -9,10 +9,7 @@
     overflow: clip;
     padding: clamp(52px, 7vh, 78px) 24px 0;
     isolation: isolate;
-    background:
-        radial-gradient(ellipse at 18% 83%, rgba(196, 222, 188, .76), transparent 38%),
-        radial-gradient(ellipse at 80% 18%, rgba(233, 208, 213, .78), transparent 42%),
-        linear-gradient(138deg, #eee8dd, #f3e7e9 52%, #e8eee3);
+    background: #fff;
     color: var(--editorial-ink);
     text-align: center;
 }
