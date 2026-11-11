@@ -34,7 +34,7 @@
     transform: translateY(-3px);
 }
 
-html:not(.fran7-entrada-ja-feita) #loading-screen:not(.concluido) ~ #fran7-ai .fran7-ai-button {
+#loading-screen:not(.concluido) ~ #fran7-ai .fran7-ai-button {
     visibility: hidden;
 }
 
