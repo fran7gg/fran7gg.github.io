@@ -23,44 +23,20 @@
     let currentCarouselSlide = null;
     let currentCarouselIndex = 0;
 
-    function normalizeColor(value) {
-        return value.trim().toLocaleLowerCase("pt")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
-    }
-
     function buildProducts(records) {
         const editorialProducts = [];
         (records || []).forEach(function(record) {
             const name = typeof record.texto === "string" ? record.texto.trim() : "";
             const baseImage = typeof record.imagem === "string" ? record.imagem.trim() : "";
             const variants = Array.isArray(record.fran7_variants) ? record.fran7_variants : [];
-            if (!record.id || !name || (!baseImage && !variants.some(function(variant) {
+            const displayVariant = variants.find(function(variant) {
                 return typeof variant.imagem === "string" && variant.imagem.trim();
-            }))) {
+            });
+            const image = displayVariant ? displayVariant.imagem.trim() : baseImage;
+            if (!record.id || !name || !image) {
                 console.error("Produto do banner editorial ignorado: falta ID, nome ou imagem.", record.id);
                 return;
             }
-
-            const seenColors = new Set();
-            variants.forEach(function(variant) {
-                const color = typeof variant.cor === "string" ? variant.cor.trim() : "";
-                const image = typeof variant.imagem === "string" ? variant.imagem.trim() : "";
-                if (!color || !image) return;
-
-                const normalizedColor = normalizeColor(color);
-                if (seenColors.has(normalizedColor)) return;
-                seenColors.add(normalizedColor);
-                if (!baseImage) return;
-                editorialProducts.push({
-                    id: record.id + ":" + normalizedColor,
-                    color: color,
-                    name: name,
-                    image: image
-                });
-            });
-
-            if (seenColors.size) return;
 
             const colors = Array.isArray(record.cores)
                 ? record.cores.filter(function(color) {
@@ -69,9 +45,11 @@
                 : [];
             editorialProducts.push({
                 id: record.id,
-                color: colors.length ? colors.join(" · ") : "FRAN7",
+                color: displayVariant && typeof displayVariant.cor === "string" && displayVariant.cor.trim()
+                    ? displayVariant.cor.trim()
+                    : colors.length ? colors[0].trim() : "FRAN7",
                 name: name,
-                image: baseImage
+                image: image
             });
         });
         return editorialProducts;
