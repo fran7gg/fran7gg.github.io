@@ -57,10 +57,12 @@
         if (sharedCount) {
             sharedCount.textContent = String(favoritos.length);
             sharedCount.hidden = favoritos.length === 0;
+            sharedCount.classList.toggle("animar-contador-favoritos", favoritos.length > 0);
         }
         if (contador) {
             contador.textContent = String(favoritos.length);
             contador.classList.toggle("visivel", favoritos.length > 0);
+            contador.classList.toggle("animar-contador-favoritos", favoritos.length > 0);
         }
         if (icone) {
             icone.classList.toggle("com-favoritos", favoritos.length > 0);
