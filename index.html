@@ -3330,23 +3330,6 @@
             >
         </div>
 
-        <details class="perfil-exclusao-conta" id="perfilEliminarConta" hidden>
-            <summary>Eliminar a minha conta</summary>
-            <p>A conta e os dados de perfil serão eliminados. Esta ação é permanente. Poderão ser mantidos registos de encomendas quando necessário.</p>
-            <form id="formEliminarConta" onsubmit="eliminarContaPerfil(event)">
-                <label for="perfilEliminarPalavraPasse">Confirma com a tua palavra-passe</label>
-                <input
-                    id="perfilEliminarPalavraPasse"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                >
-                <button type="submit">Eliminar conta permanentemente</button>
-                <p class="perfil-exclusao-estado" id="perfilEliminarEstado" role="status" aria-live="polite" hidden></p>
-            </form>
-        </details>
-
     </div>
 
     <!-- =====================================================
@@ -3960,6 +3943,23 @@
                 </div>
 
             </div>
+
+            <details class="perfil-exclusao-conta" id="perfilEliminarConta" hidden>
+                <summary>Eliminar a minha conta</summary>
+                <p>A conta e os dados de perfil serão eliminados. Esta ação é permanente. Poderão ser mantidos registos de encomendas quando necessário.</p>
+                <form id="formEliminarConta" onsubmit="eliminarContaPerfil(event)">
+                    <label for="perfilEliminarPalavraPasse">Confirma com a tua palavra-passe</label>
+                    <input
+                        id="perfilEliminarPalavraPasse"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <button type="submit">Eliminar conta permanentemente</button>
+                    <p class="perfil-exclusao-estado" id="perfilEliminarEstado" role="status" aria-live="polite" hidden></p>
+                </form>
+            </details>
 
         </div>
 
