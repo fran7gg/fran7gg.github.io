@@ -17,14 +17,25 @@
     display: none;
 }
 
-#catalogo .catalogo-banner-imagem {
+#catalogo .catalogo-banner-faixas {
     position: absolute;
     z-index: -2;
+    inset: 0;
+}
+
+#catalogo .catalogo-banner-imagem {
+    position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center 38%;
+    opacity: 0;
+    transition: opacity .8s ease;
+}
+
+#catalogo .catalogo-banner-imagem.is-active {
+    opacity: 1;
 }
 
 #catalogo.catalogo-banner::before {
@@ -36,8 +47,50 @@
 }
 
 #catalogo .catalogo-banner-conteudo {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 680px;
+}
+
+#catalogo .catalogo-banner-indicadores {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: 24px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#catalogo .catalogo-banner-indicadores:empty {
+    display: none;
+}
+
+#catalogo .catalogo-banner-indicador {
+    width: 28px;
+    height: 4px;
+    padding: 0;
+    border: 0;
+    background: rgba(255, 255, 255, .5);
+    cursor: pointer;
+}
+
+#catalogo .catalogo-banner-indicador[aria-current="true"] {
+    width: 42px;
+    background: #fff;
+}
+
+#catalogo .catalogo-banner-indicador:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #catalogo .catalogo-banner-imagem {
+        transition: none;
+    }
 }
 
 #catalogo .catalogo-banner-conteudo .titulo {
