@@ -218,7 +218,7 @@
         const formatPrice = function(price) { return price === null ? "A confirmar" : formatAmount(price); };
 
         function drawHeader() {
-            if (logo) doc.addImage(logo, "PNG", left, 14, 24, 24);
+            if (logo) doc.addImage(logo, "PNG", left, 10, 36, 19);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(14);
             doc.text("FATURA / PEDIDO", right, 18, { align: "right" });
@@ -227,17 +227,17 @@
             doc.text("N.º " + order.id_pedido, right, 24, { align: "right" });
             doc.text(dateText, right, 30, { align: "right" });
             doc.setDrawColor(215, 215, 215);
-            doc.line(left, 37, right, 37);
+            doc.line(left, 43, right, 43);
         }
 
         function drawParty(heading, lines, x, width) {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(9);
             doc.setTextColor(35, 35, 35);
-            doc.text(heading.toUpperCase(), x, 47);
+            doc.text(heading.toUpperCase(), x, 52);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(8);
-            let lineY = 53;
+            let lineY = 58;
             lines.forEach(function(line) {
                 const wrapped = doc.splitTextToSize(line, width);
                 doc.text(wrapped, x, lineY);

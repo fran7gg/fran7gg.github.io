@@ -7,10 +7,10 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "./fran7-icon-512.png",
+      "src": "./fran7-icon-512.png?v=20261111-1",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
