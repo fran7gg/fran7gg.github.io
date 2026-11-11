@@ -17,7 +17,6 @@ html body #loading-screen .loading-logo {
   max-width: 62vw;
   height: auto;
   margin: 0 auto;
-  transform: translateY(-2vh);
 }
 
 /* Aplica o brilho apenas onde o logo tem preenchimento/traço branco */
