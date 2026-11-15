@@ -58,7 +58,13 @@
     }
 
     function chaveItem(item) {
-        return [item.productId || item.nome, item.cor, item.tamanho].join("|");
+        const posicaoLogo = String(item.posicaoLogo || "").trim();
+        return JSON.stringify([
+            item.productId || item.nome,
+            item.cor,
+            item.tamanho,
+            posicaoLogo
+        ]);
     }
 
     function carregarCarrinho() {
@@ -94,6 +100,9 @@
                     tamanho: tamanhoAutomatico(item.nome)
                         ? "X"
                         : (typeof item.tamanho === "string" ? item.tamanho : ""),
+                    posicaoLogo: typeof item.posicaoLogo === "string"
+                        ? item.posicaoLogo.trim().slice(0, 200)
+                        : "",
                     variantes: Array.isArray(item.variantes)
                         ? item.variantes.filter(function(variant) {
                             return variant && typeof variant.cor === "string" &&
@@ -423,6 +432,12 @@
 
                 const options = document.createElement("div");
                 options.className = "fran7-cart-item-options";
+                if (item.posicaoLogo) {
+                    const logoNote = document.createElement("p");
+                    logoNote.className = "fran7-cart-item-color";
+                    logoNote.textContent = "Preferência para o logo: " + item.posicaoLogo;
+                    options.appendChild(logoNote);
+                }
                 if (Array.isArray(item.variantes) && item.variantes.length) {
                     const colors = Array.from(new Map(item.variantes.map(function(variant) {
                         return [normalizarCor(variant.cor), variant.cor];
@@ -629,14 +644,17 @@
             ? "X"
             : String(item.tamanho || "").trim();
         const variantes = Array.isArray(item.variantes) ? item.variantes : [];
+        const posicaoLogo = String(item.posicaoLogo || "").trim().slice(0, 200);
         const existing = items.find(function(current) {
             return (current.productId || current.nome) === (productId || nome) &&
                 current.cor === cor &&
-                current.tamanho === tamanho;
+                current.tamanho === tamanho &&
+                String(current.posicaoLogo || "").trim() === posicaoLogo;
         });
 
         if (existing) {
             existing.quantidade += 1;
+            existing.posicaoLogo = posicaoLogo;
             if (variantes.length) {
                 existing.preco = preco;
                 existing.imagem = imagem;
@@ -654,6 +672,7 @@
                 quantidade: 1,
                 cor: cor,
                 tamanho: tamanho,
+                posicaoLogo: posicaoLogo,
                 variantes: variantes
             });
         }

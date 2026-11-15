@@ -91,8 +91,37 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform .7s cubic-bezier(.2, .75, .25, 1);
+}
+
+.fran7-product-logo-field {
+    display: grid;
+    gap: 6px;
+}
+
+.fran7-product-logo-label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fran7-product-logo-label span {
+    font-weight: 400;
+    opacity: .65;
+}
+
+.fran7-product-logo-input {
+    width: 100%;
+    min-height: 72px;
+    padding: 10px 12px;
+    border: 1px solid color-mix(in srgb, CanvasText 25%, transparent);
+    border-radius: 0;
+    background: Canvas;
+    color: CanvasText;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.45;
+    resize: vertical;
 }
 
 .fran7-product-image-stage:hover .fran7-product-main-image {

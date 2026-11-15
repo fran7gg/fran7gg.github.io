@@ -74,6 +74,9 @@
                 imagem: absoluteUrl(item.imagem),
                 cor: String(item.cor || "").trim(),
                 tamanho: String(item.tamanho || "").trim(),
+                posicao_logo: typeof item.posicaoLogo === "string"
+                    ? item.posicaoLogo.trim().slice(0, 200)
+                    : "",
                 quantidade: quantity,
                 preco_unitario: unitPrice,
                 total_item: unitPrice === null ? null : unitPrice * quantity
@@ -281,7 +284,10 @@
         let y = drawTableHeader(Math.max(senderY, recipientY) + 5);
         doc.setFontSize(7.8);
         order.produtos.forEach(function(item) {
-            const product = doc.splitTextToSize(item.nome, 49);
+            const productName = item.posicao_logo
+                ? item.nome + "\nPreferência para o logo: " + item.posicao_logo
+                : item.nome;
+            const product = doc.splitTextToSize(productName, 49);
             const size = doc.splitTextToSize(item.tamanho || "-", 19);
             const color = doc.splitTextToSize(item.cor || "-", 20);
             const rowHeight = Math.max(11, Math.max(product.length, size.length, color.length) * 4 + 4);
@@ -356,6 +362,9 @@
                 .filter(Boolean).join(", ");
             lines.push("- " + item.nome + " x" + item.quantidade +
                 (variant ? " (" + variant + ")" : "") +
+                (item.posicao_logo
+                    ? " | preferência para o logo: " + item.posicao_logo
+                    : "") +
                 " | unitário: " + formatAmount(item.preco_unitario) +
                 " | total: " + formatAmount(item.total_item));
         });
@@ -443,7 +452,7 @@
             const columns = [
                 "id_pedido", "data_hora", "nome_cliente", "email_cliente", "telefone_cliente",
                 "cidade", "bairro_localizacao", "comentario", "nome_produto", "imagem",
-                "tamanho", "cor", "quantidade", "preco_unitario", "total_item",
+                "tamanho", "cor", "posicao_logo", "quantidade", "preco_unitario", "total_item",
                 "valor_subtotal", "frete_gratis", "valor_total", "moeda", "estado"
             ];
             const rows = [columns.join(",")];
@@ -453,6 +462,7 @@
                         order.id_pedido, order.data_hora, order.nome_cliente, order.email_cliente,
                         order.telefone_cliente, order.cidade, order.bairro_localizacao,
                         order.comentario, item.nome, item.imagem, item.tamanho, item.cor,
+                        item.posicao_logo || "",
                         item.quantidade, item.preco_unitario, item.total_item,
                         order.valor_subtotal, order.frete_gratis,
                         order.valor_total, order.moeda, order.estado

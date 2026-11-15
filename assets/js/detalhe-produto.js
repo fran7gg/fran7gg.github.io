@@ -18,6 +18,18 @@
                     <p class="fran7-product-availability">Disponibilidade a confirmar</p>
                     <h2 class="fran7-product-name" id="fran7ProductName"></h2>
                     <div class="fran7-product-rating"></div>
+                    <div class="fran7-product-logo-field">
+                        <label class="fran7-product-logo-label" for="fran7ProductLogoPosition">
+                            Onde gostarias que ficasse o logo? <span>(opcional)</span>
+                        </label>
+                        <textarea
+                            class="fran7-product-logo-input"
+                            id="fran7ProductLogoPosition"
+                            rows="2"
+                            maxlength="200"
+                            placeholder="Ex.: pequeno no lado esquerdo do peito"
+                        ></textarea>
+                    </div>
                     <p class="fran7-product-color" hidden></p>
                     <div class="fran7-product-color-options" role="group" aria-label="Escolher cor"></div>
                     <details class="fran7-product-more">
@@ -41,6 +53,7 @@
     const colorLabel = overlay.querySelector(".fran7-product-color");
     const colorOptions = overlay.querySelector(".fran7-product-color-options");
     const availability = overlay.querySelector(".fran7-product-availability");
+    const logoPositionInput = overlay.querySelector(".fran7-product-logo-input");
     let currentProduct = null;
     let selectedImage = "";
     let selectedColor = "";
@@ -510,6 +523,7 @@
         }
         addButton.textContent = "ESCOLHER OPÇÕES";
         selectedColor = currentProduct.variantColor;
+        logoPositionInput.value = "";
         colorLabel.textContent = [
             selectedColor && "Cor: " + selectedColor,
             currentProduct.variantSize && "Tamanho: " + currentProduct.variantSize
@@ -614,7 +628,8 @@
             preco: price,
             cor: selectedColor,
             tamanho: "",
-            variantes: colorVariants
+            variantes: colorVariants,
+            posicaoLogo: logoPositionInput.value.trim()
         };
         closeProduct();
         if (window.Fran7Cart && typeof window.Fran7Cart.add === "function") {
@@ -631,7 +646,8 @@
                 item.tamanho,
                 colorVariants,
                 currentProduct.id,
-                item.imagemBase
+                item.imagemBase,
+                item.posicaoLogo
             );
         }
     });
